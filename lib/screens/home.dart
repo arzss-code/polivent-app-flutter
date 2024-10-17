@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
           //! membuat EXPLORE tidak memiliki appbar
           if (_currentIndex != 0)
             SliverAppBar(
+              floating: true,
               title: Text(
                 _getTitle(_currentIndex),
                 style: const TextStyle(
@@ -50,10 +51,12 @@ class _HomeState extends State<Home> {
               ),
               automaticallyImplyLeading: false,
               backgroundColor: UIColor.solidWhite,
+              foregroundColor: UIColor.solidWhite,
               centerTitle: true,
               pinned: true, // This will keep the AppBar fixed
             ),
           SliverFillRemaining(
+            // hasScrollBody: false,
             child: _widgetOptions.elementAt(_currentIndex),
           ),
         ],
@@ -73,7 +76,7 @@ class _HomeState extends State<Home> {
       case 2:
         return "Ticket";
       case 3:
-        return "Profile";
+        return "My Profile";
       default:
         return "";
     }

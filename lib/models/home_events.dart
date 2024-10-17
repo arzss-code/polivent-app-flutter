@@ -60,8 +60,10 @@ class _HomeEventsState extends State<HomeEvents> {
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               child: Image.network(
                 event.posterUrl,
-                height: 120,
-                width: 90,
+                height: (MediaQuery.of(context).size.width / 3),
+                width: (MediaQuery.of(context).size.width / 4),
+                // height: 120,
+                // width: 90,
                 fit: BoxFit.cover,
               ),
             ),

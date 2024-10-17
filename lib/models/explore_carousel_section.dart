@@ -103,6 +103,21 @@ class _CarouselEventsState extends State<CarouselSection> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
                                       children: [
+                                        Text(
+                                          "${_eventsCarousel[index].category} : ${_eventsCarousel[index].tittle}",
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: UIColor.solidWhite,
+                                          ),
+                                          textAlign: TextAlign.left,
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
                                         Icon(
                                           color: UIColor.solidWhite,
                                           UIconsPro.regularRounded.user,
@@ -214,6 +229,7 @@ class _CarouselEventsState extends State<CarouselSection> {
 
 class CarouselEventsModel {
   String tittle;
+  String category;
   String quota;
   String posterUrl;
   String place;
@@ -223,6 +239,7 @@ class CarouselEventsModel {
 
   CarouselEventsModel({
     required this.tittle,
+    required this.category,
     required this.quota,
     required this.posterUrl,
     required this.place,
@@ -238,6 +255,7 @@ List<CarouselEventsModel> getEventsCarousel() {
 
   events.add(CarouselEventsModel(
     tittle: 'Seminar Nasional Techcomfest',
+    category: 'Seminar',
     quota: '200',
     posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
     place: "GKT Lt. 2",
@@ -247,6 +265,7 @@ List<CarouselEventsModel> getEventsCarousel() {
   ));
   events.add(CarouselEventsModel(
     tittle: 'Seminar Nasional Techcomfest',
+    category: 'Seminar',
     quota: '120',
     posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
     place: "GKT Lt. 2",
@@ -256,6 +275,7 @@ List<CarouselEventsModel> getEventsCarousel() {
   ));
   events.add(CarouselEventsModel(
     tittle: 'Seminar Nasional Techcomfest',
+    category: 'Seminar',
     quota: '200',
     posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
     place: "GKT Lt. 2",
@@ -265,6 +285,7 @@ List<CarouselEventsModel> getEventsCarousel() {
   ));
   events.add(CarouselEventsModel(
     tittle: 'Seminar Nasional Techcomfest',
+    category: 'Seminar',
     quota: '120',
     posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
     place: "GKT Lt. 2",
