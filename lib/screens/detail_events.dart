@@ -1,45 +1,16 @@
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/models/explore_carousel_section.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
-void main() {
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent, // Make the status bar transparent
-    systemNavigationBarColor:
-        Colors.transparent, // Make the navigation bar transparent
-    // statusBarIconBrightness:
-    //     Brightness.dark, // Change icon brightness (optional)
-  ));
-  runApp(const PoliventApp());
-}
-
-// Define primary color
-const Color primaryColor = Color(0xFF1886EA);
-const Color secondaryColor = Color(0xFFFAAD14);
-
-class PoliventApp extends StatelessWidget {
-  const PoliventApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Polivent App - Detail Event',
-      theme: ThemeData(
-        fontFamily: 'Inter', // Set Inter as default font
-        primaryColor: primaryColor, // Use primaryColor globally
-      ),
-      home: const PoliventDetail(),
-      debugShowCheckedModeBanner: false, // Debug banner removed
-    );
-  }
-}
-
 class PoliventDetail extends StatefulWidget {
-  const PoliventDetail({super.key});
+  final CarouselEventsModel event;
+
+  const PoliventDetail({super.key, required this.event});
 
   @override
-  _PoliventDetailState createState() => _PoliventDetailState();
+  State<PoliventDetail> createState() => _PoliventDetailState();
 }
 
 class _PoliventDetailState extends State<PoliventDetail> {
@@ -175,7 +146,8 @@ class _PoliventDetailState extends State<PoliventDetail> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.place_outlined, color: primaryColor),
+                          const Icon(Icons.place_outlined,
+                              color: UIColor.primaryColor),
                           const SizedBox(width: 8),
                           Text(
                             location,
@@ -192,7 +164,8 @@ class _PoliventDetailState extends State<PoliventDetail> {
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.event_outlined, color: primaryColor),
+                          const Icon(Icons.event_outlined,
+                              color: UIColor.primaryColor),
                           const SizedBox(width: 8),
                           Text(
                             dateTime,
@@ -210,7 +183,7 @@ class _PoliventDetailState extends State<PoliventDetail> {
                       Row(
                         children: [
                           const Icon(Icons.confirmation_number_outlined,
-                              color: primaryColor),
+                              color: UIColor.primaryColor),
                           const SizedBox(width: 8),
                           Text(
                             '$totalTickets Ticket',
@@ -234,7 +207,7 @@ class _PoliventDetailState extends State<PoliventDetail> {
                       const Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: primaryColor,
+                            backgroundColor: UIColor.primaryColor,
                             radius: 20,
                             child: Icon(
                               Icons.person,
@@ -354,7 +327,7 @@ class _PoliventDetailState extends State<PoliventDetail> {
                         size: 18,
                       ),
                       onPressed: () {
-                        // Aksi tombol back
+                        Navigator.pop(context); // Aksi tombol back
                       },
                     ),
                   ),
@@ -413,7 +386,7 @@ class _PoliventDetailState extends State<PoliventDetail> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFFAAD14),
+                          color: UIColor.secondaryColor,
                         ),
                       ),
                       Text(
@@ -432,7 +405,7 @@ class _PoliventDetailState extends State<PoliventDetail> {
                       // Rounded rectangle background with 20% opacity
                       Container(
                         width: 200,
-                        height: 60,
+                        height: 50,
                         decoration: BoxDecoration(
                           // color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
@@ -444,9 +417,9 @@ class _PoliventDetailState extends State<PoliventDetail> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
-                              primaryColor, // Use primary blue color
+                              UIColor.primaryColor, // Use primary blue color
                           minimumSize:
-                              const Size(200, 60), // Updated button size
+                              const Size(200, 50), // Updated button size
                         ),
                         child: const Text(
                           'Join',

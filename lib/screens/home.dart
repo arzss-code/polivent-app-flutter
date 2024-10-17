@@ -2,6 +2,7 @@ import 'package:polivent_app/models/bottom_navbar.dart';
 import 'package:polivent_app/models/home_ticket.dart';
 import 'package:polivent_app/models/home_events.dart';
 import 'package:polivent_app/models/home_explore.dart';
+import 'package:polivent_app/models/profile.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -18,12 +19,7 @@ class _HomeState extends State<Home> {
     const HomeExplore(),
     const HomeEvents(),
     const HomeTicket(),
-    Scaffold(
-      body: Container(), // Add your accounts screen widget here
-    ),
-    Scaffold(
-      body: Container(), // Add your profile screen widget here
-    ),
+    const HomeProfile(),
   ];
 
   void _onItemTapped(int index) {
