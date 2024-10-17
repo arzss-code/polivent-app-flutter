@@ -50,8 +50,8 @@ To run the app locally, follow these steps:
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/your-repository/polivent-app.git
-   cd polivent-app
+   git clone https://github.com/arzss-code/polivent-app-flutter.git
+   cd polivent-app-flutter
    ```
 
 2. **Install dependencies**:
