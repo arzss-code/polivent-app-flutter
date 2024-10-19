@@ -2,7 +2,6 @@ import 'package:polivent_app/models/explore_more_events.dart';
 import 'package:polivent_app/models/explore_quick_category_section.dart';
 import 'package:polivent_app/models/explore_carousel_section.dart';
 import 'package:polivent_app/models/search_events.dart';
-// import 'package:event_proposal_app/models/ui_colors.dart';
 // import 'package:flutter/services.dart';
 
 // import 'package:uicons_pro/uicons_pro.dart';
@@ -16,6 +15,9 @@ class HomeExplore extends StatefulWidget {
 }
 
 class _HomeExploreState extends State<HomeExplore> {
+  final GlobalKey<SearchEventsWidgetState> _searchKey =
+      GlobalKey<SearchEventsWidgetState>();
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -39,11 +41,11 @@ class _HomeExploreState extends State<HomeExplore> {
                 bottomRight: Radius.circular(14),
               ),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 4),
+                const Text(
                   'Hi, Atsiila Arya 👋',
                   style: TextStyle(
                     fontSize: 24,
@@ -52,8 +54,8 @@ class _HomeExploreState extends State<HomeExplore> {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
+                const SizedBox(height: 4),
+                const Text(
                   "Let's explore the events!",
                   style: TextStyle(
                     fontSize: 14,
@@ -62,9 +64,10 @@ class _HomeExploreState extends State<HomeExplore> {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 64),
-                SearchEventsWidget(), //! memanggil model => search
-                SizedBox(height: 4),
+                const SizedBox(height: 63),
+                SearchEventsWidget(
+                    key: _searchKey), //! memanggil model => search
+                const SizedBox(height: 4),
               ],
             ),
           ),

@@ -33,7 +33,7 @@ class _EventListWidgetState extends State<EventList> {
             textAlign: TextAlign.right,
             style: TextStyle(
                 color: UIColor.typoBlack,
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.w800),
           ),
         ),
@@ -46,10 +46,8 @@ class _EventListWidgetState extends State<EventList> {
             runSpacing: 10,
             children: List.generate(_eventsMore.length, (index) {
               //! COLORING STATUS BADGE
-              if (_eventsMore[index].status == "Available") {
-                statusColor = UIColor.secondaryColor;
-              } else if (_eventsMore[index].status == "Full") {
-                statusColor = UIColor.rejected;
+              if (_eventsMore[index].status == "Open") {
+                statusColor = UIColor.solidWhite;
               } else {
                 statusColor = UIColor.close;
               }
@@ -95,23 +93,23 @@ class _EventListWidgetState extends State<EventList> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // const SizedBox(height: 0),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: statusColor,
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 10),
-                            child: Text(
-                              _eventsMore[index].status,
-                              style: const TextStyle(
-                                color: UIColor.solidWhite,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
+                          // Container(
+                          //   // decoration: BoxDecoration(
+                          //   //   color: statusColor,
+                          //   //   borderRadius: BorderRadius.circular(24),
+                          //   // ),
+                          //   // padding: const EdgeInsets.symmetric(
+                          //   //     vertical: 2, horizontal: 10),
+                          //   child: Text(
+                          //     _eventsMore[index].status,
+                          //     style: const TextStyle(
+                          //       color: UIColor.solidWhite,
+                          //       fontSize: 10,
+                          //       fontWeight: FontWeight.w400,
+                          //     ),
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 4),
                           Text(
                             '${_eventsMore[index].category} : ${_eventsMore[index].tittle}',
                             style: const TextStyle(
@@ -120,19 +118,19 @@ class _EventListWidgetState extends State<EventList> {
                               color: UIColor.typoBlack,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Row(
                             children: [
                               Icon(
                                 UIconsPro.regularRounded.user_time,
                                 color: UIColor.typoGray,
-                                size: 10,
+                                size: 12,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 6),
                               Text(
                                 '${_eventsMore[index].quota} participants',
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w400,
                                   color: UIColor.typoBlack,
                                 ),
@@ -145,13 +143,13 @@ class _EventListWidgetState extends State<EventList> {
                               Icon(
                                 UIconsPro.regularRounded.house_building,
                                 color: UIColor.typoGray,
-                                size: 10,
+                                size: 12,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 6),
                               Text(
                                 _eventsMore[index].place,
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w400,
                                   color: UIColor.typoBlack,
                                 ),
@@ -159,37 +157,37 @@ class _EventListWidgetState extends State<EventList> {
                             ],
                           ),
                           // const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(
-                                UIconsPro.regularRounded.marker,
-                                color: UIColor.typoGray,
-                                size: 10,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _eventsMore[index].location,
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w400,
-                                  color: UIColor.typoBlack,
-                                ),
-                              )
-                            ],
-                          ),
+                          // Row(
+                          //   children: [
+                          //     Icon(
+                          //       UIconsPro.regularRounded.marker,
+                          //       color: UIColor.typoGray,
+                          //       size: 12,
+                          //     ),
+                          //     const SizedBox(width: 4),
+                          //     Text(
+                          //       _eventsMore[index].location,
+                          //       style: const TextStyle(
+                          //         fontSize: 12,
+                          //         fontWeight: FontWeight.w400,
+                          //         color: UIColor.typoBlack,
+                          //       ),
+                          //     )
+                          //   ],
+                          // ),
                           // const SizedBox(height: 4),
                           Row(
                             children: [
                               Icon(
                                 UIconsPro.regularRounded.calendar,
                                 color: UIColor.typoGray,
-                                size: 10,
+                                size: 12,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 6),
                               Text(
                                 _eventsMore[index].dateStart,
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w400,
                                   color: UIColor.typoBlack,
                                 ),
@@ -199,7 +197,7 @@ class _EventListWidgetState extends State<EventList> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 14),
                   ],
                 ),
               );
@@ -207,7 +205,7 @@ class _EventListWidgetState extends State<EventList> {
           ),
         ),
         const SizedBox(
-          height: 14,
+          height: 12,
         ),
       ],
     );
@@ -241,14 +239,14 @@ List<EventsMore> getEventsMore() {
   List<EventsMore> events = [];
 
   events.add(EventsMore(
-    tittle: 'Seminar Nasional Techcomfest',
+    tittle: 'Techcomfest',
     category: 'Seminar',
     quota: '200',
     posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
     place: "GKT Lt. 2",
     location: "Semarang, Indonesia",
     dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
+    status: "Open",
   ));
   events.add(EventsMore(
     tittle: 'AI For Technology ',

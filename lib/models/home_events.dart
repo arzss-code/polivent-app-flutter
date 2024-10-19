@@ -1,5 +1,6 @@
 import 'package:polivent_app/models/search_events.dart';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/screens/detail_events.dart';
 import 'package:intl/intl.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:flutter/material.dart';
@@ -22,27 +23,44 @@ class _HomeEventsState extends State<HomeEvents> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-          child: SearchEventsWidget(),
-        ),
-        Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.zero,
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: _events.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: _buildEventCard(_events[index]),
-              );
-            },
+    return Column(children: [
+      AppBar(
+        automaticallyImplyLeading: false, // remove leading(left) back icon
+        centerTitle: true,
+        backgroundColor: UIColor.solidWhite,
+        scrolledUnderElevation: 0,
+        title: const Text(
+          "Events",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: UIColor.typoBlack,
           ),
         ),
-      ],
-    );
+      ),
+      Expanded(
+          child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: SearchEventsWidget(),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: _events.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                  child: _buildEventCard(_events[index]),
+                );
+              },
+            ),
+          ),
+        ],
+      ))
+    ]);
   }
 
   Widget _buildEventCard(Events event) {
@@ -60,10 +78,10 @@ class _HomeEventsState extends State<HomeEvents> {
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               child: Image.network(
                 event.posterUrl,
-                height: (MediaQuery.of(context).size.width / 3),
-                width: (MediaQuery.of(context).size.width / 4),
-                // height: 120,
-                // width: 90,
+                // height: (MediaQuery.of(context).size.width / 3),
+                // width: (MediaQuery.of(context).size.width / 4),
+                height: 120,
+                width: 90,
                 fit: BoxFit.cover,
               ),
             ),
@@ -84,9 +102,9 @@ class _HomeEventsState extends State<HomeEvents> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   _buildInfoRow(UIconsPro.regularRounded.user_time,
-                      '${event.quota} participants'),
+                      '${event.quota} seats'),
                   _buildInfoRow(
                       UIconsPro.regularRounded.house_building, event.place),
                   _buildInfoRow(
@@ -104,16 +122,16 @@ class _HomeEventsState extends State<HomeEvents> {
 
   Widget _buildInfoRow(IconData icon, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Icon(icon, color: UIColor.typoGray, size: 10),
-          const SizedBox(width: 4),
+          Icon(icon, color: UIColor.primaryColor, size: 12),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
               text,
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: FontWeight.w400,
                 color: UIColor.typoBlack,
               ),

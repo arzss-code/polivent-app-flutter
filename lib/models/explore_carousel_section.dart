@@ -38,7 +38,7 @@ class _CarouselEventsState extends State<CarouselSection> {
             textAlign: TextAlign.right,
             style: TextStyle(
                 color: UIColor.typoBlack,
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.w800),
           ),
         ),
@@ -55,7 +55,7 @@ class _CarouselEventsState extends State<CarouselSection> {
             ),
             itemBuilder: (context, index) {
               //! COLORING STATUS BADGE
-              if (_eventsCarousel[index].status == "Available") {
+              if (_eventsCarousel[index].status == "Join") {
                 statusColor = UIColor.secondaryColor;
               } else if (_eventsCarousel[index].status == "Full") {
                 statusColor = UIColor.rejected;
@@ -68,7 +68,7 @@ class _CarouselEventsState extends State<CarouselSection> {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            PoliventDetail(event: _eventsCarousel[index])),
+                            DetailEvents(event: _eventsCarousel[index])),
                   );
                 },
                 child: Container(
@@ -275,7 +275,7 @@ List<CarouselEventsModel> getEventsCarousel() {
     place: "GKT Lt. 2",
     location: "Semarang, Indonesia",
     dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
+    status: "Join",
   ));
   events.add(CarouselEventsModel(
     tittle: 'Seminar Nasional Techcomfest',
@@ -285,7 +285,7 @@ List<CarouselEventsModel> getEventsCarousel() {
     place: "GKT Lt. 2",
     location: "Semarang, Indonesia",
     dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
+    status: "Join",
   ));
   events.add(CarouselEventsModel(
     tittle: 'Seminar Nasional Techcomfest',
@@ -295,7 +295,7 @@ List<CarouselEventsModel> getEventsCarousel() {
     place: "GKT Lt. 2",
     location: "Semarang, Indonesia",
     dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Full",
+    status: "Joined",
   ));
   events.add(CarouselEventsModel(
     tittle: 'Seminar Nasional Techcomfest',
@@ -305,7 +305,7 @@ List<CarouselEventsModel> getEventsCarousel() {
     place: "GKT Lt. 2",
     location: "Semarang, Indonesia",
     dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Close",
+    status: "Joined",
   ));
   return events;
 }

@@ -22,39 +22,56 @@ class _HomeTicketState extends State<HomeTicket> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-          child: SearchEventsWidget(),
-        ),
-        Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.zero,
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: _events.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: _buildEventCard(_events[index]),
-              );
-            },
+    return Column(children: [
+      AppBar(
+        automaticallyImplyLeading: false, // remove leading(left) back icon
+        centerTitle: true,
+        backgroundColor: UIColor.solidWhite,
+        scrolledUnderElevation: 0,
+        title: const Text(
+          "Ticket",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: UIColor.typoBlack,
           ),
         ),
-      ],
-    );
+      ),
+      Expanded(
+          child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: SearchEventsWidget(),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: _events.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                  child: _buildEventCard(_events[index]),
+                );
+              },
+            ),
+          ),
+        ],
+      ))
+    ]);
   }
 
   Widget _buildEventCard(Events event) {
-    Color statusColor;
-    //! COLORING STATUS BADGE
-    if (event.status == "Available") {
-      statusColor = UIColor.secondaryColor;
-    } else if (event.status == "Full") {
-      statusColor = UIColor.rejected;
-    } else {
-      statusColor = UIColor.close;
-    }
+    // Color statusColor;
+    // //! COLORING STATUS BADGE
+    // if (event.status == "Available") {
+    //   statusColor = UIColor.secondaryColor;
+    // } else if (event.status == "Full") {
+    //   statusColor = UIColor.rejected;
+    // } else {
+    //   statusColor = UIColor.close;
+    // }
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -69,10 +86,10 @@ class _HomeTicketState extends State<HomeTicket> {
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               child: Image.network(
                 event.posterUrl,
-                height: (MediaQuery.of(context).size.width / 3),
-                width: (MediaQuery.of(context).size.width / 4),
-                // height: 120,
-                // width: 90,
+                // height: (MediaQuery.of(context).size.width / 3),
+                // width: (MediaQuery.of(context).size.width / 4),
+                height: 120,
+                width: 90,
                 fit: BoxFit.cover,
               ),
             ),
@@ -83,6 +100,25 @@ class _HomeTicketState extends State<HomeTicket> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // const SizedBox(height: 8),
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //     color: statusColor,
+                  //     borderRadius: BorderRadius.circular(4),
+                  //   ),
+                  //   padding:
+                  //       const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                  //   child: Text(
+                  //     event.status,
+                  //     style: const TextStyle(
+                  //       color: UIColor.solidWhite,
+                  //       fontSize: 10,
+                  //       fontWeight: FontWeight.w400,
+                  //     ),
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
                     '${event.category}: ${event.tittle}',
                     style: const TextStyle(
@@ -94,23 +130,7 @@ class _HomeTicketState extends State<HomeTicket> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: statusColor,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-                    child: Text(
-                      event.status,
-                      style: const TextStyle(
-                        color: UIColor.solidWhite,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+
                   _buildInfoRow(UIconsPro.regularRounded.user_time,
                       '${event.quota} participants'),
                   _buildInfoRow(
@@ -131,16 +151,16 @@ class _HomeTicketState extends State<HomeTicket> {
 
   Widget _buildInfoRow(IconData icon, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Icon(icon, color: UIColor.typoGray, size: 10),
-          const SizedBox(width: 4),
+          Icon(icon, color: UIColor.primaryColor, size: 12),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
               text,
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: FontWeight.w400,
                 color: UIColor.typoBlack,
               ),

@@ -4,16 +4,16 @@ import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/explore_carousel_section.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
-class PoliventDetail extends StatefulWidget {
+class DetailEvents extends StatefulWidget {
   final CarouselEventsModel event;
 
-  const PoliventDetail({super.key, required this.event});
+  const DetailEvents({super.key, required this.event});
 
   @override
-  State<PoliventDetail> createState() => _PoliventDetailState();
+  State<DetailEvents> createState() => _DetailEventsState();
 }
 
-class _PoliventDetailState extends State<PoliventDetail> {
+class _DetailEventsState extends State<DetailEvents> {
   final String eventTitle = 'Seminar : Techcomfest';
   final String location = 'Gedung Kuliah Terpadu Lantai 2';
   final String dateTime = '12 Januari 2024 - 10:00 PM';

@@ -41,6 +41,7 @@ dependencies:
   intl: ^0.19.0
   shared_preferences: ^2.3.2
   uicons_pro: ^1.1.0
+  # qr_code_scanner: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -89,6 +90,6 @@ flutter:
           style: italic
 
 flutter_icons:
-  image_path: "assets/images/logo-polivent.png"
+  image_path: "assets/images/icon-polivent-logo.png"
   android: true
   ios: true
