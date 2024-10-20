@@ -28,6 +28,7 @@ class PoliventApp extends StatelessWidget {
       brightness: brightness,
       textTheme: (ThemeData(brightness: brightness).textTheme),
       scaffoldBackgroundColor: UIColor.white,
+      primaryColor: UIColor.primaryColor,
     );
   }
 

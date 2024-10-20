@@ -58,7 +58,7 @@ class QuickCategorySection extends StatefulWidget {
 }
 
 class _QuickCategorySectionState extends State<QuickCategorySection> {
-  int _selectedIndex = -1; // To track the selected category
+  int _selectedIndex = 0; // To track the selected category
 
   @override
   Widget build(BuildContext context) {

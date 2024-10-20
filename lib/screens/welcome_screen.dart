@@ -1,7 +1,6 @@
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/login.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
 
 void initState() {}
 
@@ -26,7 +25,7 @@ class WelcomeScreen extends StatelessWidget {
                           // Gambar di bagian atas
                           Positioned.fill(
                             child: Image.asset(
-                              'assets/images/welcome-image.png', // Ganti dengan path gambar Anda
+                              'assets/images/welcome-images.png', // Ganti dengan path gambar Anda
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -35,12 +34,15 @@ class WelcomeScreen extends StatelessWidget {
                             child: Container(
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
+                                  begin: Alignment
+                                      .bottomCenter, // Gradasi dimulai dari bawah
+                                  end: Alignment.topCenter, // Menuju ke atas
                                   colors: [
-                                    Colors.transparent,
                                     const Color.fromARGB(255, 255, 255, 255)
-                                        .withOpacity(0.6),
+                                        .withOpacity(
+                                            0.6), // Warna bagian bawah (lebih transparan)
+                                    const Color.fromARGB(0, 255, 255,
+                                        255), // Transparan di bagian atas
                                   ],
                                 ),
                               ),
@@ -54,33 +56,33 @@ class WelcomeScreen extends StatelessWidget {
                       height: constraints.maxHeight * 0.40,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 22.0, vertical: 8.0),
+                            horizontal: 28, vertical: 8),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             // Keterangan aplikasi
                             const Text(
-                              "Welcome to Polivent",
+                              "Selamat datang di Polivent!",
                               style: TextStyle(
                                 fontSize: 24.0,
                                 fontFamily: "Inter",
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w800,
                                 color: UIColor.primary,
                               ),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 16.0),
                             const Text(
-                              "Polivent is an event app designed specifically to make it easier for you to explore and join exciting Free events around Polines.  ",
+                              "Polivent adalah aplikasi yang dirancang untuk memudahkan Anda dalam menjelajahi dan bergabung dengan Event Gratis di sekitar Polines  ",
                               style: TextStyle(
                                 fontSize: 16.0,
                                 fontFamily: "Inter",
-                                color: Colors.black54,
+                                color: UIColor.typoGray,
                                 fontWeight: FontWeight.w500,
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 20.0),
+                            const SizedBox(height: 36.0),
                             // Tombol Get Started
                             ElevatedButton(
                               onPressed: () {
@@ -94,8 +96,7 @@ class WelcomeScreen extends StatelessWidget {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 110.0, vertical: 15.0),
+                                  fixedSize: Size(350, 50),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30.0),
                                   ),

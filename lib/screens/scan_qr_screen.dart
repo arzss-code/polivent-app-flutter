@@ -20,9 +20,18 @@ class _EventQRScannerState extends State<EventQRScanner> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: const Text('Scan QR for Event Attendance'),
-        backgroundColor: UIColor.primary, // Menggunakan warna yang sesuai
+        automaticallyImplyLeading: false, // remove leading(left) back icon
+        centerTitle: true,
+        backgroundColor: UIColor.solidWhite,
+        scrolledUnderElevation: 0,
+        title: const Text(
+          "Scan QR for Attendance",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: UIColor.typoBlack,
+          ),
+        ),
       ),
       body: const Column(),
     );

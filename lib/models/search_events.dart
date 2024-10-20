@@ -1,7 +1,7 @@
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:flutter/material.dart';
-import 'package:polivent_app/screens/searchResult_eventScreen.dart';
+import 'package:polivent_app/screens/search_event_result.dart';
 
 class SearchEventsWidget extends StatefulWidget {
   const SearchEventsWidget({super.key});

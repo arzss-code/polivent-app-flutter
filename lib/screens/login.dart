@@ -149,22 +149,13 @@ class LoginScreenState extends State<LoginScreen> {
                     width: 150,
                     height: 150,
                   ),
-                  // const SizedBox(height: 2),
-                  // const Text(
-                  //   "POLIVENT",
-                  //   style: TextStyle(
-                  //     fontSize: 24,
-                  //     fontWeight: FontWeight.w800,
-                  //     color: Color(0xff282A74),
-                  //   ),
-                  // ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 36),
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Sign in",
                       style: TextStyle(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                         color: UIColor.typoBlack,
                         fontSize: 24,
                       ),
@@ -229,7 +220,9 @@ class LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Checkbox(value: rememberMe, onChanged: (value) {}),
                       const Text("Remember Me"),
+                      // Checkbox(value: rememberMe, onChanged: (value) {}),
                       Switch(
                         value: rememberMe,
                         onChanged: (value) {
@@ -277,7 +270,7 @@ class LoginScreenState extends State<LoginScreen> {
                     },
                     // _login, //! Untuk membuat  fungsi login email& password
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 13.0),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
@@ -288,7 +281,7 @@ class LoginScreenState extends State<LoginScreen> {
                       child: const Text(
                         "Sign in",
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 18.0, color: Colors.white),
+                        style: TextStyle(fontSize: 16.0, color: Colors.white),
                       ),
                     ),
                   ),
