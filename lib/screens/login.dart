@@ -19,6 +19,7 @@ class LoginScreenState extends State<LoginScreen> {
   bool rememberMe = false;
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
+  bool securePassword = true;
 
   @override
   void initState() {
@@ -71,7 +72,7 @@ class LoginScreenState extends State<LoginScreen> {
 
     try {
       const url =
-          'http://10.0.2.2:80/api_03/routes/authRoutes.php'; // Ubah URL dengan yang sesuai
+          'http://10.0.2.2:80/api-03/routes/authRoutes.php/login'; // Ubah URL dengan yang sesuai
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
@@ -132,6 +133,12 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  showhide() {
+    setState(() {
+      securePassword = !securePassword;
+    });
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
@@ -192,7 +199,7 @@ class LoginScreenState extends State<LoginScreen> {
                   TextField(
                     controller: _passwordController,
                     focusNode: passwordFocusNode,
-                    obscureText: true,
+                    obscureText: securePassword,
                     cursorColor: UIColor.primary,
                     decoration: InputDecoration(
                       filled: true,
@@ -214,6 +221,16 @@ class LoginScreenState extends State<LoginScreen> {
                             ? UIColor.primary
                             : UIColor.typoGray,
                       ),
+                      suffixIcon: IconButton(
+                          color: passwordFocusNode.hasFocus
+                              ? UIColor.primary
+                              : UIColor.typoGray,
+                          onPressed: () {
+                            showhide();
+                          },
+                          icon: Icon(securePassword
+                              ? UIconsPro.solidRounded.eye_crossed
+                              : UIconsPro.solidRounded.eye)),
                     ),
                   ),
                   const SizedBox(height: 8.0),

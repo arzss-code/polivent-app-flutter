@@ -118,7 +118,7 @@ class _CarouselEventsState extends State<CarouselSection> {
                                           Text(
                                             "${_eventsCarousel[index].category} : ${_eventsCarousel[index].tittle}",
                                             style: const TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                               color: UIColor.solidWhite,
                                             ),
@@ -168,24 +168,24 @@ class _CarouselEventsState extends State<CarouselSection> {
                                               ))
                                         ],
                                       ),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            color: UIColor.solidWhite,
-                                            UIconsPro.regularRounded.marker,
-                                            size: 12,
-                                          ),
-                                          const SizedBox(
-                                            width: 8,
-                                          ),
-                                          Text(_eventsCarousel[index].location,
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w400,
-                                                color: UIColor.solidWhite,
-                                              ))
-                                        ],
-                                      ),
+                                      // Row(
+                                      //   children: [
+                                      //     Icon(
+                                      //       color: UIColor.solidWhite,
+                                      //       UIconsPro.regularRounded.marker,
+                                      //       size: 12,
+                                      //     ),
+                                      //     const SizedBox(
+                                      //       width: 8,
+                                      //     ),
+                                      //     Text(_eventsCarousel[index].location,
+                                      //         style: const TextStyle(
+                                      //           fontSize: 12,
+                                      //           fontWeight: FontWeight.w400,
+                                      //           color: UIColor.solidWhite,
+                                      //         ))
+                                      //   ],
+                                      // ),
                                       Row(
                                         children: [
                                           Icon(
@@ -268,7 +268,7 @@ List<CarouselEventsModel> getEventsCarousel() {
   List<CarouselEventsModel> events = [];
 
   events.add(CarouselEventsModel(
-    tittle: 'Seminar Nasional Techcomfest',
+    tittle: 'Techcomfest',
     category: 'Seminar',
     quota: '200',
     posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
@@ -278,7 +278,7 @@ List<CarouselEventsModel> getEventsCarousel() {
     status: "Join",
   ));
   events.add(CarouselEventsModel(
-    tittle: 'Seminar Nasional Techcomfest',
+    tittle: 'Techcomfest',
     category: 'Seminar',
     quota: '120',
     posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
@@ -288,7 +288,7 @@ List<CarouselEventsModel> getEventsCarousel() {
     status: "Join",
   ));
   events.add(CarouselEventsModel(
-    tittle: 'Seminar Nasional Techcomfest',
+    tittle: 'Techcomfest',
     category: 'Seminar',
     quota: '200',
     posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
@@ -298,7 +298,7 @@ List<CarouselEventsModel> getEventsCarousel() {
     status: "Joined",
   ));
   events.add(CarouselEventsModel(
-    tittle: 'Seminar Nasional Techcomfest',
+    tittle: 'Techcomfest',
     category: 'Seminar',
     quota: '120',
     posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
