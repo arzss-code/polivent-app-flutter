@@ -45,8 +45,8 @@ class _HomeTicketState extends State<HomeTicket> {
             ),
           ),
           bottom: const TabBar(
-            labelColor: UIColor.typoBlack,
-            unselectedLabelColor: Colors.grey,
+            labelColor: UIColor.primaryColor,
+            unselectedLabelColor: UIColor.typoBlack,
             indicatorColor: UIColor.primaryColor,
             tabs: [
               Tab(
@@ -55,7 +55,6 @@ class _HomeTicketState extends State<HomeTicket> {
                   style: TextStyle(
                     fontSize: 16, // Ukuran teks
                     fontWeight: FontWeight.w500, // Berat huruf
-                    color: Colors.black, // Warna teks ketika aktif
                   ),
                 ),
               ),
@@ -65,7 +64,6 @@ class _HomeTicketState extends State<HomeTicket> {
                   style: TextStyle(
                     fontSize: 16, // Ukuran teks
                     fontWeight: FontWeight.w500, // Berat huruf
-                    color: Colors.black, // Warna teks ketika aktif
                   ),
                 ),
               ),
@@ -109,7 +107,8 @@ class _HomeTicketState extends State<HomeTicket> {
   Widget _buildEventCard(Events event) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border(left: BorderSide(color: UIColor.primaryColor, width: 5)),
         color: UIColor.solidWhite,
       ),
       child: Row(
@@ -118,7 +117,7 @@ class _HomeTicketState extends State<HomeTicket> {
           Padding(
             padding: const EdgeInsets.all(12),
             child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
               child: Image.network(
                 event.posterUrl,
                 height: 120,

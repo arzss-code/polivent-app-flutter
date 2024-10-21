@@ -36,7 +36,10 @@ class _HomeProfile extends State<HomeProfile> {
         actions: [
           IconButton(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            icon: const Icon(Icons.settings),
+            icon: Icon(
+              UIconsPro.regularRounded.settings,
+              size: 20,
+            ),
             onPressed: () {},
           ),
         ],
