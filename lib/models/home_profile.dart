@@ -119,7 +119,7 @@ class _HomeProfile extends State<HomeProfile> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Wrap(
+                    const Wrap(
                       spacing: 8.0,
                       runSpacing: 4.0,
                       children: [

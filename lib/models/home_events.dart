@@ -1,6 +1,5 @@
 import 'package:polivent_app/models/search_events.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/screens/detail_events.dart';
 import 'package:intl/intl.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:flutter/material.dart';

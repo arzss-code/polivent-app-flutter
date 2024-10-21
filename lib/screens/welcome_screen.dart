@@ -96,7 +96,7 @@ class WelcomeScreen extends StatelessWidget {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                  fixedSize: Size(350, 50),
+                                  fixedSize: const Size(350, 50),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30.0),
                                   ),

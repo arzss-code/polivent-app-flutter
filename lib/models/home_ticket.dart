@@ -1,8 +1,7 @@
-import 'package:polivent_app/models/search_events.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uicons_pro/uicons_pro.dart';
-import 'package:flutter/material.dart';
+import 'package:polivent_app/models/ui_colors.dart';
 
 class HomeTicket extends StatefulWidget {
   const HomeTicket({super.key});
@@ -13,65 +12,101 @@ class HomeTicket extends StatefulWidget {
 
 class _HomeTicketState extends State<HomeTicket> {
   late List<Events> _events;
+  late List<Events> _upcomingEvents;
+  late List<Events> _completedEvents;
 
   @override
   void initState() {
     super.initState();
-    _events = getEvents();
+    _events = getEvents(); // Ambil semua event
+    // Filter acara berdasarkan statusnya (Upcoming & Completed)
+    _upcomingEvents =
+        _events.where((event) => event.status == "Available").toList();
+    _completedEvents =
+        _events.where((event) => event.status != "Available").toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      AppBar(
-        automaticallyImplyLeading: false, // remove leading(left) back icon
-        centerTitle: true,
-        backgroundColor: UIColor.solidWhite,
-        scrolledUnderElevation: 0,
-        title: const Text(
-          "Ticket",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: UIColor.typoBlack,
-          ),
-        ),
-      ),
-      Expanded(
-          child: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-            child: SearchEventsWidget(),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: _events.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                  child: _buildEventCard(_events[index]),
-                );
-              },
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false, // Remove back button
+          centerTitle: true,
+          backgroundColor: UIColor.solidWhite,
+          scrolledUnderElevation: 0,
+          title: const Text(
+            "Ticket",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: UIColor.typoBlack,
             ),
           ),
-        ],
-      ))
-    ]);
+          bottom: const TabBar(
+            labelColor: UIColor.typoBlack,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: UIColor.primaryColor,
+            tabs: [
+              Tab(
+                child: Text(
+                  "Upcoming",
+                  style: TextStyle(
+                    fontSize: 16, // Ukuran teks
+                    fontWeight: FontWeight.w500, // Berat huruf
+                    color: Colors.black, // Warna teks ketika aktif
+                  ),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  "Completed",
+                  style: TextStyle(
+                    fontSize: 16, // Ukuran teks
+                    fontWeight: FontWeight.w500, // Berat huruf
+                    color: Colors.black, // Warna teks ketika aktif
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _buildEventList(_upcomingEvents), // Tab Upcoming Events
+            _buildEventList(_completedEvents), // Tab Completed Events
+          ],
+        ),
+      ),
+    );
   }
 
+  // Method untuk menampilkan list event
+  Widget _buildEventList(List<Events> events) {
+    if (events.isEmpty) {
+      return const Center(
+        child: Text(
+          "No events available",
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 20, bottom: 20),
+      itemCount: events.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          child: _buildEventCard(events[index]),
+        );
+      },
+    );
+  }
+
+  // Method untuk membuat kartu event
   Widget _buildEventCard(Events event) {
-    // Color statusColor;
-    // //! COLORING STATUS BADGE
-    // if (event.status == "Available") {
-    //   statusColor = UIColor.secondaryColor;
-    // } else if (event.status == "Full") {
-    //   statusColor = UIColor.rejected;
-    // } else {
-    //   statusColor = UIColor.close;
-    // }
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -86,8 +121,6 @@ class _HomeTicketState extends State<HomeTicket> {
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               child: Image.network(
                 event.posterUrl,
-                // height: (MediaQuery.of(context).size.width / 3),
-                // width: (MediaQuery.of(context).size.width / 4),
                 height: 120,
                 width: 90,
                 fit: BoxFit.cover,
@@ -100,24 +133,6 @@ class _HomeTicketState extends State<HomeTicket> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // const SizedBox(height: 8),
-                  // Container(
-                  //   decoration: BoxDecoration(
-                  //     color: statusColor,
-                  //     borderRadius: BorderRadius.circular(4),
-                  //   ),
-                  //   padding:
-                  //       const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                  //   child: Text(
-                  //     event.status,
-                  //     style: const TextStyle(
-                  //       color: UIColor.solidWhite,
-                  //       fontSize: 10,
-                  //       fontWeight: FontWeight.w400,
-                  //     ),
-                  //   ),
-                  // ),
-                  // const SizedBox(height: 8),
                   const SizedBox(height: 4),
                   Text(
                     '${event.category}: ${event.tittle}',
@@ -130,7 +145,6 @@ class _HomeTicketState extends State<HomeTicket> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-
                   _buildInfoRow(UIconsPro.regularRounded.user_time,
                       '${event.quota} participants'),
                   _buildInfoRow(
@@ -149,6 +163,7 @@ class _HomeTicketState extends State<HomeTicket> {
     );
   }
 
+  // Method untuk membuat row informasi dengan ikon
   Widget _buildInfoRow(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -330,6 +345,29 @@ List<Events> getEvents() {
     location: "Semarang, Indonesia",
     dateStart: DateFormat('E, d MMM yyy').format(now),
     status: "Close",
+  ));
+  events.add(Events(
+    tittle: 'Techcom Fest 2027',
+    category: 'Competition',
+    quota: '12',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "GKT II",
+    location: "Semarang, Indonesia",
+    dateStart: DateFormat('E, d MMM yyy').format(now),
+    status: "Available",
+  ));
+
+  // Tambahkan beberapa event yang sudah "Completed"
+  events.add(Events(
+    tittle: 'AI For Technology',
+    category: 'Seminar',
+    quota: '120',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "GKT I",
+    location: "Semarang, Indonesia",
+    dateStart: DateFormat('E, d MMM yyy')
+        .format(now.subtract(const Duration(days: 30))),
+    status: "Completed",
   ));
   return events;
 }
