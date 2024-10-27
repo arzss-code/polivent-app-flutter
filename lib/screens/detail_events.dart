@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/explore_carousel_section.dart';
+import 'package:polivent_app/screens/success_join.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
 class DetailEvents extends StatefulWidget {
@@ -413,7 +414,12 @@ class _DetailEventsState extends State<DetailEvents> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Aksi ketika tombol join diklik
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SuccessJoinPopup();
+                            },
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor:

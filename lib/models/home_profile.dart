@@ -1,6 +1,6 @@
 // import 'package:event_proposal_app/models/search_events.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:intl/intl.dart';
+import 'package:polivent_app/screens/settings.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +40,12 @@ class _HomeProfile extends State<HomeProfile> {
               UIconsPro.regularRounded.settings,
               size: 20,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
           ),
         ],
       ),

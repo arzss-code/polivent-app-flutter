@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:polivent_app/screens/select_interest.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences untuk "Remember Me"
 import 'package:uicons_pro/uicons_pro.dart';
 import 'home.dart';
@@ -72,7 +73,7 @@ class LoginScreenState extends State<LoginScreen> {
 
     try {
       const url =
-          'http://10.0.2.2:80/api-03/routes/authRoutes.php/login'; // Ubah URL dengan yang sesuai
+          'http://localhost/api-polyvent/auth'; // Ubah URL dengan yang sesuai
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
@@ -139,6 +140,7 @@ class LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
@@ -282,19 +284,23 @@ class LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const Home()),
+                        MaterialPageRoute(
+                            builder: (context) => const SelectInterestScreen()),
                       );
                     },
-                    // _login, //! Untuk membuat  fungsi login email& password
+                    // ElevatedButton(
+                    //   onPressed:
+                    //       _login, //! Untuk membuat  fungsi login email& password melalui API
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      // fixedSize: const Size(350, 50),
+                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                       backgroundColor: const Color(0xff1886EA),
                     ),
                     child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.90,
+                      width: MediaQuery.of(context).size.width * 1,
                       child: const Text(
                         "Sign in",
                         textAlign: TextAlign.center,
@@ -302,6 +308,7 @@ class LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 130),
                 ],
               ),
             ),

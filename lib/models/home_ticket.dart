@@ -105,10 +105,12 @@ class _HomeTicketState extends State<HomeTicket> {
 
   // Method untuk membuat kartu event
   Widget _buildEventCard(Events event) {
+    
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border(left: BorderSide(color: UIColor.primaryColor, width: 5)),
+        border: const Border(
+            left: BorderSide(color: UIColor.primaryColor, width: 5)),
         color: UIColor.solidWhite,
       ),
       child: Row(
