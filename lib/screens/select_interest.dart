@@ -43,6 +43,9 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
     {'icon': Icons.restaurant, 'label': 'Food'},
   ];
 
+  // Menyimpan kategori yang dipilih
+  final Set<String> selectedInterests = {};
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,13 +73,26 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                 spacing: 12.0,
                 runSpacing: 12.0,
                 children: categories.map((category) {
+                  final isSelected = selectedInterests.contains(category['label']);
                   return FilterChip(
-                    avatar: Icon(category['icon']),
+                    avatar: Icon(category['icon'], color: isSelected ? Colors.white : Colors.black),
                     label: Text(category['label']),
-                    onSelected: (bool selected) {},
+                    selected: isSelected,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        if (selected) {
+                          selectedInterests.add(category['label']);
+                        } else {
+                          selectedInterests.remove(category['label']);
+                        }
+                      });
+                    },
                     backgroundColor: Colors.grey[200],
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    selectedColor: UIColor.primaryColor, // Warna biru saat dipilih
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   );
                 }).toList(),
               ),
@@ -94,17 +110,15 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 50, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    backgroundColor:
-                        UIColor.primaryColor, // Warna biru dari palet utama
+                    backgroundColor: UIColor.primaryColor, // Warna biru dari palet utama
                   ),
                   child: const Text(
                     'Continue',
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
               ),

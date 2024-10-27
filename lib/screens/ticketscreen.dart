@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: UIColor.primaryColor,
-        scaffoldBackgroundColor: UIColor.primaryColor,
+        scaffoldBackgroundColor: UIColor.primaryColor, // Background biru untuk layar utama
         textTheme: ThemeData.light().textTheme.copyWith(
               bodyLarge: TextStyle(color: UIColor.primaryColor),
             ),
@@ -45,7 +45,7 @@ class TicketScreen extends StatelessWidget {
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: UIColor.white,
+              color: UIColor.white, // Warna kotak tiket putih
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(

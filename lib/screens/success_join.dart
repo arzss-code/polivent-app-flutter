@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ticketscreen.dart';
 
 class SuccessJoinPopup extends StatelessWidget {
   const SuccessJoinPopup({super.key});
@@ -37,7 +38,12 @@ class SuccessJoinPopup extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               // Navigate to the E-Ticket view
-              Navigator.pushNamed(context, '/e-ticket');
+              //Navigator.pushNamed(context, '/e-ticket');
+              Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const TicketScreen()),
+                      );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
