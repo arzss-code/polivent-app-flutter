@@ -105,12 +105,17 @@ class _HomeTicketState extends State<HomeTicket> {
 
   // Method untuk membuat kartu event
   Widget _buildEventCard(Events event) {
-    
+    // Tentukan warna berdasarkan status event
+    Color borderColor = event.status == "Available"
+        ? UIColor.primaryColor // Warna biru untuk "Available" (Upcoming)
+        : Colors.grey; // Warna abu-abu untuk lainnya (Completed)
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: const Border(
-            left: BorderSide(color: UIColor.primaryColor, width: 5)),
+        border: Border(
+          left: BorderSide(color: borderColor, width: 10), // Terapkan warna dinamis di sini
+        ),
         color: UIColor.solidWhite,
       ),
       child: Row(
