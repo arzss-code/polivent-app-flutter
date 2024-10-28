@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:polivent_app/screens/edit_profile.dart';
+import 'package:polivent_app/models/ui_colors.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -14,7 +15,18 @@ class SettingsScreen extends StatelessWidget {
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
-        title: const Text('Settings'),
+        automaticallyImplyLeading: false, // remove leading(left) back icon
+        centerTitle: true,
+        backgroundColor: UIColor.solidWhite,
+        scrolledUnderElevation: 0,
+        title: const Text(
+          "Settings",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: UIColor.typoBlack,
+          ),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -22,18 +34,17 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 20.0),
           _buildSectionTitle(title: 'Account Settings'),
           _buildListTile(
-            leadingIcon: Icons.person,
-            title: 'Edit Profile',
-            trailingIcon: Icons.arrow_forward_ios,
-            onTap: () {
-               Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const EditProfileScreen(),
-                ),
-               );
-            }
-          ),
+              leadingIcon: Icons.person,
+              title: 'Edit Profile',
+              trailingIcon: Icons.arrow_forward_ios,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditProfileScreen(),
+                  ),
+                );
+              }),
           const SizedBox(height: 20.0),
           _buildSectionTitle(title: 'Preferences'),
           _buildListTile(

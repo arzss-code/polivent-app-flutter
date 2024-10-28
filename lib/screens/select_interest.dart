@@ -73,9 +73,11 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                 spacing: 12.0,
                 runSpacing: 12.0,
                 children: categories.map((category) {
-                  final isSelected = selectedInterests.contains(category['label']);
+                  final isSelected =
+                      selectedInterests.contains(category['label']);
                   return FilterChip(
-                    avatar: Icon(category['icon'], color: isSelected ? Colors.white : Colors.black),
+                    avatar: Icon(category['icon'],
+                        color: isSelected ? Colors.white : Colors.black),
                     label: Text(category['label']),
                     selected: isSelected,
                     onSelected: (bool selected) {
@@ -88,11 +90,13 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                       });
                     },
                     backgroundColor: Colors.grey[200],
-                    selectedColor: UIColor.primaryColor, // Warna biru saat dipilih
+                    selectedColor:
+                        UIColor.primaryColor, // Warna biru saat dipilih
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.white : Colors.black,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   );
                 }).toList(),
               ),
@@ -110,11 +114,13 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    backgroundColor: UIColor.primaryColor, // Warna biru dari palet utama
+                    backgroundColor:
+                        UIColor.primaryColor, // Warna biru dari palet utama
                   ),
                   child: const Text(
                     'Continue',

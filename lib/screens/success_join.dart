@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:polivent_app/models/ui_colors.dart';
 import 'ticketscreen.dart';
 
 class SuccessJoinPopup extends StatelessWidget {
@@ -40,10 +41,9 @@ class SuccessJoinPopup extends StatelessWidget {
               // Navigate to the E-Ticket view
               //Navigator.pushNamed(context, '/e-ticket');
               Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const TicketScreen()),
-                      );
+                context,
+                MaterialPageRoute(builder: (context) => const TicketScreen()),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
@@ -53,10 +53,13 @@ class SuccessJoinPopup extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(24),
               ),
             ),
-            child: const Text('View E-Ticket'),
+            child: const Text(
+              'View E-Ticket',
+              style: TextStyle(color: UIColor.solidWhite),
+            ),
           ),
           const SizedBox(height: 16),
           TextButton(
