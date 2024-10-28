@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:polivent_app/screens/edit_profile.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -24,7 +25,14 @@ class SettingsScreen extends StatelessWidget {
             leadingIcon: Icons.person,
             title: 'Edit Profile',
             trailingIcon: Icons.arrow_forward_ios,
-            onTap: () {},
+            onTap: () {
+               Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EditProfileScreen(),
+                ),
+               );
+            }
           ),
           const SizedBox(height: 20.0),
           _buildSectionTitle(title: 'Preferences'),
