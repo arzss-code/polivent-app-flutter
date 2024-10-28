@@ -8,14 +8,17 @@ class HelpScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: const Text(
           'Help',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -102,7 +105,8 @@ class HelpItem extends StatelessWidget {
                 const Divider(
                   height: 2, // Reduced height to make divider more compact
                   thickness: 2, // Increased thickness for a more prominent line
-                  color: Colors.black26, // Slightly darker color for better visibility
+                  color: Colors
+                      .black26, // Slightly darker color for better visibility
                 ),
               ],
             ),

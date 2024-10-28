@@ -111,11 +111,20 @@ class SettingsScreen extends StatelessWidget {
     required VoidCallback onTap,
     Color? titleColor,
     Color? leadingIconColor,
+    Color? trailingIconColor,
+    Size? iconSize,
   }) {
     return ListTile(
+      // Buat background berwarna putih
+      tileColor: UIColor.solidWhite,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+
       leading: Icon(
         leadingIcon,
         color: leadingIconColor ?? Colors.grey,
+        size: iconSize?.width ?? 24.0,
       ),
       title: Text(
         title,
@@ -123,7 +132,13 @@ class SettingsScreen extends StatelessWidget {
           color: titleColor ?? Colors.black,
         ),
       ),
-      trailing: trailingIcon != null ? Icon(trailingIcon) : null,
+      trailing: trailingIcon != null
+          ? Icon(
+              trailingIcon,
+              color: trailingIconColor ?? Colors.grey,
+              size: iconSize?.width ?? 16.0,
+            )
+          : null,
       onTap: onTap,
     );
   }

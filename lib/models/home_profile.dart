@@ -106,8 +106,12 @@ class _HomeProfile extends State<HomeProfile> {
                         color: Colors.black54,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    // const SizedBox(height: 2),
                     TextButton(
+                      iconAlignment: IconAlignment.start,
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.all(0),
+                      ),
                       onPressed: () {},
                       child: const Text(
                         'Read More',
