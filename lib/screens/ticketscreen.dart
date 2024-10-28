@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 import 'package:polivent_app/models/ui_colors.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -17,7 +16,7 @@ class MyApp extends StatelessWidget {
         primaryColor: UIColor.primaryColor,
         scaffoldBackgroundColor: UIColor.primaryColor, // Background biru untuk layar utama
         textTheme: ThemeData.light().textTheme.copyWith(
-              bodyLarge: TextStyle(color: UIColor.primaryColor),
+              bodyLarge: const TextStyle(color: UIColor.primaryColor),
             ),
       ),
       home: Scaffold(
@@ -26,7 +25,7 @@ class MyApp extends StatelessWidget {
           centerTitle: true,
           backgroundColor: UIColor.primaryColor,
         ),
-        body: TicketScreen(),
+        body: const TicketScreen(),
       ),
     );
   }
@@ -96,10 +95,10 @@ class TicketScreen extends StatelessWidget {
                               color: const Color.fromARGB(255, 0, 0, 0),
                             ),
                       ),
-                      Divider(
+                      const Divider(
                         height: 20,
                         thickness: 1,
-                        color: const Color.fromARGB(255, 0, 0, 0),
+                        color: Color.fromARGB(255, 0, 0, 0),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

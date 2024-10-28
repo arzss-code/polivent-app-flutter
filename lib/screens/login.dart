@@ -293,7 +293,7 @@ class LoginScreenState extends State<LoginScreen> {
                     //       _login, //! Untuk membuat  fungsi login email& password melalui API
                     style: ElevatedButton.styleFrom(
                       // fixedSize: const Size(350, 50),
-                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                      padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),

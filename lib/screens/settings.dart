@@ -76,7 +76,7 @@ class SettingsScreen extends StatelessWidget {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return LogoutDialog();
+                  return const LogoutDialog();
                 },
               );
             },

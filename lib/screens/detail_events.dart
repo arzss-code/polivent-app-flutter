@@ -417,7 +417,7 @@ class _DetailEventsState extends State<DetailEvents> {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return SuccessJoinPopup();
+                              return const SuccessJoinPopup();
                             },
                           );
                         },

@@ -29,18 +29,18 @@ class SelectInterestScreen extends StatefulWidget {
 
 class _SelectInterestScreenState extends State<SelectInterestScreen> {
   final List<Map<String, dynamic>> categories = [
-    {'icon': Icons.mic, 'label': 'Seminar'},
-    {'icon': Icons.build, 'label': 'Workshop'},
-    {'icon': Icons.emoji_events, 'label': 'Competition'},
-    {'icon': Icons.celebration, 'label': 'Exhibition'},
-    {'icon': Icons.business_center, 'label': 'Business'},
-    {'icon': Icons.health_and_safety, 'label': 'Health'},
-    {'icon': Icons.computer, 'label': 'Technology'},
-    {'icon': Icons.music_note, 'label': 'Music'},
-    {'icon': Icons.videogame_asset, 'label': 'Gaming'},
-    {'icon': Icons.sports_soccer, 'label': 'Sports'},
-    {'icon': Icons.brush, 'label': 'Art'},
-    {'icon': Icons.restaurant, 'label': 'Food'},
+    {'icon': '🎤', 'label': 'Seminar'},
+    {'icon': '🛠', 'label': 'Workshop'},
+    {'icon': '🏆', 'label': 'Competition'},
+    {'icon': '🎪', 'label': 'Exhibition'},
+    {'icon': '💼', 'label': 'Business'},
+    {'icon': '💉', 'label': 'Health'},
+    {'icon': '💻', 'label': 'Technology'},
+    {'icon': '🎵', 'label': 'Music'},
+    {'icon': '🎮', 'label': 'Gaming'},
+    {'icon': '⚽️', 'label': 'Sports'},
+    {'icon': '🎨', 'label': 'Art'},
+    {'icon': '🍲', 'label': 'Food'},
   ];
 
   // Menyimpan kategori yang dipilih
@@ -51,7 +51,7 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -70,14 +70,22 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
               ),
               const SizedBox(height: 32),
               Wrap(
-                spacing: 12.0,
-                runSpacing: 12.0,
+                spacing: 14.0,
+                runSpacing: 14.0,
                 children: categories.map((category) {
                   final isSelected =
                       selectedInterests.contains(category['label']);
                   return FilterChip(
-                    avatar: Icon(category['icon'],
-                        color: isSelected ? Colors.white : Colors.black),
+                    avatar: Text(category['icon'], style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                        
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter'),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    
                     label: Text(category['label']),
                     selected: isSelected,
                     onSelected: (bool selected) {
@@ -100,6 +108,7 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                   );
                 }).toList(),
               ),
+              // const SizedBox(height: 38,),
               const Spacer(),
               Center(
                 child: ElevatedButton(
@@ -114,18 +123,23 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 50, vertical: 16),
+                    fixedSize: Size(MediaQuery.of(context).size.width * 1, 
+                    MediaQuery.of(context).size.height * 0.05,),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                     backgroundColor:
                         UIColor.primaryColor, // Warna biru dari palet utama
                   ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
+                  child: const SizedBox(
+                      // width: MediaQuery.of(context).size.width * 1,
+                      // height: MediaQuery.of(context).size.height * 0.06,
+                      child: Text(
+                        "Continue",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16.0, color: Colors.white),
+                      ),
+                    ),
                 ),
               ),
             ],
