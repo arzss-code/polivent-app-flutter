@@ -22,8 +22,8 @@ class PoliventApp extends StatelessWidget {
     return ThemeData(
       splashFactory: NoSplash
           .splashFactory, //! Hilangkan splash effect  saat menekan navbar
-      highlightColor:
-          Colors.transparent, //! Hilangkan highlight color saat menekan navbar
+      highlightColor: Colors.transparent,
+      // const Color(0x2260A2FF), //! Hilangkan highlight color saat menekan navbar
       fontFamily: "Inter",
       brightness: brightness,
       textTheme: (ThemeData(brightness: brightness).textTheme),

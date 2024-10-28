@@ -292,17 +292,21 @@ class LoginScreenState extends State<LoginScreen> {
                     //   onPressed:
                     //       _login, //! Untuk membuat  fungsi login email& password melalui API
                     style: ElevatedButton.styleFrom(
-                      // fixedSize: const Size(350, 50),
-                      padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                      fixedSize: Size(
+                        MediaQuery.of(context).size.width * 1,
+                        MediaQuery.of(context).size.height * 0.06,
                       ),
-                      backgroundColor: const Color(0xff1886EA),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      backgroundColor:
+                          UIColor.primaryColor, // Warna biru dari palet utama
                     ),
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 1,
-                      child: const Text(
-                        "Sign in",
+                    child: const SizedBox(
+                      // width: MediaQuery.of(context).size.width * 1,
+                      // height: MediaQuery.of(context).size.height * 0.06,
+                      child: Text(
+                        "Login",
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 16.0, color: Colors.white),
                       ),

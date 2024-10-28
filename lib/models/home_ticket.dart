@@ -114,7 +114,8 @@ class _HomeTicketState extends State<HomeTicket> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border(
-          left: BorderSide(color: borderColor, width: 10), // Terapkan warna dinamis di sini
+          left: BorderSide(
+              color: borderColor, width: 6), // Terapkan warna dinamis di sini
         ),
         color: UIColor.solidWhite,
       ),

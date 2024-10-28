@@ -76,16 +76,17 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                   final isSelected =
                       selectedInterests.contains(category['label']);
                   return FilterChip(
-                    avatar: Text(category['icon'], style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
-                        
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Inter'),
+                    avatar: Text(
+                      category['icon'],
+                      style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter'),
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    
+
                     label: Text(category['label']),
                     selected: isSelected,
                     onSelected: (bool selected) {
@@ -123,8 +124,10 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    fixedSize: Size(MediaQuery.of(context).size.width * 1, 
-                    MediaQuery.of(context).size.height * 0.05,),
+                    fixedSize: Size(
+                      MediaQuery.of(context).size.width * 1,
+                      MediaQuery.of(context).size.height * 0.06,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -132,14 +135,14 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                         UIColor.primaryColor, // Warna biru dari palet utama
                   ),
                   child: const SizedBox(
-                      // width: MediaQuery.of(context).size.width * 1,
-                      // height: MediaQuery.of(context).size.height * 0.06,
-                      child: Text(
-                        "Continue",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16.0, color: Colors.white),
-                      ),
+                    // width: MediaQuery.of(context).size.width * 1,
+                    // height: MediaQuery.of(context).size.height * 0.06,
+                    child: Text(
+                      "Continue",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16.0, color: Colors.white),
                     ),
+                  ),
                 ),
               ),
             ],

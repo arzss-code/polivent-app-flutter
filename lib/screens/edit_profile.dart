@@ -10,8 +10,10 @@ class EditProfileScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              size: 20, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -25,7 +27,7 @@ class EditProfileScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -65,19 +67,22 @@ class EditProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Name
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Expanded(
+                  const Center(
                     child: Text(
-                      'Atsilla Arya',
+                      'Atsiila Arya',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
+                  const SizedBox(width: 4),
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.black),
                     onPressed: () {},
@@ -85,11 +90,11 @@ class EditProfileScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // About Me
               Row(
                 children: [
-                  const Expanded(
+                  const Center(
                     child: Text(
                       'About Me',
                       style: TextStyle(
@@ -120,11 +125,11 @@ class EditProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Interests
               Row(
                 children: [
-                  const Expanded(
+                  const Center(
                     child: Text(
                       'Interests',
                       style: TextStyle(
@@ -151,14 +156,17 @@ class EditProfileScreen extends StatelessWidget {
                   'Food',
                   'Seminar',
                   'E-Sport',
-                ].map((interest) => Chip(
-                  label: Text(
-                    interest,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                )).toList(),
+                ]
+                    .map((interest) => Chip(
+                          label: Text(
+                            interest,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: Colors.blue,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
+                        ))
+                    .toList(),
               ),
             ],
           ),

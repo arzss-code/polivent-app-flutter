@@ -128,8 +128,8 @@ class _HomeProfile extends State<HomeProfile> {
                     ),
                     const SizedBox(height: 8),
                     const Wrap(
-                      spacing: 8.0,
-                      runSpacing: 4.0,
+                      spacing: 12.0,
+                      runSpacing: 8.0,
                       children: [
                         InterestChip(label: 'Music'),
                         InterestChip(label: 'Workshop'),
