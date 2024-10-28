@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:polivent_app/screens/edit_profile.dart';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/screens/help.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -57,7 +58,14 @@ class SettingsScreen extends StatelessWidget {
             leadingIcon: Icons.help,
             title: 'Help',
             trailingIcon: Icons.arrow_forward_ios,
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HelpScreen(),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 20.0),
           _buildListTile(
