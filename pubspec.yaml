@@ -43,7 +43,6 @@ dependencies:
   uicons_pro: ^1.1.0
   uicons: ^1.0.1
   mobile_scanner: ^6.0.2
-  # qr_code_scanner: ^1.0.1
 
 dev_dependencies:
   flutter_test:

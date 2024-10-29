@@ -89,7 +89,7 @@ class BottomNavbarState extends State<BottomNavbar> {
         // Floating QR button in the center with text
         Positioned(
           bottom:
-              30, // Adjust to control vertical position, floating above navbar
+              24, // Adjust to control vertical position, floating above navbar
           left: 0,
           right: 0,
           child: Column(

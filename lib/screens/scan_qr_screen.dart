@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/screens/home.dart';
 
 class QRScanScreen extends StatefulWidget {
   final String eventId;
@@ -53,12 +52,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const Home(), // Ganti ke screen berikutnya
-            ),
-          ),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Stack(
@@ -74,63 +68,134 @@ class _QRScanScreenState extends State<QRScanScreen> {
             child: Container(
               width: 250,
               height: 250,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blueAccent, width: 4),
-                borderRadius: BorderRadius.circular(12),
+              child: Stack(
+                children: [
+                  // Corner decorations with rounded effect
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border(
+                          top: BorderSide(color: Colors.blueAccent, width: 4),
+                          left: BorderSide(color: Colors.blueAccent, width: 4),
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border(
+                          top: BorderSide(color: Colors.blueAccent, width: 4),
+                          right: BorderSide(color: Colors.blueAccent, width: 4),
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border(
+                          bottom:
+                              BorderSide(color: Colors.blueAccent, width: 4),
+                          left: BorderSide(color: Colors.blueAccent, width: 4),
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border(
+                          bottom:
+                              BorderSide(color: Colors.blueAccent, width: 4),
+                          right: BorderSide(color: Colors.blueAccent, width: 4),
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
+          const Align(
+            alignment: Alignment.topCenter,
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Align the QR code within the frame to scan',
+                  Text(
+                    'Align the QR code\nwithin the frame to scan',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const Home(), // Ganti ke screen berikutnya
-                          ),
-                        ),
-                        icon: const Icon(Icons.close),
-                        label: const Text('Cancel'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Image.asset(
+                    'assets/images/logo-polivent.png',
+                    width: 40,
+                    alignment: Alignment.center,
+                    scale: 1,
+                  ),
+                  IconButton(
+                    onPressed: _toggleFlash,
+                    icon: Icon(
+                      isFlashOn ? Icons.flash_off : Icons.flash_on,
+                    ),
+                    style: IconButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: _toggleFlash,
-                        icon: Icon(
-                          isFlashOn ? Icons.flash_off : Icons.flash_on,
-                        ),
-                        label: Text(
-                            isFlashOn ? 'Turn Off Flash' : 'Turn On Flash'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
