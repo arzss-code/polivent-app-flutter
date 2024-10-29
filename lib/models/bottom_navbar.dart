@@ -89,7 +89,7 @@ class BottomNavbarState extends State<BottomNavbar> {
         // Floating QR button in the center with text
         Positioned(
           bottom:
-              24, // Adjust to control vertical position, floating above navbar
+              30, // Adjust to control vertical position, floating above navbar
           left: 0,
           right: 0,
           child: Column(
@@ -102,6 +102,7 @@ class BottomNavbarState extends State<BottomNavbar> {
                   decoration: const BoxDecoration(
                     color: UIColor.primary,
                     shape: BoxShape.circle,
+                    //! Shadow dibelakang icon QR
                     // boxShadow: [
                     //   BoxShadow(
                     //     color: Colors.black.withOpacity(0.2),
@@ -119,6 +120,7 @@ class BottomNavbarState extends State<BottomNavbar> {
                 ),
               ),
               const SizedBox(height: 6), // Space between icon and text
+              //! Text dibawah icon QR
               // const Text(
               //   'Scan QR',
               //   style: TextStyle(

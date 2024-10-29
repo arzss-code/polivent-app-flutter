@@ -18,7 +18,9 @@ class _HomeState extends State<Home> {
   final List<Widget> _widgetOptions = <Widget>[
     const HomeExplore(),
     const HomeEvents(),
-    const EventQRScanner(),
+    const QRScanScreen(
+      eventId: '',
+    ),
     const HomeTicket(),
     const HomeProfile(),
   ];

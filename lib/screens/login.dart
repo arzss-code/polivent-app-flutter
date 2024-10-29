@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:polivent_app/screens/select_interest.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences untuk "Remember Me"
 import 'package:uicons_pro/uicons_pro.dart';
 import 'home.dart';
@@ -73,7 +72,7 @@ class LoginScreenState extends State<LoginScreen> {
 
     try {
       const url =
-          'http://localhost/api-polyvent/auth'; // Ubah URL dengan yang sesuai
+          'https://polivent.my.id/api/auth'; // Ubah URL dengan yang sesuai
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
@@ -280,17 +279,17 @@ class LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 8.0),
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //           builder: (context) => const SelectInterestScreen()),
+                  //     );
+                  //   },
+                  //! Untuk membuat  fungsi login email& password melalui API
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SelectInterestScreen()),
-                      );
-                    },
-                    // ElevatedButton(
-                    //   onPressed:
-                    //       _login, //! Untuk membuat  fungsi login email& password melalui API
+                    onPressed: _login,
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(
                         MediaQuery.of(context).size.width * 1,
