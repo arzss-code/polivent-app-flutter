@@ -1,11 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class QRScanScreen extends StatefulWidget {
   final String eventId;
 
-  const QRScanScreen({Key? key, required this.eventId}) : super(key: key);
+  const QRScanScreen({super.key, required this.eventId});
 
   @override
   State<QRScanScreen> createState() => _QRScanScreenState();
@@ -16,6 +20,9 @@ class _QRScanScreenState extends State<QRScanScreen> {
   bool isFlashOn = false;
   final MobileScannerController cameraController = MobileScannerController();
 
+  // Tambahkan URL API untuk absensi
+  final String apiUrl = "https://polivent.my.id/api/attendance";
+
   void _onQRViewCreated(BarcodeCapture barcodeCapture) {
     if (!isScanned && barcodeCapture.barcodes.isNotEmpty) {
       final String? qrCode = barcodeCapture.barcodes.first.rawValue;
@@ -25,7 +32,9 @@ class _QRScanScreenState extends State<QRScanScreen> {
 
         // Aksi setelah QR berhasil discan
         if (qrCode == widget.eventId) {
-          Navigator.pop(context, 'QR Code successfully scanned!');
+          // Mengirim data ke API
+          markAttendance(widget.eventId,
+              'user123'); // Ganti 'user123' dengan user ID yang valid
         } else {
           setState(() => isScanned = false);
           ScaffoldMessenger.of(context).showSnackBar(
@@ -33,6 +42,39 @@ class _QRScanScreenState extends State<QRScanScreen> {
           );
         }
       }
+    }
+  }
+
+  // Fungsi untuk mengirim data ke API untuk mencatat kehadiran
+  Future<void> markAttendance(String eventId, String userId) async {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"event_id": eventId, "user_id": userId}),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  "Attendance marked successfully for event ID: $eventId")),
+        );
+        Navigator.pop(
+            context); // Pindah dari tampilan pemindaian setelah sukses
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text("You have already marked attendance for this event.")),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Failed to mark attendance. Please try again.")),
+      );
     }
   }
 
@@ -66,11 +108,14 @@ class _QRScanScreenState extends State<QRScanScreen> {
           Align(
             alignment: Alignment.center,
             child: Container(
-              width: 250,
-              height: 250,
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.transparent, width: 2),
+              ),
               child: Stack(
                 children: [
-                  // Corner decorations with rounded effect
+                  // Top-left corner
                   Positioned(
                     top: 0,
                     left: 0,
@@ -78,17 +123,14 @@ class _QRScanScreenState extends State<QRScanScreen> {
                       width: 50,
                       height: 50,
                       decoration: const BoxDecoration(
-                        color: Colors.transparent,
                         border: Border(
                           top: BorderSide(color: Colors.blueAccent, width: 4),
                           left: BorderSide(color: Colors.blueAccent, width: 4),
                         ),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                        ),
                       ),
                     ),
                   ),
+                  // Top-right corner
                   Positioned(
                     top: 0,
                     right: 0,
@@ -96,17 +138,14 @@ class _QRScanScreenState extends State<QRScanScreen> {
                       width: 50,
                       height: 50,
                       decoration: const BoxDecoration(
-                        color: Colors.transparent,
                         border: Border(
                           top: BorderSide(color: Colors.blueAccent, width: 4),
                           right: BorderSide(color: Colors.blueAccent, width: 4),
                         ),
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(16),
-                        ),
                       ),
                     ),
                   ),
+                  // Bottom-left corner
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -114,18 +153,15 @@ class _QRScanScreenState extends State<QRScanScreen> {
                       width: 50,
                       height: 50,
                       decoration: const BoxDecoration(
-                        color: Colors.transparent,
                         border: Border(
                           bottom:
                               BorderSide(color: Colors.blueAccent, width: 4),
                           left: BorderSide(color: Colors.blueAccent, width: 4),
                         ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(16),
-                        ),
                       ),
                     ),
                   ),
+                  // Bottom-right corner
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -133,14 +169,10 @@ class _QRScanScreenState extends State<QRScanScreen> {
                       width: 50,
                       height: 50,
                       decoration: const BoxDecoration(
-                        color: Colors.transparent,
                         border: Border(
                           bottom:
                               BorderSide(color: Colors.blueAccent, width: 4),
                           right: BorderSide(color: Colors.blueAccent, width: 4),
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(16),
                         ),
                       ),
                     ),
@@ -180,16 +212,18 @@ class _QRScanScreenState extends State<QRScanScreen> {
                 children: [
                   Image.asset(
                     'assets/images/logo-polivent.png',
-                    width: 40,
+                    width: 50,
                     alignment: Alignment.center,
                     scale: 1,
                   ),
                   IconButton(
+                    alignment: Alignment.center,
                     onPressed: _toggleFlash,
                     icon: Icon(
                       isFlashOn ? Icons.flash_off : Icons.flash_on,
                     ),
                     style: IconButton.styleFrom(
+                      fixedSize: const Size(40, 40),
                       foregroundColor: Colors.white,
                       backgroundColor: Colors.blueAccent,
                       shape: RoundedRectangleBorder(
