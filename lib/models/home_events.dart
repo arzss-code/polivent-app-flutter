@@ -45,18 +45,46 @@ class _HomeEventsState extends State<HomeEvents> {
             child: SearchEventsWidget(),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: _events.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                  child: _buildEventCard(_events[index]),
-                );
-              },
-            ),
-          ),
+              child: _events.isNotEmpty
+                  ? ListView.builder(
+                      padding: EdgeInsets.zero,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: _events.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                          child: _buildEventCard(_events[index]),
+                        );
+                      },
+                    )
+                  : const Center(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image(
+                              image: AssetImage('assets/images/no-events.png'),
+                              height: 150,
+                              width: 150,
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              'No Upcoming Events',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: UIColor.primaryColor),
+                            ),
+                            SizedBox(height: 10),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              child: Text(
+                                'There are no upcoming events at the moment. Please check back later.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.black45),
+                              ),
+                            ),
+                          ]),
+                    )),
         ],
       ))
     ]);

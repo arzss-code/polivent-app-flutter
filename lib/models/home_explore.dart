@@ -42,27 +42,51 @@ class _HomeExploreState extends State<HomeExplore> {
               ),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 4),
-                const Text(
-                  'Hi, Atsiila Arya 👋',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontFamily: "Inter",
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Hi, Atsiila Arya 👋',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontFamily: "Inter",
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                              color: Color.fromRGBO(255, 255, 255, 0.185))
+                          .copyWith(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.notifications_rounded,
+                            color: Colors.white,
+                            size: 24,
+                          )),
+                    )
+                  ],
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  "Let's explore the events!",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontFamily: "Inter",
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
+                const Row(
+                  children: [
+                    Text(
+                      "Let's explore the events!",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: "Inter",
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 63),
                 SearchEventsWidget(
@@ -71,6 +95,7 @@ class _HomeExploreState extends State<HomeExplore> {
               ],
             ),
           ),
+
           const SizedBox(
             height: 14,
           ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 
@@ -11,19 +10,19 @@ class HomeTicket extends StatefulWidget {
 }
 
 class _HomeTicketState extends State<HomeTicket> {
-  late List<Events> _events;
-  late List<Events> _upcomingEvents;
-  late List<Events> _completedEvents;
+  late List<Tickets> _tickets;
+  late List<Tickets> _upcomingTickets;
+  late List<Tickets> _completedTickets;
 
   @override
   void initState() {
     super.initState();
-    _events = getEvents(); // Ambil semua event
-    // Filter acara berdasarkan statusnya (Upcoming & Completed)
-    _upcomingEvents =
-        _events.where((event) => event.status == "Available").toList();
-    _completedEvents =
-        _events.where((event) => event.status != "Available").toList();
+    _tickets = getTickets(); // Ambil semua tiket
+    // Filter tiket berdasarkan statusnya (Akan Datang & Selesai)
+    _upcomingTickets =
+        _tickets.where((ticket) => ticket.status == "Available").toList();
+    _completedTickets =
+        _tickets.where((ticket) => ticket.status != "Available").toList();
   }
 
   @override
@@ -32,12 +31,12 @@ class _HomeTicketState extends State<HomeTicket> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          automaticallyImplyLeading: false, // Remove back button
+          automaticallyImplyLeading: false,
           centerTitle: true,
           backgroundColor: UIColor.solidWhite,
           scrolledUnderElevation: 0,
           title: const Text(
-            "Ticket",
+            "Tiket Saya",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -51,19 +50,19 @@ class _HomeTicketState extends State<HomeTicket> {
             tabs: [
               Tab(
                 child: Text(
-                  "Upcoming",
+                  "Akan Datang",
                   style: TextStyle(
-                    fontSize: 16, // Ukuran teks
-                    fontWeight: FontWeight.w500, // Berat huruf
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               Tab(
                 child: Text(
-                  "Completed",
+                  "Selesai",
                   style: TextStyle(
-                    fontSize: 16, // Ukuran teks
-                    fontWeight: FontWeight.w500, // Berat huruf
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -72,97 +71,158 @@ class _HomeTicketState extends State<HomeTicket> {
         ),
         body: TabBarView(
           children: [
-            _buildEventList(_upcomingEvents), // Tab Upcoming Events
-            _buildEventList(_completedEvents), // Tab Completed Events
+            _buildTicketList(_upcomingTickets), // Tab Tiket Akan Datang
+            _buildTicketList(_completedTickets), // Tab Tiket Selesai
           ],
         ),
       ),
     );
   }
 
-  // Method untuk menampilkan list event
-  Widget _buildEventList(List<Events> events) {
-    if (events.isEmpty) {
+  Widget _buildTicketList(List<Tickets> tickets) {
+    if (tickets.isEmpty) {
       return const Center(
-        child: Text(
-          "No events available",
-          style: TextStyle(color: Colors.grey),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image(
+              image: AssetImage('assets/images/no-tickets.png'),
+              width: 150,
+              height: 150,
+            ),
+            SizedBox(height: 12),
+            Text(
+              "Tidak Ada Tiket",
+              style: TextStyle(
+                color: UIColor.primaryColor,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 48.0),
+              child: Text(
+                "Saat ini tidak ada tiket yang tersedia. Silakan periksa kembali nanti untuk pembaruan.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
 
     return ListView.builder(
       padding: const EdgeInsets.only(top: 20, bottom: 20),
-      itemCount: events.length,
+      itemCount: tickets.length,
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-          child: _buildEventCard(events[index]),
+          child: _buildTicketCard(tickets[index]),
         );
       },
     );
   }
 
-  // Method untuk membuat kartu event
-  Widget _buildEventCard(Events event) {
-    // Tentukan warna berdasarkan status event
-    Color borderColor = event.status == "Available"
-        ? UIColor.primaryColor // Warna biru untuk "Available" (Upcoming)
-        : Colors.grey; // Warna abu-abu untuk lainnya (Completed)
+  Widget _buildTicketCard(Tickets ticket) {
+    Color borderColor =
+        ticket.status == "Available" ? UIColor.primaryColor : Colors.grey;
 
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border(
-          left: BorderSide(
-              color: borderColor, width: 6), // Terapkan warna dinamis di sini
+          left: BorderSide(color: borderColor, width: 6),
         ),
         color: UIColor.solidWhite,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(6)),
-              child: Image.network(
-                event.posterUrl,
-                height: 120,
-                width: 90,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 8, 8, 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 4),
-                  Text(
-                    '${event.category}: ${event.tittle}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: UIColor.typoBlack,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(6)),
+                  child: Image.network(
+                    ticket.posterUrl,
+                    height: 120,
+                    width: 90,
+                    fit: BoxFit.cover,
                   ),
-                  const SizedBox(height: 4),
-                  _buildInfoRow(UIconsPro.regularRounded.user_time,
-                      '${event.quota} participants'),
-                  _buildInfoRow(
-                      UIconsPro.regularRounded.house_building, event.place),
-                  _buildInfoRow(
-                      UIconsPro.regularRounded.marker, event.location),
-                  _buildInfoRow(
-                      UIconsPro.regularRounded.calendar, event.dateStart),
-                  const SizedBox(height: 8),
-                ],
+                ),
               ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 8, 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+                      Text(
+                        '${ticket.category}: ${ticket.tittle}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: UIColor.typoBlack,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      _buildInfoRow(UIconsPro.regularRounded.user_time,
+                          '${ticket.quota} peserta'),
+                      _buildInfoRow(UIconsPro.regularRounded.house_building,
+                          ticket.place),
+                      _buildInfoRow(
+                          UIconsPro.regularRounded.marker, ticket.location),
+                      _buildInfoRow(
+                          UIconsPro.regularRounded.calendar, ticket.dateStart),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // Buttons Section
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // View Ticket Button (for both upcoming and completed)
+                ElevatedButton(
+                  onPressed: () {
+                    // Implementasi view ticket
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: UIColor.primaryColor,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text("Lihat Tiket"),
+                ),
+                // Leave Review Button (only for completed tickets)
+                if (ticket.status != "Available") ...[
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Implementasi leave review
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: UIColor.primaryColor,
+                      side: const BorderSide(color: UIColor.primaryColor),
+                    ),
+                    child: const Text("Beri Ulasan"),
+                  ),
+                ],
+              ],
             ),
           ),
         ],
@@ -170,7 +230,6 @@ class _HomeTicketState extends State<HomeTicket> {
     );
   }
 
-  // Method untuk membuat row informasi dengan ikon
   Widget _buildInfoRow(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -196,7 +255,7 @@ class _HomeTicketState extends State<HomeTicket> {
   }
 }
 
-class Events {
+class Tickets {
   String tittle;
   String category;
   String quota;
@@ -206,7 +265,7 @@ class Events {
   String dateStart;
   String status;
 
-  Events({
+  Tickets({
     required this.tittle,
     required this.category,
     required this.quota,
@@ -218,163 +277,141 @@ class Events {
   });
 }
 
-List<Events> getEvents() {
+List<Tickets> getTickets() {
   DateTime now = DateTime.now();
-  List<Events> events = [];
+  List<Tickets> tickets = [];
 
-  events.add(Events(
-    tittle: 'Techcom Fest 2027',
-    category: 'Competition',
-    quota: '12',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT II",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
-  ));
-  events.add(Events(
-    tittle: 'AI For Technology ',
-    category: 'Seminar',
-    quota: '120',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Avaliable",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Full",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Full",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Close",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Close",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Close",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Close",
-  ));
+  // DateFormat dateFormat = DateFormat('E, d MMM yyyy', 'id_ID');
 
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Full",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Close",
-  ));
-  events.add(Events(
-    tittle: 'Techcom Fest 2027',
-    category: 'Competition',
-    quota: '12',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT II",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
-  ));
+  // // 1. Techcom Fest 2027
+  // tickets.add(Tickets(
+  //   tittle: 'Techcom Fest 2027',
+  //   category: 'Kompetisi',
+  //   quota: '200',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "Gedung Prof Soedarto",
+  //   location: "Semarang, Indonesia",
+  //   dateStart:
+  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 30))),
+  //   status: "Available",
+  // ));
 
-  // Tambahkan beberapa event yang sudah "Completed"
-  events.add(Events(
-    tittle: 'AI For Technology',
-    category: 'Seminar',
-    quota: '120',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy')
-        .format(now.subtract(const Duration(days: 30))),
-    status: "Completed",
-  ));
-  return events;
+  // // 2. Workshop UI/UX Design
+  // tickets.add(Tickets(
+  //   tittle: 'Workshop UI/UX Design Fundamental',
+  //   category: 'Workshop',
+  //   quota: '50',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "GKB III",
+  //   location: "Semarang, Indonesia",
+  //   dateStart:
+  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 15))),
+  //   status: "Available",
+  // ));
+
+  // // 3. Seminar Artificial Intelligence
+  // tickets.add(Tickets(
+  //   tittle: 'Seminar AI: Masa Depan Teknologi',
+  //   category: 'Seminar',
+  //   quota: '300',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "Auditorium Utama",
+  //   location: "Semarang, Indonesia",
+  //   dateStart:
+  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 45))),
+  //   status: "Available",
+  // ));
+
+  // // 4. Electro Fair 2024
+  // tickets.add(Tickets(
+  //   tittle: 'Electro Fair 2024',
+  //   category: 'Expo',
+  //   quota: '500',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "Lapangan Utama",
+  //   location: "Semarang, Indonesia",
+  //   dateStart: DateFormat('E, d MMM yyy')
+  //       .format(now.subtract(const Duration(days: 10))),
+  //   status: "Full",
+  // ));
+
+  // // 5. Web Development Bootcamp
+  // tickets.add(Tickets(
+  //   tittle: 'Web Development Bootcamp',
+  //   category: 'Workshop',
+  //   quota: '75',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "Lab Komputer Terpadu",
+  //   location: "Semarang, Indonesia",
+  //   dateStart: DateFormat('E, d MMM yyy')
+  //       .format(now.subtract(const Duration(days: 20))),
+  //   status: "Close",
+  // ));
+
+  // // 6. Startup Summit 2024
+  // tickets.add(Tickets(
+  //   tittle: 'Startup Summit 2024',
+  //   category: 'Seminar',
+  //   quota: '250',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "Convention Hall",
+  //   location: "Semarang, Indonesia",
+  //   dateStart: DateFormat('E, d MMM yyy')
+  //       .format(now.subtract(const Duration(days: 5))),
+  //   status: "Close",
+  // ));
+
+  // // 7. Mobile App Competition
+  // tickets.add(Tickets(
+  //   tittle: 'Mobile App Innovation Challenge',
+  //   category: 'Kompetisi',
+  //   quota: '100',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "Innovation Center",
+  //   location: "Semarang, Indonesia",
+  //   dateStart:
+  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 60))),
+  //   status: "Available",
+  // ));
+
+  // // 8. Data Science Workshop
+  // tickets.add(Tickets(
+  //   tittle: 'Workshop Data Science & Analytics',
+  //   category: 'Workshop',
+  //   quota: '80',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "GKB II",
+  //   location: "Semarang, Indonesia",
+  //   dateStart: DateFormat('E, d MMM yyy')
+  //       .format(now.subtract(const Duration(days: 15))),
+  //   status: "Close",
+  // ));
+
+  // // 9. Cyber Security Conference
+  // tickets.add(Tickets(
+  //   tittle: 'Cyber Security Conference 2024',
+  //   category: 'Konferensi',
+  //   quota: '150',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "Auditorium IT Center",
+  //   location: "Semarang, Indonesia",
+  //   dateStart:
+  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 25))),
+  //   status: "Available",
+  // ));
+
+  // // 10. IoT Exhibition
+  // tickets.add(Tickets(
+  //   tittle: 'Internet of Things Exhibition',
+  //   category: 'Expo',
+  //   quota: '400',
+  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+  //   place: "Innovation Hub",
+  //   location: "Semarang, Indonesia",
+  //   dateStart: DateFormat('E, d MMM yyy')
+  //       .format(now.subtract(const Duration(days: 8))),
+  //   status: "Close",
+  // ));
+
+  return tickets;
 }

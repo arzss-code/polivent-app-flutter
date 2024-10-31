@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences untuk "Remember Me"
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'home.dart';
 
@@ -13,95 +13,150 @@ class LoginScreen extends StatefulWidget {
   LoginScreenState createState() => LoginScreenState();
 }
 
-class LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool rememberMe = false;
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
   bool securePassword = true;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  String? _emailError;
+  String? _passwordError;
 
   @override
   void initState() {
     super.initState();
-    _loadUserPreferences(); // Memuat email/password jika Remember Me diaktifkan sebelumnya
-    emailFocusNode.addListener(() {
-      setState(() {}); // Memperbarui tampilan saat fokus berubah
-    });
-    passwordFocusNode.addListener(() {
-      setState(() {}); // Memperbarui tampilan saat fokus berubah
-    });
+    _loadUserPreferences();
+    _setupAnimations();
+    emailFocusNode.addListener(() => setState(() {}));
+    passwordFocusNode.addListener(() => setState(() {}));
   }
 
-  Future<void> _loadUserPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      rememberMe = prefs.getBool('rememberMe') ?? false;
-      if (rememberMe) {
-        _emailController.text = prefs.getString('email') ?? '';
-        _passwordController.text = prefs.getString('password') ?? '';
-      }
-    });
+  void _setupAnimations() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+    _animationController.forward();
   }
 
-  Future<void> _saveUserPreferences(String email, String password) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (rememberMe) {
-      await prefs.setBool('rememberMe', true);
-      await prefs.setString('email', email);
-      await prefs.setString('password', password);
-    } else {
-      await prefs.remove('rememberMe');
-      await prefs.remove('email');
-      await prefs.remove('password');
-    }
+  bool _validateEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
+  bool _validatePassword(String password) {
+    return password.length >= 6;
   }
 
   Future<void> _login() async {
-    final email = _emailController.text;
+    setState(() {
+      _emailError = null;
+      _passwordError = null;
+    });
+
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    // Menampilkan loading spinner saat proses login
+    // Validasi input
+    bool hasError = false;
+    if (!_validateEmail(email)) {
+      setState(() {
+        _emailError = 'Please enter a valid email address';
+      });
+      hasError = true;
+    }
+    if (!_validatePassword(password)) {
+      setState(() {
+        _passwordError = 'Password must be at least 6 characters';
+      });
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // Show loading animation
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const Center(child: CircularProgressIndicator());
+        return Center(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: UIColor.primaryColor,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Logging in...',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: UIColor.primaryColor),
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
 
     try {
-      const url =
-          'https://polivent.my.id/api/auth'; // Ubah URL dengan yang sesuai
+      const url = 'https://polivent.my.id/api/auth';
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
+
       if (mounted) {
-        Navigator.of(context).pop(); // Menutup loading spinner
+        Navigator.of(context).pop(); // Close loading dialog
       }
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         if (jsonData['status'] == 'success') {
-          // Simpan email/password jika Remember Me diaktifkan
           await _saveUserPreferences(email, password);
 
-          // Berhasil login, arahkan ke home screen
           if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const Home(),
-                transitionDuration: const Duration(
-                    milliseconds: 500), // adjust the duration as needed
-              ),
-            );
+            // Success animation and transition
+            _showSuccessDialog(() {
+              Navigator.pushReplacement(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      const Home(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOutCubic;
+                    var tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+                    var offsetAnimation = animation.drive(tween);
+                    return SlideTransition(
+                        position: offsetAnimation, child: child);
+                  },
+                  transitionDuration: const Duration(milliseconds: 800),
+                ),
+              );
+            });
           }
         } else {
-          // Tampilkan pesan kesalahan dari response API
           if (mounted) {
             _showError(jsonData['message']);
           }
@@ -113,211 +168,302 @@ class LoginScreenState extends State<LoginScreen> {
       }
     } catch (error) {
       if (mounted) {
-        Navigator.of(context).pop(); // Menutup loading spinner
-        _showError('Login failed. Please try again.');
+        Navigator.of(context).pop();
+        _showError('Login failed. Please check your connection and try again.');
       }
     }
   }
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 
-  @override
-  void dispose() {
-    emailFocusNode.dispose();
-    passwordFocusNode.dispose();
-    super.dispose();
-  }
+  void _showSuccessDialog(VoidCallback onComplete) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 50,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Login Successful!',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
 
-  @override
-  showhide() {
-    setState(() {
-      securePassword = !securePassword;
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.of(context).pop();
+      onComplete();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 130),
-                  Image.asset(
-                    'assets/images/logo-polivent.png',
-                    width: 150,
-                    height: 150,
-                  ),
-                  const SizedBox(height: 36),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Sign in",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: UIColor.typoBlack,
-                        fontSize: 24,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _emailController,
-                    focusNode: emailFocusNode,
-                    cursorColor: UIColor.primary,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: UIColor.solidWhite,
-                      labelText: 'Email',
-                      floatingLabelStyle:
-                          const TextStyle(color: UIColor.primary),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: UIColor.primary),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: UIColor.typoGray),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: Icon(
-                        UIconsPro.regularRounded.envelope,
-                        color: emailFocusNode.hasFocus
-                            ? UIColor.primary
-                            : UIColor.typoGray,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  TextField(
-                    controller: _passwordController,
-                    focusNode: passwordFocusNode,
-                    obscureText: securePassword,
-                    cursorColor: UIColor.primary,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: UIColor.solidWhite,
-                      labelText: 'Password',
-                      floatingLabelStyle:
-                          const TextStyle(color: UIColor.primary),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: UIColor.primary),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: UIColor.typoGray),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: Icon(
-                        UIconsPro.regularRounded.lock,
-                        color: passwordFocusNode.hasFocus
-                            ? UIColor.primary
-                            : UIColor.typoGray,
-                      ),
-                      suffixIcon: IconButton(
-                          color: passwordFocusNode.hasFocus
-                              ? UIColor.primary
-                              : UIColor.typoGray,
-                          onPressed: () {
-                            showhide();
-                          },
-                          icon: Icon(securePassword
-                              ? UIconsPro.solidRounded.eye_crossed
-                              : UIconsPro.solidRounded.eye)),
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Checkbox(value: rememberMe, onChanged: (value) {}),
-                      const Text("Remember Me"),
-                      // Checkbox(value: rememberMe, onChanged: (value) {}),
-                      Switch(
-                        value: rememberMe,
-                        onChanged: (value) {
-                          setState(() {
-                            rememberMe = value;
-                          });
-                        },
-                        activeColor: UIColor.primary,
-                      ),
-                    ],
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("Forgot Password?"),
-                            content: const Text(
-                                "Reset password functionality goes here."),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text("OK"),
+      body: Stack(
+        children: [
+          // Background with blur
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                    'assets/images/background.png'), // Add a background image
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // Content
+          Center(
+            child: SingleChildScrollView(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/images/logo-polivent.png',
+                          alignment: Alignment.center,
+                          width: 150,
+                          height: 150,
+                        ),
+
+                        const SizedBox(height: 36),
+                        // Sign in text with animation
+                        const Row(
+                          children: [
+                            Text(
+                              "Sign in",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: UIColor.typoBlack,
+                                fontSize: 28,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        // Email field
+                        TextFormField(
+                          controller: _emailController,
+                          focusNode: emailFocusNode,
+                          cursorColor: UIColor.primary,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: UIColor.solidWhite,
+                            labelText: 'Email',
+                            errorText: _emailError,
+                            floatingLabelStyle:
+                                const TextStyle(color: UIColor.primary),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: UIColor.primary),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: UIColor.typoGray),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.red),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.red),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: Icon(
+                              UIconsPro.regularRounded.envelope,
+                              color: _emailError != null
+                                  ? Colors.red
+                                  : emailFocusNode.hasFocus
+                                      ? UIColor.primary
+                                      : UIColor.typoGray,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Password field
+                        TextFormField(
+                          controller: _passwordController,
+                          focusNode: passwordFocusNode,
+                          // obscureText: securePassword,
+                          cursorColor: UIColor.primary,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: UIColor.solidWhite,
+                            labelText: 'Password',
+                            errorText: _passwordError,
+                            floatingLabelStyle:
+                                const TextStyle(color: UIColor.primary),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: UIColor.primary),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: UIColor.typoGray),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.red),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.red),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: Icon(
+                              UIconsPro.regularRounded.lock,
+                              color: _passwordError != null
+                                  ? Colors.red
+                                  : passwordFocusNode.hasFocus
+                                      ? UIColor.primary
+                                      : UIColor.typoGray,
+                            ),
+                            suffixIcon: IconButton(
+                              color: passwordFocusNode.hasFocus
+                                  ? UIColor.primary
+                                  : UIColor.typoGray,
+                              onPressed: () => setState(
+                                  () => securePassword = !securePassword),
+                              icon: Icon(securePassword
+                                  ? UIconsPro.solidRounded.eye_crossed
+                                  : UIconsPro.solidRounded.eye),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Remember me switch
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Remember Me",
+                                style: TextStyle(
+                                  color: UIColor.typoBlack,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Switch(
+                                value: rememberMe,
+                                onChanged: (value) =>
+                                    setState(() => rememberMe = value),
+                                activeColor: UIColor.primary,
                               ),
                             ],
-                          );
-                        },
-                      );
-                    },
-                    child: const Text(
-                      "Forgot Password?",
-                      style: TextStyle(color: Color(0xff1886EA)),
+                          ),
+                        ),
+                        // Forgot password button
+                        TextButton(
+                          onPressed: () {
+                            // Add forgot password functionality
+                          },
+                          child: const Text(
+                            "Forgot Password?",
+                            style: TextStyle(
+                              color: UIColor.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // Login button with animation
+                        ElevatedButton(
+                          onPressed: _login,
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: Size(
+                              MediaQuery.of(context).size.width * 1,
+                              52,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            backgroundColor: UIColor.primary,
+                            elevation: 3,
+                          ),
+                          child: const Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8.0),
-                  // ElevatedButton(
-                  //   onPressed: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //           builder: (context) => const SelectInterestScreen()),
-                  //     );
-                  //   },
-                  //! Untuk membuat  fungsi login email& password melalui API
-                  ElevatedButton(
-                    onPressed: _login,
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: Size(
-                        MediaQuery.of(context).size.width * 1,
-                        MediaQuery.of(context).size.height * 0.06,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      backgroundColor:
-                          UIColor.primaryColor, // Warna biru dari palet utama
-                    ),
-                    child: const SizedBox(
-                      // width: MediaQuery.of(context).size.width * 1,
-                      // height: MediaQuery.of(context).size.height * 0.06,
-                      child: Text(
-                        "Login",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16.0, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 130),
-                ],
+                ),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _saveUserPreferences(String email, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (rememberMe) {
+      await prefs.setString('email', email);
+      await prefs.setString('password', password);
+      await prefs.setBool('rememberMe', true);
+    } else {
+      await prefs.remove('email');
+      await prefs.remove('password');
+      await prefs.setBool('rememberMe', false);
+    }
+  }
+
+  Future<void> _loadUserPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _emailController.text = prefs.getString('email') ?? '';
+      _passwordController.text = prefs.getString('password') ?? '';
+      rememberMe = prefs.getBool('rememberMe') ?? false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    emailFocusNode.dispose();
+    passwordFocusNode.dispose();
+    super.dispose();
   }
 }
