@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:intl/intl.dart';
 
 class HomeTicket extends StatefulWidget {
   const HomeTicket({super.key});
@@ -283,135 +284,135 @@ List<Tickets> getTickets() {
 
   // DateFormat dateFormat = DateFormat('E, d MMM yyyy', 'id_ID');
 
-  // // 1. Techcom Fest 2027
-  // tickets.add(Tickets(
-  //   tittle: 'Techcom Fest 2027',
-  //   category: 'Kompetisi',
-  //   quota: '200',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "Gedung Prof Soedarto",
-  //   location: "Semarang, Indonesia",
-  //   dateStart:
-  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 30))),
-  //   status: "Available",
-  // ));
+  // 1. Techcom Fest 2027
+  tickets.add(Tickets(
+    tittle: 'Techcom Fest 2027',
+    category: 'Kompetisi',
+    quota: '200',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "Gedung Prof Soedarto",
+    location: "Semarang, Indonesia",
+    dateStart:
+        DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 30))),
+    status: "Available",
+  ));
 
-  // // 2. Workshop UI/UX Design
-  // tickets.add(Tickets(
-  //   tittle: 'Workshop UI/UX Design Fundamental',
-  //   category: 'Workshop',
-  //   quota: '50',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "GKB III",
-  //   location: "Semarang, Indonesia",
-  //   dateStart:
-  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 15))),
-  //   status: "Available",
-  // ));
+  // 2. Workshop UI/UX Design
+  tickets.add(Tickets(
+    tittle: 'Workshop UI/UX Design Fundamental',
+    category: 'Workshop',
+    quota: '50',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "GKB III",
+    location: "Semarang, Indonesia",
+    dateStart:
+        DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 15))),
+    status: "Available",
+  ));
 
-  // // 3. Seminar Artificial Intelligence
-  // tickets.add(Tickets(
-  //   tittle: 'Seminar AI: Masa Depan Teknologi',
-  //   category: 'Seminar',
-  //   quota: '300',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "Auditorium Utama",
-  //   location: "Semarang, Indonesia",
-  //   dateStart:
-  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 45))),
-  //   status: "Available",
-  // ));
+  // 3. Seminar Artificial Intelligence
+  tickets.add(Tickets(
+    tittle: 'Seminar AI: Masa Depan Teknologi',
+    category: 'Seminar',
+    quota: '300',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "Auditorium Utama",
+    location: "Semarang, Indonesia",
+    dateStart:
+        DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 45))),
+    status: "Available",
+  ));
 
-  // // 4. Electro Fair 2024
-  // tickets.add(Tickets(
-  //   tittle: 'Electro Fair 2024',
-  //   category: 'Expo',
-  //   quota: '500',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "Lapangan Utama",
-  //   location: "Semarang, Indonesia",
-  //   dateStart: DateFormat('E, d MMM yyy')
-  //       .format(now.subtract(const Duration(days: 10))),
-  //   status: "Full",
-  // ));
+  // 4. Electro Fair 2024
+  tickets.add(Tickets(
+    tittle: 'Electro Fair 2024',
+    category: 'Expo',
+    quota: '500',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "Lapangan Utama",
+    location: "Semarang, Indonesia",
+    dateStart: DateFormat('E, d MMM yyy')
+        .format(now.subtract(const Duration(days: 10))),
+    status: "Full",
+  ));
 
-  // // 5. Web Development Bootcamp
-  // tickets.add(Tickets(
-  //   tittle: 'Web Development Bootcamp',
-  //   category: 'Workshop',
-  //   quota: '75',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "Lab Komputer Terpadu",
-  //   location: "Semarang, Indonesia",
-  //   dateStart: DateFormat('E, d MMM yyy')
-  //       .format(now.subtract(const Duration(days: 20))),
-  //   status: "Close",
-  // ));
+  // 5. Web Development Bootcamp
+  tickets.add(Tickets(
+    tittle: 'Web Development Bootcamp',
+    category: 'Workshop',
+    quota: '75',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "Lab Komputer Terpadu",
+    location: "Semarang, Indonesia",
+    dateStart: DateFormat('E, d MMM yyy')
+        .format(now.subtract(const Duration(days: 20))),
+    status: "Close",
+  ));
 
-  // // 6. Startup Summit 2024
-  // tickets.add(Tickets(
-  //   tittle: 'Startup Summit 2024',
-  //   category: 'Seminar',
-  //   quota: '250',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "Convention Hall",
-  //   location: "Semarang, Indonesia",
-  //   dateStart: DateFormat('E, d MMM yyy')
-  //       .format(now.subtract(const Duration(days: 5))),
-  //   status: "Close",
-  // ));
+  // 6. Startup Summit 2024
+  tickets.add(Tickets(
+    tittle: 'Startup Summit 2024',
+    category: 'Seminar',
+    quota: '250',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "Convention Hall",
+    location: "Semarang, Indonesia",
+    dateStart: DateFormat('E, d MMM yyy')
+        .format(now.subtract(const Duration(days: 5))),
+    status: "Close",
+  ));
 
-  // // 7. Mobile App Competition
-  // tickets.add(Tickets(
-  //   tittle: 'Mobile App Innovation Challenge',
-  //   category: 'Kompetisi',
-  //   quota: '100',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "Innovation Center",
-  //   location: "Semarang, Indonesia",
-  //   dateStart:
-  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 60))),
-  //   status: "Available",
-  // ));
+  // 7. Mobile App Competition
+  tickets.add(Tickets(
+    tittle: 'Mobile App Innovation Challenge',
+    category: 'Kompetisi',
+    quota: '100',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "Innovation Center",
+    location: "Semarang, Indonesia",
+    dateStart:
+        DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 60))),
+    status: "Available",
+  ));
 
-  // // 8. Data Science Workshop
-  // tickets.add(Tickets(
-  //   tittle: 'Workshop Data Science & Analytics',
-  //   category: 'Workshop',
-  //   quota: '80',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "GKB II",
-  //   location: "Semarang, Indonesia",
-  //   dateStart: DateFormat('E, d MMM yyy')
-  //       .format(now.subtract(const Duration(days: 15))),
-  //   status: "Close",
-  // ));
+  // 8. Data Science Workshop
+  tickets.add(Tickets(
+    tittle: 'Workshop Data Science & Analytics',
+    category: 'Workshop',
+    quota: '80',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "GKB II",
+    location: "Semarang, Indonesia",
+    dateStart: DateFormat('E, d MMM yyy')
+        .format(now.subtract(const Duration(days: 15))),
+    status: "Close",
+  ));
 
-  // // 9. Cyber Security Conference
-  // tickets.add(Tickets(
-  //   tittle: 'Cyber Security Conference 2024',
-  //   category: 'Konferensi',
-  //   quota: '150',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "Auditorium IT Center",
-  //   location: "Semarang, Indonesia",
-  //   dateStart:
-  //       DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 25))),
-  //   status: "Available",
-  // ));
+  // 9. Cyber Security Conference
+  tickets.add(Tickets(
+    tittle: 'Cyber Security Conference 2024',
+    category: 'Konferensi',
+    quota: '150',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "Auditorium IT Center",
+    location: "Semarang, Indonesia",
+    dateStart:
+        DateFormat('E, d MMM yyy').format(now.add(const Duration(days: 25))),
+    status: "Available",
+  ));
 
-  // // 10. IoT Exhibition
-  // tickets.add(Tickets(
-  //   tittle: 'Internet of Things Exhibition',
-  //   category: 'Expo',
-  //   quota: '400',
-  //   posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-  //   place: "Innovation Hub",
-  //   location: "Semarang, Indonesia",
-  //   dateStart: DateFormat('E, d MMM yyy')
-  //       .format(now.subtract(const Duration(days: 8))),
-  //   status: "Close",
-  // ));
+  // 10. IoT Exhibition
+  tickets.add(Tickets(
+    tittle: 'Internet of Things Exhibition',
+    category: 'Expo',
+    quota: '400',
+    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
+    place: "Innovation Hub",
+    location: "Semarang, Indonesia",
+    dateStart: DateFormat('E, d MMM yyy')
+        .format(now.subtract(const Duration(days: 8))),
+    status: "Close",
+  ));
 
   return tickets;
 }
