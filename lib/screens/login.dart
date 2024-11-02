@@ -32,8 +32,12 @@ class LoginScreenState extends State<LoginScreen>
     super.initState();
     _loadUserPreferences();
     _setupAnimations();
-    emailFocusNode.addListener(() => setState(() {}));
-    passwordFocusNode.addListener(() => setState(() {}));
+    emailFocusNode.addListener(() {
+      if (emailFocusNode.hasFocus) setState(() => _emailError = null);
+    });
+    passwordFocusNode.addListener(() {
+      if (passwordFocusNode.hasFocus) setState(() => _passwordError = null);
+    });
   }
 
   void _setupAnimations() {
@@ -85,7 +89,7 @@ class LoginScreenState extends State<LoginScreen>
     // Show loading animation
     showDialog(
       context: context,
-      barrierDismissible: false,
+      // barrierDismissible: false,
       builder: (BuildContext context) {
         return Center(
           child: Container(
@@ -105,8 +109,9 @@ class LoginScreenState extends State<LoginScreen>
                   'Logging in...',
                   style: TextStyle(
                       fontSize: 14,
+                      fontFamily: "Inter",
                       fontWeight: FontWeight.bold,
-                      color: UIColor.primaryColor),
+                      color: Colors.black),
                 ),
               ],
             ),
@@ -191,7 +196,7 @@ class LoginScreenState extends State<LoginScreen>
         return Dialog(
           backgroundColor: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
@@ -202,11 +207,11 @@ class LoginScreenState extends State<LoginScreen>
                 Icon(
                   Icons.check_circle,
                   color: Colors.green,
-                  size: 50,
+                  size: 100,
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'Login Successful!',
+                  'Login Successful',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 16),
@@ -217,9 +222,12 @@ class LoginScreenState extends State<LoginScreen>
       },
     );
 
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop();
-      onComplete();
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        // Check if the widget is still mounted
+        Navigator.of(context).pop();
+        onComplete();
+      }
     });
   }
 
@@ -318,7 +326,7 @@ class LoginScreenState extends State<LoginScreen>
                         TextFormField(
                           controller: _passwordController,
                           focusNode: passwordFocusNode,
-                          // obscureText: securePassword,
+                          obscureText: securePassword,
                           cursorColor: UIColor.primary,
                           decoration: InputDecoration(
                             filled: true,

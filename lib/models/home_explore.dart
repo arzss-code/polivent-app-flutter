@@ -46,7 +46,7 @@ class _HomeExploreState extends State<HomeExplore> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     const Text(
                       'Hi, Atsiila Arya 👋',
                       style: TextStyle(

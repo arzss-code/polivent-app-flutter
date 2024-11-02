@@ -13,21 +13,21 @@ class SuccessJoinPopup extends StatelessWidget {
       ),
       title: const Center(
         child: Icon(
-          Icons.check_circle_outline,
+          Icons.check_circle,
           color: Colors.blue,
-          size: 48,
+          size: 150,
         ),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 16),
+          // const SizedBox(height: 8),
           const Text(
             'Congratulations!',
             style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: UIColor.primaryColor),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -38,8 +38,7 @@ class SuccessJoinPopup extends StatelessWidget {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              // Navigate to the E-Ticket view
-              //Navigator.pushNamed(context, '/e-ticket');
+              // Navigate to the TicketScreen
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const TicketScreen()),
@@ -47,10 +46,10 @@ class SuccessJoinPopup extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              fixedSize: const Size(250, 50),
+              // padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               textStyle: const TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
@@ -68,13 +67,20 @@ class SuccessJoinPopup extends StatelessWidget {
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              backgroundColor: Colors.grey[200],
+              fixedSize: const Size(250, 50),
+              // padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               textStyle: const TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
               ),
             ),
-            child: const Text('Back'),
+            child: const Text(
+              'Back',
+              style: TextStyle(color: UIColor.primaryColor),
+            ),
           ),
         ],
       ),

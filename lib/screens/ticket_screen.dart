@@ -137,7 +137,7 @@ class TicketScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   'Time',
                                   style: TextStyle(color: Colors.black),
                                 ),
@@ -192,7 +192,7 @@ class TicketScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text('Seat',
+                                const Text('Seat',
                                     style: TextStyle(color: Colors.black)),
                                 const SizedBox(height: 4),
                                 Text(

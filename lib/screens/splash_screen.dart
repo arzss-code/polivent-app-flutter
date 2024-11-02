@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/screens/welcome_screen.dart';
-// Pastikan path benar
+import 'package:polivent_app/screens/welcome_screen.dart'; // Pastikan path benar
 
 void main() {
   runApp(const MyApp());
@@ -42,7 +41,7 @@ class SplashScreenState extends State<SplashScreen> {
       });
 
       // Setelah 1 detik (animasi fade out selesai), navigasi ke WelcomeScreen
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(milliseconds: 1200), () {
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -70,9 +69,11 @@ class SplashScreenState extends State<SplashScreen> {
   }
 
   @override
-  void dispose() {
-    // Pastikan dispose dipanggil
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Precache gambar secara background di didChangeDependencies untuk menghindari error MediaQuery
+    precacheImage(const AssetImage('assets/images/welcome.png'), context);
   }
 
   @override
