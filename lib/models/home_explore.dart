@@ -46,7 +46,7 @@ class _HomeExploreState extends State<HomeExplore> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     const Text(
                       'Hi, Atsiila Arya 👋',
                       style: TextStyle(
@@ -88,7 +88,7 @@ class _HomeExploreState extends State<HomeExplore> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 63),
+                const SizedBox(height: 68),
                 SearchEventsWidget(
                     key: _searchKey), //! memanggil model => search
                 const SizedBox(height: 4),

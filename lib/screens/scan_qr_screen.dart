@@ -6,6 +6,8 @@ import 'package:polivent_app/models/ui_colors.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:polivent_app/screens/home.dart';
+
 class QRScanScreen extends StatefulWidget {
   final String eventId;
 
@@ -89,13 +91,21 @@ class _QRScanScreenState extends State<QRScanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Scan QR Code for Attendance'),
         backgroundColor: UIColor.solidWhite,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     // Navigate to the home screen
+        //     Navigator.pushAndRemoveUntil(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => const Home()),
+        //       (Route<dynamic> route) => false,
+        //     );
+        //   },
+        // ),
       ),
       body: Stack(
         children: [

@@ -1,7 +1,9 @@
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:3100013983.
 import 'package:flutter/material.dart';
 import 'package:polivent_app/screens/edit_profile.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/help.dart';
+import 'package:polivent_app/screens/login.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -76,12 +78,7 @@ class SettingsScreen extends StatelessWidget {
             title: 'Sign Out',
             trailingIcon: null,
             onTap: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return const LogoutDialog();
-                },
-              );
+              showLogoutBottomSheet(context);
             },
             titleColor: Colors.red,
             leadingIconColor: Colors.red,
@@ -144,34 +141,89 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-class LogoutDialog extends StatelessWidget {
-  const LogoutDialog({super.key});
+void showLogoutBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Sign out',
+              style: TextStyle(color: Colors.red, fontSize: 24),
+            ),
+            Divider(
+              height: 48,
+              color: Colors.grey[300],
+              thickness: 1,
+              indent: 16,
+              endIndent: 16,
+            ),
+            // const SizedBox(height: 16),
+            const Text(
+              'Are you sure you want to sign out?\n'
+              'You can always sign back to explore more\n'
+              'events and stay updated!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the bottom sheet
+                  },
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: const Size(150, 50),
+                    // padding: const EdgeInsets.symmetric(
+                    //     horizontal: 50, vertical: 20),
+                    backgroundColor: Colors
+                        .grey[200], // Set Cancel button background to grey 200
+                  ),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: UIColor.primaryColor),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Tambahkan logika logout di sini, misalnya:
+                    // FirebaseAuth.instance.signOut();
 
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Sign out', style: TextStyle(color: Colors.red)),
-      content: const Text(
-        'Are you sure you want to sign out?\n'
-        'You can always sign back to explore more\n'
-        'events and stay updated!',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(); // Close the dialog
-          },
-          child: const Text('Cancel'),
+                    // Setelah logout, arahkan pengguna ke halaman login
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => const LoginScreen()),
+                        (Route<dynamic> route) => false);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: const Size(150, 50),
+                    // padding: const EdgeInsets.symmetric(
+                    //     horizontal: 50, vertical: 20),
+                    backgroundColor: Colors
+                        .blue, // Set Yes, Sign out button background to blue
+                  ),
+                  child: const Text(
+                    'Yes, Sign out',
+                    style: TextStyle(
+                        color: Colors
+                            .white), // You might want to change text color to white for better contrast
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        TextButton(
-          onPressed: () {
-            // Add your logout logic here
-            Navigator.of(context).pop(); // Close the dialog
-          },
-          child:
-              const Text('Yes, Sign out', style: TextStyle(color: Colors.blue)),
-        ),
-      ],
-    );
-  }
+      );
+    },
+  );
 }

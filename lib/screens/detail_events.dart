@@ -4,6 +4,7 @@ import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/explore_carousel_section.dart';
 import 'package:polivent_app/screens/success_join.dart';
+import 'package:uicons_pro/uicons_pro.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
 class DetailEvents extends StatefulWidget {
@@ -32,6 +33,7 @@ class _DetailEventsState extends State<DetailEvents> {
 
   final int availableTickets = 44;
 
+  bool _showFullDescription = false; // State
   bool isLoved = false; // State for love button interaction
 
   @override
@@ -114,7 +116,7 @@ class _DetailEventsState extends State<DetailEvents> {
                 const SizedBox(height: 4),
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
+                      horizontal: 20.0,
                       vertical: 8.0), // Updated padding(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +129,7 @@ class _DetailEventsState extends State<DetailEvents> {
                               eventTitle,
                               style: const TextStyle(
                                 fontSize: 20, // Title font size updated
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.bold,
                                 fontFamily: 'Inter',
                               ),
                             ),
@@ -148,54 +150,54 @@ class _DetailEventsState extends State<DetailEvents> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.place_outlined,
-                              color: UIColor.primaryColor),
+                          Icon(UIconsPro.regularRounded.house_building,
+                              size: 20, color: UIColor.primaryColor),
                           const SizedBox(width: 8),
                           Text(
                             location,
                             style: TextStyle(
                               fontFamily: 'Inter', // Set font to Inter
-                              fontSize: 14, // Set font size to 13
+                              fontSize: 16, // Set font size to 13
                               fontWeight:
                                   FontWeight.w500, // Medium weight (w500)
                               color:
-                                  Colors.grey[600], // Optionally set text color
+                                  Colors.grey[700], // Optionally set text color
                             ),
                           ),
                         ],
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.event_outlined,
-                              color: UIColor.primaryColor),
+                          Icon(UIconsPro.regularRounded.calendar_clock,
+                              size: 20, color: UIColor.primaryColor),
                           const SizedBox(width: 8),
                           Text(
                             dateTime,
                             style: TextStyle(
                               fontFamily: 'Inter', // Set font to Inter
-                              fontSize: 14, // Set font size to 13
+                              fontSize: 16, // Set font size to 13
                               fontWeight:
                                   FontWeight.w500, // Medium weight (w500)
                               color:
-                                  Colors.grey[600], // Optionally set text color
+                                  Colors.grey[700], // Optionally set text color
                             ),
                           ),
                         ],
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.confirmation_number_outlined,
-                              color: UIColor.primaryColor),
+                          Icon(UIconsPro.regularRounded.ticket_alt,
+                              size: 20, color: UIColor.primaryColor),
                           const SizedBox(width: 8),
                           Text(
                             '$totalTickets Ticket',
                             style: TextStyle(
                               fontFamily: 'Inter', // Set font to Inter
-                              fontSize: 14, // Set font size to 13
+                              fontSize: 16, // Set font size to 13
                               fontWeight:
                                   FontWeight.w500, // Medium weight (w500)
                               color:
-                                  Colors.grey[600], // Optionally set text color
+                                  Colors.grey[700], // Optionally set text color
                             ),
                           ),
                         ],
@@ -255,22 +257,46 @@ class _DetailEventsState extends State<DetailEvents> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        description,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700]),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        fullDescription,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700]),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            description,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700]),
+                          ),
+                          const SizedBox(height: 8),
+                          if (_showFullDescription) // Show full description when true
+                            Text(
+                              fullDescription,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          TextButton(
+                            iconAlignment: IconAlignment.start,
+                            // Button always at the bottom
+                            onPressed: () {
+                              setState(() {
+                                _showFullDescription = !_showFullDescription;
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.all(0),
+                              foregroundColor: Colors.blue,
+                              alignment: Alignment.centerLeft,
+                            ),
+                            child: Text(_showFullDescription
+                                ? 'Read Less'
+                                : 'Read More'),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
 
@@ -376,7 +402,7 @@ class _DetailEventsState extends State<DetailEvents> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               color: Colors.white,
               child: Row(
                 children: [
@@ -432,7 +458,7 @@ class _DetailEventsState extends State<DetailEvents> {
                           'Join',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Inter',
                           ),
