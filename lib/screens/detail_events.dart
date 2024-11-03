@@ -166,6 +166,7 @@ class _DetailEventsState extends State<DetailEvents> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
                           Icon(UIconsPro.regularRounded.calendar_clock,
@@ -184,6 +185,7 @@ class _DetailEventsState extends State<DetailEvents> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
                           Icon(UIconsPro.regularRounded.ticket_alt,
@@ -203,7 +205,7 @@ class _DetailEventsState extends State<DetailEvents> {
                         ],
                       ),
 
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
 
                       Divider(color: Colors.grey[300], thickness: 1),
 
@@ -234,7 +236,7 @@ class _DetailEventsState extends State<DetailEvents> {
                               Text(
                                 'Organizer',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 13,
                                   color: Colors.grey,
                                   fontFamily: 'Inter',
                                 ),
@@ -245,7 +247,7 @@ class _DetailEventsState extends State<DetailEvents> {
                       ),
 
                       Divider(color: Colors.grey[300], thickness: 1),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
 
                       // Descriptions
                       const Text(

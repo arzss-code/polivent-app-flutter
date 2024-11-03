@@ -25,7 +25,7 @@ class _HomeExploreState extends State<HomeExplore> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
             decoration: BoxDecoration(
               image: const DecorationImage(
                 image: AssetImage('assets/images/appbar_image.png'),
@@ -48,9 +48,9 @@ class _HomeExploreState extends State<HomeExplore> {
                   children: [
                     const SizedBox(height: 12),
                     const Text(
-                      'Hi, Atsiila Arya 👋',
+                      'Halo, Atsiila Arya 👋',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                         fontFamily: "Inter",
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -78,7 +78,7 @@ class _HomeExploreState extends State<HomeExplore> {
                 const Row(
                   children: [
                     Text(
-                      "Let's explore the events!",
+                      "Ayo mulai jelajahi event!",
                       style: TextStyle(
                         fontSize: 14,
                         fontFamily: "Inter",

@@ -100,15 +100,26 @@ class WelcomeScreen extends StatelessWidget {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30.0),
                                   ),
-                                  backgroundColor: const Color(0xff1886EA)),
-                              child: const Text(
-                                "Get Started",
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontFamily: "Inter",
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                                  backgroundColor: UIColor.primaryColor),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Ayo Mulai",
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontFamily: "Inter",
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.0),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                ],
                               ),
                             ),
                           ],

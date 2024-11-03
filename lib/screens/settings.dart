@@ -143,6 +143,7 @@ class SettingsScreen extends StatelessWidget {
 
 void showLogoutBottomSheet(BuildContext context) {
   showModalBottomSheet(
+    backgroundColor: UIColor.solidWhite,
     context: context,
     builder: (BuildContext context) {
       return Container(
