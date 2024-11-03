@@ -50,5 +50,13 @@
 
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>QR code scanner needs photos access to get QR code from photo library</string>
+
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to the camera to allow you to take profile pictures.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to allow you to select profile pictures.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to the microphone to allow video recording.</string>
+
 </dict>
 </plist>
