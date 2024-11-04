@@ -6,6 +6,7 @@ import 'package:polivent_app/models/search_events.dart';
 
 // import 'package:uicons_pro/uicons_pro.dart';
 import 'package:flutter/material.dart';
+import 'package:polivent_app/models/ui_colors.dart';
 
 class HomeExplore extends StatefulWidget {
   const HomeExplore({super.key});
@@ -100,6 +101,18 @@ class _HomeExploreState extends State<HomeExplore> {
             height: 14,
           ),
           const QuickCategorySection(), //! -- Quick Category
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: Text(
+              'Trending Events',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                color: UIColor.typoBlack,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
           const CarouselSection(), //! -- Carousel Events
           const EventList() //! -- Events Available
         ],

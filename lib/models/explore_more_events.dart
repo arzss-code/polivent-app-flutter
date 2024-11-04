@@ -1,7 +1,12 @@
-import 'package:polivent_app/models/ui_colors.dart';
-import 'package:intl/intl.dart';
-import 'package:uicons_pro/uicons_pro.dart';
 import 'package:flutter/material.dart';
+import 'package:polivent_app/models/ui_colors.dart';
+// import 'package:intl/intl.dart';
+import 'package:uicons_pro/uicons_pro.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shimmer/shimmer.dart';
+import 'package:polivent_app/screens/detail_events.dart';
+import 'package:polivent_app/models/data/events_model.dart';
 
 class EventList extends StatefulWidget {
   const EventList({super.key});
@@ -11,18 +16,80 @@ class EventList extends StatefulWidget {
 }
 
 class _EventListWidgetState extends State<EventList> {
-  List<EventsMore> _eventsMore = [];
+  List<Event> _eventsMore = [];
+  bool _isLoading = true;
+  String _error = '';
 
   @override
   void initState() {
     super.initState();
-    _eventsMore = getEventsMore();
+    fetchEvents();
+  }
+
+  Future<void> fetchEvents() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = '';
+      });
+
+      final response =
+          await http.get(Uri.parse('https://polivent.my.id/api/events'));
+
+      if (response.statusCode == 200) {
+        final dynamic jsonResponse = json.decode(response.body);
+
+        if (jsonResponse is Map && jsonResponse.containsKey('data')) {
+          final List<dynamic> eventsList = jsonResponse['data'] as List;
+          setState(() {
+            _eventsMore = eventsList
+                .map((event) => Event.fromJson(event as Map<String, dynamic>))
+                .toList();
+            _isLoading = false;
+          });
+        } else {
+          throw Exception('Unexpected JSON format');
+        }
+      } else {
+        throw Exception('Failed to load events: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load events: $e';
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_error)),
+      );
+    }
+  }
+
+  Widget _buildShimmerEventList() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: List.generate(6, (index) {
+            return Container(
+              width: (MediaQuery.of(context).size.width - 44) / 2,
+              height: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+              ),
+            );
+          }),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -38,265 +105,144 @@ class _EventListWidgetState extends State<EventList> {
           ),
         ),
         const SizedBox(height: 12),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Wrap(
-            // Wrap will automatically adjust the children horizontally and vertically
-            spacing: 10,
-            runSpacing: 10,
-            children: List.generate(_eventsMore.length, (index) {
-              //! COLORING STATUS BADGE
-              if (_eventsMore[index].status == "Open") {
-                statusColor = UIColor.solidWhite;
-              } else {
-                statusColor = UIColor.close;
-              }
+        if (_isLoading)
+          _buildShimmerEventList()
+        else if (_error.isNotEmpty)
+          Center(child: Text(_error))
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: List.generate(_eventsMore.length, (index) {
+                final event = _eventsMore[index];
+                Color statusColor =
+                    event.quota > 0 ? UIColor.solidWhite : UIColor.close;
 
-              return Container(
-                width: (MediaQuery.of(context).size.width - 44) /
-                    2, // Adaptive width for two columns
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: UIColor.solidWhite,
-                ),
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start, // Align contents to the start
-                  children: [
-                    //! Section Tittle
-                    Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Card(
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child:
-                              // Image.asset('assets/background.png',
-                              Image.network(
-                            _eventsMore[index].posterUrl,
-                            height: (MediaQuery.of(context).size.width - 44) /
-                                3, // Adjust image size
-                            width: double.infinity,
-                            alignment: Alignment.topCenter,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DetailEvents(eventId: event.eventId),
                       ),
+                    );
+                  },
+                  child: Container(
+                    width: (MediaQuery.of(context).size.width - 44) / 2,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: UIColor.solidWhite,
                     ),
-                    //! Content
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // const SizedBox(height: 0),
-                          // Container(
-                          //   // decoration: BoxDecoration(
-                          //   //   color: statusColor,
-                          //   //   borderRadius: BorderRadius.circular(24),
-                          //   // ),
-                          //   // padding: const EdgeInsets.symmetric(
-                          //   //     vertical: 2, horizontal: 10),
-                          //   child: Text(
-                          //     _eventsMore[index].status,
-                          //     style: const TextStyle(
-                          //       color: UIColor.solidWhite,
-                          //       fontSize: 10,
-                          //       fontWeight: FontWeight.w400,
-                          //     ),
-                          //   ),
-                          // ),
-                          // const SizedBox(height: 4),
-                          Text(
-                            '${_eventsMore[index].category} : ${_eventsMore[index].tittle}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: UIColor.typoBlack,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Card(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Image.network(
+                                event.poster,
+                                height:
+                                    (MediaQuery.of(context).size.width - 44) /
+                                        3,
+                                width: double.infinity,
+                                alignment: Alignment.topCenter,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          Row(
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                UIconsPro.regularRounded.user_time,
-                                color: UIColor.typoGray,
-                                size: 12,
-                              ),
-                              const SizedBox(width: 6),
                               Text(
-                                '${_eventsMore[index].quota} participants',
+                                event.title,
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w400,
+                                  fontWeight: FontWeight.bold,
                                   color: UIColor.typoBlack,
                                 ),
-                              )
-                            ],
-                          ),
-                          // const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(
-                                UIconsPro.regularRounded.house_building,
-                                color: UIColor.typoGray,
-                                size: 12,
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                _eventsMore[index].place,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  color: UIColor.typoBlack,
-                                ),
-                              )
-                            ],
-                          ),
-                          // const SizedBox(height: 4),
-                          // Row(
-                          //   children: [
-                          //     Icon(
-                          //       UIconsPro.regularRounded.marker,
-                          //       color: UIColor.typoGray,
-                          //       size: 12,
-                          //     ),
-                          //     const SizedBox(width: 4),
-                          //     Text(
-                          //       _eventsMore[index].location,
-                          //       style: const TextStyle(
-                          //         fontSize: 12,
-                          //         fontWeight: FontWeight.w400,
-                          //         color: UIColor.typoBlack,
-                          //       ),
-                          //     )
-                          //   ],
-                          // ),
-                          // const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(
-                                UIconsPro.regularRounded.calendar,
-                                color: UIColor.typoGray,
-                                size: 12,
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Icon(
+                                    UIconsPro.regularRounded.user_time,
+                                    color: UIColor.typoGray,
+                                    size: 12,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '${event.quota} participants',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: UIColor.typoBlack,
+                                    ),
+                                  )
+                                ],
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                _eventsMore[index].dateStart,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  color: UIColor.typoBlack,
-                                ),
-                              )
+                              Row(
+                                children: [
+                                  Icon(
+                                    UIconsPro.regularRounded.house_building,
+                                    color: UIColor.typoGray,
+                                    size: 12,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    event.location,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: UIColor.typoBlack,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    UIconsPro.regularRounded.calendar,
+                                    color: UIColor.typoGray,
+                                    size: 12,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    event.dateStart,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: UIColor.typoBlack,
+                                    ),
+                                  )
+                                ],
+                              ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
                     ),
-                    const SizedBox(height: 14),
-                  ],
-                ),
-              );
-            }),
+                  ),
+                );
+              }),
+            ),
           ),
-        ),
         const SizedBox(
           height: 12,
         ),
       ],
     );
   }
-}
-
-class EventsMore {
-  String tittle;
-  String category;
-  String quota;
-  String posterUrl;
-  String place;
-  String location;
-  String dateStart;
-  String status;
-
-  EventsMore({
-    required this.tittle,
-    required this.category,
-    required this.quota,
-    required this.posterUrl,
-    required this.place,
-    required this.location,
-    required this.dateStart,
-    required this.status,
-  });
-}
-
-List<EventsMore> getEventsMore() {
-  DateTime now = DateTime.now();
-  List<EventsMore> events = [];
-
-  events.add(EventsMore(
-    tittle: 'Techcomfest',
-    category: 'Seminar',
-    quota: '200',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT Lt. 2",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Open",
-  ));
-  events.add(EventsMore(
-    tittle: 'AI For Technology ',
-    category: 'Seminar',
-    quota: '120',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
-  ));
-  events.add(EventsMore(
-    tittle: 'Seminar Nasional Techcomfest',
-    category: 'Seminar',
-    quota: '200',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT Lt. 2",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Full",
-  ));
-  events.add(EventsMore(
-    tittle: 'Seminar Nasional Techcomfest',
-    category: 'Seminar',
-    quota: '200',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT Lt. 2",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Close",
-  ));
-  events.add(EventsMore(
-    tittle: 'Seminar Nasional Techcomfest',
-    category: 'Seminar',
-    quota: '200',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT Lt. 2",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Full",
-  ));
-  events.add(EventsMore(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Available",
-  ));
-  return events;
 }

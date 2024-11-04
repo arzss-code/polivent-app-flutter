@@ -14,7 +14,7 @@ import 'package:shimmer/shimmer.dart';
 class DetailEvents extends StatefulWidget {
   final int eventId;
 
-  const DetailEvents({Key? key, required this.eventId}) : super(key: key);
+  const DetailEvents({super.key, required this.eventId});
 
   @override
   State<DetailEvents> createState() => _DetailEventsState();
@@ -668,7 +668,7 @@ class _DetailEventsState extends State<DetailEvents> {
 class PhotoViewScreen extends StatelessWidget {
   final String imageUrl;
 
-  const PhotoViewScreen({Key? key, required this.imageUrl}) : super(key: key);
+  const PhotoViewScreen({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
