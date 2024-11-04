@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-// import 'package:intl/intl.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 import 'package:polivent_app/screens/detail_events.dart';
 import 'package:polivent_app/models/data/events_model.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class EventList extends StatefulWidget {
   const EventList({super.key});
@@ -23,7 +24,23 @@ class _EventListWidgetState extends State<EventList> {
   @override
   void initState() {
     super.initState();
-    fetchEvents();
+    initializeDateFormatting('id_ID', null).then((_) => fetchEvents());
+  }
+
+  String formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      final formatter = DateFormat('d MMMM yyyy', 'id_ID');
+      return formatter.format(date);
+    } catch (e) {
+      return dateString; // Return original string if parsing fails
+    }
+  }
+
+  void updateEventList() {
+    setState(() {
+      // Memperbarui data event list jika diperlukan
+    });
   }
 
   Future<void> fetchEvents() async {
@@ -93,17 +110,6 @@ class _EventListWidgetState extends State<EventList> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-          child: Text(
-            'Events Available',
-            textAlign: TextAlign.right,
-            style: TextStyle(
-                color: UIColor.typoBlack,
-                fontSize: 18,
-                fontWeight: FontWeight.w800),
-          ),
-        ),
         const SizedBox(height: 12),
         if (_isLoading)
           _buildShimmerEventList()
@@ -219,7 +225,7 @@ class _EventListWidgetState extends State<EventList> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    event.dateStart,
+                                    formatDate(event.dateStart),
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w400,

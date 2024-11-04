@@ -4,10 +4,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:uicons_pro/uicons_pro.dart';
-import 'package:intl/intl.dart';
 import 'package:polivent_app/screens/detail_events.dart';
 import 'package:polivent_app/models/data/events_model.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class CarouselSection extends StatefulWidget {
   const CarouselSection({super.key});
@@ -24,7 +25,24 @@ class _CarouselEventsState extends State<CarouselSection> {
   @override
   void initState() {
     super.initState();
-    fetchEvents();
+    initializeDateFormatting('id_ID', null).then((_) => fetchEvents());
+  }
+  
+
+  void updateCarousel() {
+    setState(() {
+      // Memperbarui data carousel jika diperlukan
+    });
+  }
+
+  String formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      final formatter = DateFormat('EEEE, d MMMM yyyy', 'id_ID');
+      return formatter.format(date);
+    } catch (e) {
+      return dateString; // Return original string if parsing fails
+    }
   }
 
   Future<void> fetchEvents() async {
@@ -370,7 +388,7 @@ class _CarouselEventsState extends State<CarouselSection> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Text(
-                                                  event.dateStart,
+                                                  formatDate(event.dateStart),
                                                   style: const TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w400,

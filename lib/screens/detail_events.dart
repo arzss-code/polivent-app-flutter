@@ -5,7 +5,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:polivent_app/models/data/events_model.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
-import 'package:polivent_app/models/share.dart';
 import 'package:polivent_app/screens/success_join.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:intl/intl.dart';
@@ -479,7 +478,7 @@ class _DetailEventsState extends State<DetailEvents> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            const CommentSection(),
+                            const BagianKomentar(),
                             const SizedBox(height: 100),
                           ],
                         ),
