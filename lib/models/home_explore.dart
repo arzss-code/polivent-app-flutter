@@ -80,7 +80,7 @@ class _HomeExploreState extends State<HomeExplore> {
                     Text(
                       "Ayo mulai jelajahi event!",
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         fontFamily: "Inter",
                         fontWeight: FontWeight.w500,
                         color: Colors.white,

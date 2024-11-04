@@ -6,7 +6,6 @@ import 'package:polivent_app/models/ui_colors.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:polivent_app/screens/home.dart';
 
 class QRScanScreen extends StatefulWidget {
   final String eventId;

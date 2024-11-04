@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.polines.mobile.polivent_app"
-    compileSdk = flutter.compileSdkVersion 33
+    compileSdk = flutter.compileSdkVersion // TODO: Update to the current Android 33
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
