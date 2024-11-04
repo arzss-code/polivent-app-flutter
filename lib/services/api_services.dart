@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/events_model.dart';
+import '../models/data/events_model.dart';
 
 class ApiService {
   final String baseUrl = 'http://localhost/api-polyvent'; // Base URL API Anda

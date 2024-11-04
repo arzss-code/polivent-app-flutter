@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:photo_view/photo_view.dart';
+import 'package:polivent_app/models/data/events_model.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/models/share.dart';
@@ -9,47 +10,6 @@ import 'package:polivent_app/screens/success_join.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
-
-class Event {
-  final int eventId;
-  final String title;
-  final String dateAdd;
-  final int categoryId;
-  final String descEvent;
-  final String poster;
-  final String location;
-  final int quota;
-  final String dateStart;
-  final String dateEnd;
-
-  Event({
-    required this.eventId,
-    required this.title,
-    required this.dateAdd,
-    required this.categoryId,
-    required this.descEvent,
-    required this.poster,
-    required this.location,
-    required this.quota,
-    required this.dateStart,
-    required this.dateEnd,
-  });
-
-  factory Event.fromJson(Map<String, dynamic> json) {
-    return Event(
-      eventId: json['event_id'] ?? 0,
-      title: json['title'] ?? 'No Title',
-      dateAdd: json['date_add'] ?? '',
-      categoryId: json['category_id'] ?? 0,
-      descEvent: json['desc_event'] ?? '',
-      poster: json['poster'] ?? '',
-      location: json['location'] ?? '',
-      quota: json['quota'] ?? 0,
-      dateStart: json['date_start'] ?? '',
-      dateEnd: json['date_end'] ?? '',
-    );
-  }
-}
 
 class DetailEvents extends StatefulWidget {
   final int eventId;
@@ -73,7 +33,7 @@ class _DetailEventsState extends State<DetailEvents> {
 
   Future<Event> fetchEvent() async {
     // Simulate network delay
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
     final response = await http.get(
       Uri.parse('https://polivent.my.id/api/events/${widget.eventId}'),
@@ -108,48 +68,44 @@ class _DetailEventsState extends State<DetailEvents> {
   Widget buildEventImage(String imageUrl) {
     return GestureDetector(
       onTap: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return Dialog(
-              backgroundColor: Colors.transparent,
-              insetPadding: EdgeInsets.zero,
-              child: PhotoView(
-                imageProvider: NetworkImage(imageUrl),
-                backgroundDecoration:
-                    const BoxDecoration(color: Colors.black87),
-                minScale: PhotoViewComputedScale.contained,
-                maxScale: PhotoViewComputedScale.covered * 2,
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PhotoViewScreen(imageUrl: imageUrl),
+          ),
+        );
+      },
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          height: 300,
+          width: double.infinity,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
               ),
             );
           },
-        );
-      },
-      child: Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        height: 300,
-        width: double.infinity,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!
-                  : null,
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            height: 300,
-            color: Colors.grey[300],
-            child: const Center(
-              child: Icon(Icons.error_outline, size: 50, color: Colors.grey),
-            ),
-          );
-        },
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              height: 300,
+              color: Colors.grey[300],
+              child: const Center(
+                child: Icon(Icons.error_outline, size: 50, color: Colors.grey),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -704,6 +660,41 @@ class _DetailEventsState extends State<DetailEvents> {
           }
           return const SizedBox();
         },
+      ),
+    );
+  }
+}
+
+class PhotoViewScreen extends StatelessWidget {
+  final String imageUrl;
+
+  const PhotoViewScreen({Key? key, required this.imageUrl}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: PhotoView(
+        imageProvider: NetworkImage(imageUrl),
+        minScale: PhotoViewComputedScale.contained,
+        maxScale: PhotoViewComputedScale.covered * 2,
+        backgroundDecoration: const BoxDecoration(
+          color: Colors.black,
+        ),
+        loadingBuilder: (context, event) => Center(
+          child: CircularProgressIndicator(
+            value: event?.expectedTotalBytes != null
+                ? event!.cumulativeBytesLoaded / event.expectedTotalBytes!
+                : null,
+          ),
+        ),
       ),
     );
   }
