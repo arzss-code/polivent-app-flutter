@@ -8,6 +8,7 @@ import 'package:polivent_app/models/share.dart';
 import 'package:polivent_app/screens/success_join.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Event {
   final int eventId;
@@ -71,6 +72,9 @@ class _DetailEventsState extends State<DetailEvents> {
   }
 
   Future<Event> fetchEvent() async {
+    // Simulate network delay
+    await Future.delayed(Duration(seconds: 2));
+
     final response = await http.get(
       Uri.parse('https://polivent.my.id/api/events/${widget.eventId}'),
     );
@@ -150,13 +154,208 @@ class _DetailEventsState extends State<DetailEvents> {
     );
   }
 
+  Widget _buildLoadingShimmer() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 300,
+              width: double.infinity,
+              color: Colors.white,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 8.0,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 24,
+                    width: double.infinity,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 20,
+                        height: 20,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 16,
+                        width: 200,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 20,
+                        height: 20,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 16,
+                        width: 150,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 20,
+                        height: 20,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 16,
+                        width: 100,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 20,
+                        width: 100,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 100,
+                        width: double.infinity,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<Event>(
         future: futureEvent,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Stack(
+              children: [
+                _buildLoadingShimmer(),
+                // Custom AppBar tetap ditampilkan saat loading
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 48,
+                      horizontal: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.7),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                        const Spacer(),
+                        const Text(
+                          'Detail Event',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.share,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            onPressed: () {},
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          } else if (snapshot.hasData) {
             final event = snapshot.data!;
             return Stack(
               children: [
@@ -394,9 +593,7 @@ class _DetailEventsState extends State<DetailEvents> {
                               color: Colors.white,
                               size: 18,
                             ),
-                            onPressed: () {
-                              // Implement share functionality
-                            },
+                            onPressed: () {},
                           ),
                         ),
                       ],
@@ -504,9 +701,8 @@ class _DetailEventsState extends State<DetailEvents> {
                 ],
               ),
             );
-          } else {
-            return const Center(child: CircularProgressIndicator());
           }
+          return const SizedBox();
         },
       ),
     );

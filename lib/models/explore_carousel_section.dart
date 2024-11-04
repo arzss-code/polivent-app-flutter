@@ -79,7 +79,6 @@ class _CarouselEventsState extends State<CarouselSection> {
         final dynamic jsonResponse = json.decode(response.body);
         
         if (jsonResponse is Map && jsonResponse.containsKey('data')) {
-          // If the response has a 'data' wrapper
           final List<dynamic> eventsList = jsonResponse['data'] as List;
           setState(() {
             _eventsCarousel = eventsList
@@ -88,7 +87,6 @@ class _CarouselEventsState extends State<CarouselSection> {
             _isLoading = false;
           });
         } else if (jsonResponse is List) {
-          // If the response is directly a list
           setState(() {
             _eventsCarousel = jsonResponse
                 .map((event) => Event.fromJson(event as Map<String, dynamic>))
@@ -164,42 +162,119 @@ class _CarouselEventsState extends State<CarouselSection> {
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Stack(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: UIColor.solidWhite,
-                              borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(12),
-                                bottomRight: Radius.circular(12),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                                color: UIColor.bgCarousel.withOpacity(0.4),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Category : ${event.title}",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: UIColor.solidWhite,
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              UIconsPro.regularRounded.user,
+                                              color: UIColor.solidWhite,
+                                              size: 12,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              "${event.quota} people",
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                                color: UIColor.solidWhite,
+                                               ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              UIconsPro.regularRounded.house_building,
+                                              color: UIColor.solidWhite,
+                                              size: 12,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              event.location,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                                color: UIColor.solidWhite,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              UIconsPro.regularRounded.calendar,
+                                              color: UIColor.solidWhite,
+                                              size: 12,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              event.dateStart,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                                color: UIColor.solidWhite,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Container(
+                                          width: 100,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                            color: event.quota > 0 ? UIColor.secondaryColor : UIColor.rejected,
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                          child: Text(
+                                            event.quota > 0 ? "Join" : "Full",
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: UIColor.solidWhite,
+                                              height: 2.5,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  event.title,
-                                  style: TextStyle(
-                                    color: UIColor.typoBlack,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  DateFormat('dd MMM yyyy').format(
-                                    DateTime.parse(event.dateStart),
-                                  ),
-                                  style: TextStyle(
-                                    color: UIColor.typoGray,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
                         ),
