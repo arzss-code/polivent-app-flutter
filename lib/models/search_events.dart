@@ -29,7 +29,7 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
           ),
           isDense: true,
           alignLabelWithHint: true,
-          hintText: 'Search event...',
+          hintText: 'Cari event...',
           contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
           hintStyle: const TextStyle(color: UIColor.typoGray, fontSize: 14),
           filled: true,

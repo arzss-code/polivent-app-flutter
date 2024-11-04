@@ -1,96 +1,247 @@
-import 'package:polivent_app/models/search_events.dart';
-import 'package:polivent_app/models/ui_colors.dart';
-import 'package:intl/intl.dart';
-import 'package:uicons_pro/uicons_pro.dart';
 import 'package:flutter/material.dart';
+import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/models/data/events_model.dart';
+import 'package:uicons_pro/uicons_pro.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shimmer/shimmer.dart';
+import 'package:polivent_app/screens/detail_events.dart';
+import 'package:polivent_app/models/search_events.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class HomeEvents extends StatefulWidget {
-  const HomeEvents({super.key});
+  const HomeEvents({Key? key}) : super(key: key);
 
   @override
   State<HomeEvents> createState() => _HomeEventsState();
 }
 
 class _HomeEventsState extends State<HomeEvents> {
-  late List<Events> _events;
+  List<Event> _events = [];
+  bool _isLoading = true;
+  String _error = '';
 
   @override
   void initState() {
     super.initState();
-    _events = getEvents();
+    initializeDateFormatting('id_ID', null).then((_) => fetchEvents());
+  }
+
+  String formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      final formatter = DateFormat('EEEE, d MMMM yyyy', 'id_ID');
+      return formatter.format(date);
+    } catch (e) {
+      return dateString; // Return original string if parsing fails
+    }
+  }
+
+  Future<void> fetchEvents() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = '';
+      });
+
+      final response =
+          await http.get(Uri.parse('https://polivent.my.id/api/events'));
+
+      if (response.statusCode == 200) {
+        final dynamic jsonResponse = json.decode(response.body);
+
+        if (jsonResponse is Map && jsonResponse.containsKey('data')) {
+          final List<dynamic> eventsList = jsonResponse['data'] as List;
+          setState(() {
+            _events = eventsList
+                .map((event) => Event.fromJson(event as Map<String, dynamic>))
+                .toList();
+            _isLoading = false;
+          });
+        } else {
+          throw Exception('Unexpected JSON format');
+        }
+      } else {
+        throw Exception('Failed to load events: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load events: $e';
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_error)),
+      );
+    }
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 144,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+              ),
+              child: Row(
+                children: [
+                  // Shimmer for the image
+                  Container(
+                    width: 90,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 12, 8, 4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Shimmer for the title
+                          Container(
+                            height: 20,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          // Shimmer for the info rows
+                          ...List.generate(3, (index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Container(
+                                height: 16,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  color: Colors.white,
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      AppBar(
-        automaticallyImplyLeading: false, // remove leading(left) back icon
-        centerTitle: true,
-        backgroundColor: UIColor.solidWhite,
-        scrolledUnderElevation: 0,
-        title: const Text(
-          "Events",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: UIColor.typoBlack,
+    return Column(
+      children: [
+        AppBar(
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          backgroundColor: UIColor.solidWhite,
+          scrolledUnderElevation: 0,
+          title: const Text(
+            "Events",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: UIColor.typoBlack,
+            ),
           ),
         ),
-      ),
-      Expanded(
+        Expanded(
           child: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-            child: SearchEventsWidget(),
-          ),
-          Expanded(
-              child: _events.isNotEmpty
-                  ? ListView.builder(
-                      padding: EdgeInsets.zero,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: _events.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                          child: _buildEventCard(_events[index]),
-                        );
-                      },
-                    )
-                  : const Center(
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image(
-                              image: AssetImage('assets/images/no-events.png'),
-                              height: 150,
-                              width: 150,
-                            ),
-                            SizedBox(height: 20),
-                            Text(
-                              'No Upcoming Events',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: UIColor.primaryColor),
-                            ),
-                            SizedBox(height: 10),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 30),
-                              child: Text(
-                                'There are no upcoming events at the moment. Please check back later.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.black45),
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: SearchEventsWidget(),
+              ),
+              Expanded(
+                child: _isLoading
+                    ? _buildShimmerLoading()
+                    : _error.isNotEmpty
+                        ? Center(child: Text(_error))
+                        : _events.isEmpty
+                            ? const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image(
+                                      image: AssetImage(
+                                          'assets/images/no-events.png'),
+                                      height: 150,
+                                      width: 150,
+                                    ),
+                                    SizedBox(height: 20),
+                                    Text(
+                                      'No Upcoming Events',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: UIColor.primaryColor,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 30),
+                                      child: Text(
+                                        'There are no upcoming events at the moment. Please check back later.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.black45),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                padding: EdgeInsets.zero,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                itemCount: _events.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => DetailEvents(
+                                                eventId:
+                                                    _events[index].eventId),
+                                          ),
+                                        );
+                                      },
+                                      child: _buildEventCard(_events[index]),
+                                    ),
+                                  );
+                                },
                               ),
-                            ),
-                          ]),
-                    )),
-        ],
-      ))
-    ]);
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
-  Widget _buildEventCard(Events event) {
+  Widget _buildEventCard(Event event) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -104,9 +255,7 @@ class _HomeEventsState extends State<HomeEvents> {
             child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               child: Image.network(
-                event.posterUrl,
-                // height: (MediaQuery.of(context).size.width / 3),
-                // width: (MediaQuery.of(context).size.width / 4),
+                event.poster,
                 height: 120,
                 width: 90,
                 fit: BoxFit.cover,
@@ -120,7 +269,7 @@ class _HomeEventsState extends State<HomeEvents> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${event.category}: ${event.tittle}',
+                    '${event.title}',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -132,12 +281,12 @@ class _HomeEventsState extends State<HomeEvents> {
                   const SizedBox(height: 4),
                   _buildInfoRow(UIconsPro.regularRounded.user_time,
                       '${event.quota} seats'),
-                  _buildInfoRow(
-                      UIconsPro.regularRounded.house_building, event.place),
+                  // _buildInfoRow(
+                  //     UIconsPro.regularRounded.house_building, event.place),
                   _buildInfoRow(
                       UIconsPro.regularRounded.marker, event.location),
-                  _buildInfoRow(
-                      UIconsPro.regularRounded.calendar, event.dateStart),
+                  _buildInfoRow(UIconsPro.regularRounded.calendar,
+                      formatDate(event.dateStart)),
                 ],
               ),
             ),
@@ -170,164 +319,4 @@ class _HomeEventsState extends State<HomeEvents> {
       ),
     );
   }
-}
-
-class Events {
-  String tittle;
-  String category;
-  String quota;
-  String posterUrl;
-  String place;
-  String location;
-  String dateStart;
-  String status;
-
-  Events({
-    required this.tittle,
-    required this.category,
-    required this.quota,
-    required this.posterUrl,
-    required this.place,
-    required this.location,
-    required this.dateStart,
-    required this.status,
-  });
-}
-
-List<Events> getEvents() {
-  DateTime now = DateTime.now();
-  List<Events> events = [];
-
-  events.add(Events(
-    tittle: 'Techcom Fest 2027',
-    category: 'Competition',
-    quota: '12',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT II",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Proposed",
-  ));
-  events.add(Events(
-    tittle: 'AI For Technology ',
-    category: 'Seminar',
-    quota: '120',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Pending",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpgg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  events.add(Events(
-    tittle: 'Electro Fest',
-    category: 'Expo',
-    quota: '100',
-    posterUrl: "https://i.ibb.co.com/pW4RQff/poster-techomfest.jpg",
-    place: "GKT I",
-    location: "Semarang, Indonesia",
-    dateStart: DateFormat('E, d MMM yyy').format(now),
-    status: "Rejected",
-  ));
-  return events;
 }

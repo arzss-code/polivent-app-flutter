@@ -1,7 +1,6 @@
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter/services.dart';
 
 void main() {

@@ -89,10 +89,11 @@ class LoginScreenState extends State<LoginScreen>
     // Show loading animation
     showDialog(
       context: context,
-      // barrierDismissible: false,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Center(
           child: Container(
+            width: 200, // Tambahkan lebar yang fixed
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -108,10 +109,11 @@ class LoginScreenState extends State<LoginScreen>
                 Text(
                   'Logging in...',
                   style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: "Inter",
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
+                    fontSize: 14,
+                    fontFamily: "Inter",
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
               ],
             ),
