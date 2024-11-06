@@ -4,6 +4,7 @@ import 'package:polivent_app/models/explore_carousel_section.dart';
 import 'package:polivent_app/models/search_events.dart';
 import 'package:flutter/material.dart';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/screens/notification.dart';
 
 class HomeExplore extends StatefulWidget {
   const HomeExplore({super.key});
@@ -75,7 +76,9 @@ class _HomeExploreState extends State<HomeExplore> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationPage()));
+                          },
                             icon: const Icon(
                               Icons.notifications_rounded,
                               color: Colors.white,
