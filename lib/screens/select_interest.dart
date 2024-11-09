@@ -119,7 +119,7 @@ class _SelectInterestScreenState extends State<SelectInterestScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            const Home(), // Ganti ke screen berikutnya
+                            const HomeScreen(), // Ganti ke screen berikutnya
                       ),
                     );
                   },

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class BagianKomentar extends StatefulWidget {
-  const BagianKomentar({Key? key}) : super(key: key);
+  const BagianKomentar({super.key});
 
   @override
   BagianKomentarState createState() => BagianKomentarState();
@@ -66,7 +66,7 @@ class BagianKomentarState extends State<BagianKomentar> {
                     controller: _kontrolerKomentar,
                     decoration: InputDecoration(
                       hintText: _sedangMembalas
-                          ? 'Balas ke ${_membalasKe}...'
+                          ? 'Balas ke $_membalasKe...'
                           : 'Tulis komentar...',
                       border: InputBorder.none,
                       contentPadding:
@@ -165,7 +165,7 @@ class BagianKomentarState extends State<BagianKomentar> {
 
   void _tambahBalasan() {
     final balasanBaru = {
-      "id": "${_idYangDibalas}.${DateTime.now().millisecondsSinceEpoch}",
+      "id": "$_idYangDibalas.${DateTime.now().millisecondsSinceEpoch}",
       "pengguna": "Pengguna Saat Ini",
       "urlFotoProfil": "https://i.pravatar.cc/150?img=3",
       "teks": _kontrolerKomentar.text,

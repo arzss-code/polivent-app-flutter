@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class HomeEvents extends StatefulWidget {
-  const HomeEvents({Key? key}) : super(key: key);
+  const HomeEvents({super.key});
 
   @override
   State<HomeEvents> createState() => _HomeEventsState();
@@ -269,7 +269,7 @@ class _HomeEventsState extends State<HomeEvents> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${event.title}',
+                    event.title,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,

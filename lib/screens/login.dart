@@ -32,6 +32,12 @@ class LoginScreenState extends State<LoginScreen>
     super.initState();
     _loadUserPreferences();
     _setupAnimations();
+
+    // Tambahkan pengecekan session
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkExistingSession();
+    });
+
     emailFocusNode.addListener(() {
       if (emailFocusNode.hasFocus) setState(() => _emailError = null);
     });
@@ -58,6 +64,46 @@ class LoginScreenState extends State<LoginScreen>
 
   bool _validatePassword(String password) {
     return password.length >= 6;
+  }
+
+  Future<void> _checkExistingSession() async {
+    bool isSessionValid = await checkSession();
+    if (isSessionValid) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    }
+  }
+
+  Future<bool> checkSession() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? sessionCookie = prefs.getString('session_cookie');
+
+    if (sessionCookie == null) return false;
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://polivent.my.id/api/session'), // Tanpa .php
+        headers: {
+          'Cookie': sessionCookie,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (jsonData['status'] == 'success') {
+          await prefs.setString(
+              'users_id', jsonData['data']['users_id'].toString());
+          await prefs.setString('username', jsonData['data']['username']);
+          await prefs.setString('email', jsonData['data']['email']);
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<void> _login() async {
@@ -130,6 +176,9 @@ class LoginScreenState extends State<LoginScreen>
         body: jsonEncode({'email': email, 'password': password}),
       );
 
+      // Ambil session cookie dari header
+      String? sessionCookie = response.headers['set-cookie'];
+
       if (mounted) {
         Navigator.of(context).pop(); // Close loading dialog
       }
@@ -137,6 +186,10 @@ class LoginScreenState extends State<LoginScreen>
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         if (jsonData['status'] == 'success') {
+          if (sessionCookie != null) {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString('session_cookie', sessionCookie);
+          }
           await _saveUserPreferences(email, password);
 
           if (mounted) {
@@ -146,7 +199,7 @@ class LoginScreenState extends State<LoginScreen>
                 context,
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                      const Home(),
+                      const HomeScreen(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     const begin = Offset(1.0, 0.0);
@@ -180,6 +233,34 @@ class LoginScreenState extends State<LoginScreen>
       }
     }
   }
+
+  Future<void> logout() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? sessionCookie = prefs.getString('session_cookie');
+
+  try {
+    await http.post(
+      Uri.parse('https://polivent.my.id/api/logout.php'),
+      headers: {
+        'Cookie': sessionCookie ?? '',
+      },
+    );
+  } catch (e) {
+    // Handle error jika logout gagal
+  }
+
+  // Hapus session di local storage
+  await prefs.remove('session_cookie');
+  await prefs.remove('users_id');
+  await prefs.remove('username');
+  await prefs.remove('email');
+
+  // Kembali ke layar login
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => const LoginScreen()),
+  );
+}
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(

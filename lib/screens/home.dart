@@ -6,14 +6,14 @@ import 'package:polivent_app/models/home_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:polivent_app/screens/scan_qr_screen.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<HomeScreen> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<HomeScreen> {
   int _currentIndex = 0;
   final List<Widget> _widgetOptions = <Widget>[
     const HomeExplore(),
