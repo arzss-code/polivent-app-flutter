@@ -174,22 +174,24 @@ class _EventListWidgetState extends State<EventList> {
                               Text(
                                 event.title,
                                 style: const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: UIColor.typoBlack,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 4),
                               Row(
                                 children: [
                                   Icon(
-                                    UIconsPro.regularRounded.user_time,
+                                    UIconsPro.regularRounded.ticket_alt,
                                     color: UIColor.typoGray,
                                     size: 12,
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    '${event.quota} participants',
+                                    '${event.quota} tiket',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w400,

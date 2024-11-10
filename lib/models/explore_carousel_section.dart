@@ -344,7 +344,7 @@ class _CarouselEventsState extends State<CarouselSection> {
                                             Row(
                                               children: [
                                                 Icon(
-                                                  UIconsPro.regularRounded.user,
+                                                  UIconsPro.regularRounded.ticket_alt,
                                                   color: UIColor.solidWhite,
                                                   size: 12,
                                                 ),

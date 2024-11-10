@@ -271,7 +271,7 @@ class _HomeEventsState extends State<HomeEvents> {
                   Text(
                     event.title,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: UIColor.typoBlack,
                     ),
@@ -279,8 +279,8 @@ class _HomeEventsState extends State<HomeEvents> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  _buildInfoRow(UIconsPro.regularRounded.user_time,
-                      '${event.quota} seats'),
+                  _buildInfoRow(UIconsPro.regularRounded.ticket_alt,
+                      '${event.quota} tiket'),
                   // _buildInfoRow(
                   //     UIconsPro.regularRounded.house_building, event.place),
                   _buildInfoRow(
@@ -301,13 +301,13 @@ class _HomeEventsState extends State<HomeEvents> {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Icon(icon, color: UIColor.primaryColor, size: 12),
+          Icon(icon, color: UIColor.primaryColor, size: 14),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               text,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w400,
                 color: UIColor.typoBlack,
               ),
