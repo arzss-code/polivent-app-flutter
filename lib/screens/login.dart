@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:polivent_app/screens/forgot_password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'home.dart';
@@ -412,7 +413,12 @@ class LoginScreenState extends State<LoginScreen>
                         // Forgot password button
                         TextButton(
                           onPressed: () {
-                            // Add forgot password functionality
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ForgotPasswordScreen(),
+                              ),
+                            );
                           },
                           child: const Text(
                             "Forgot Password?",
@@ -422,7 +428,6 @@ class LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
                         // Login button with animation
                         ElevatedButton(
                           onPressed: _login,
