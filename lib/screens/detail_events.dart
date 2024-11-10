@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:photo_view/photo_view.dart';
 import 'package:polivent_app/models/data/events_model.dart';
+import 'package:polivent_app/models/share.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/screens/success_join.dart';
@@ -548,7 +549,12 @@ class _DetailEventsState extends State<DetailEvents> {
                               color: Colors.white,
                               size: 18,
                             ),
-                            onPressed: () {},
+                            onPressed: () {ShareBottomSheet.show(context,
+      eventName: "Flutter Workshop",
+      eventDate: "12 Dec 2024",
+      eventLocation: "Online",
+      eventDescription: "Learn advanced Flutter techniques with experts!",
+      eventLink: "https://example.com",);},
                           ),
                         ),
                       ],
