@@ -4,9 +4,46 @@ import 'package:polivent_app/screens/edit_profile.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/help.dart';
 import 'package:polivent_app/screens/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uicons_pro/uicons_pro.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  _SettingsScreenState createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _notificationsEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationPreference();
+  }
+
+  void _loadNotificationPreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
+    });
+  }
+
+  void _toggleNotifications(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notificationsEnabled = value;
+      prefs.setBool('notificationsEnabled', value);
+    });
+  }
+
+  void _signOut() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Membersihkan semua data yang tersimpan
+    Navigator.pushReplacementNamed(
+        context, '/login'); // Mengarahkan ke layar login
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +77,7 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 20.0),
           _buildSectionTitle(title: 'Account Settings'),
           _buildListTile(
-              leadingIcon: Icons.person,
+              leadingIcon: UIconsPro.solidRounded.user_pen,
               title: 'Edit Profile',
               trailingIcon: Icons.arrow_forward_ios,
               onTap: () {
@@ -53,11 +90,18 @@ class SettingsScreen extends StatelessWidget {
               }),
           const SizedBox(height: 20.0),
           _buildSectionTitle(title: 'Preferences'),
-          _buildListTile(
-            leadingIcon: Icons.notifications,
-            title: 'Notifications',
-            trailingIcon: Icons.arrow_forward_ios,
-            onTap: () {},
+          SwitchListTile(
+            title: const Text('Enable Notifications'),
+            value: _notificationsEnabled,
+            onChanged: _toggleNotifications,
+            secondary: const Icon(
+              Icons.notifications_on_rounded,
+              color: UIColor.primaryColor,
+            ),
+            tileColor: UIColor.solidWhite,
+            activeColor: UIColor.primaryColor,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           _buildListTile(
             leadingIcon: Icons.help,
@@ -120,7 +164,7 @@ class SettingsScreen extends StatelessWidget {
 
       leading: Icon(
         leadingIcon,
-        color: leadingIconColor ?? Colors.grey,
+        color: leadingIconColor ?? UIColor.primaryColor,
         size: iconSize?.width ?? 24.0,
       ),
       title: Text(

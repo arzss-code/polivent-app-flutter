@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -28,6 +29,21 @@ class _NotificationPageState extends State<NotificationPage> {
     // Tambahkan notifikasi lain sesuai kebutuhan
   ];
 
+  bool _notificationsEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationPreference();
+  }
+
+  void _loadNotificationPreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
+    });
+  }
+
   void removeNotification(int index) {
     setState(() {
       notifications.removeAt(index);
@@ -50,32 +66,39 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
         ),
       ),
-      body: notifications.isEmpty
-          ? const EmptyNotification()
-          : ListView.builder(
-              itemCount: notifications.length,
-              itemBuilder: (context, index) {
-                return Dismissible(
-                  key: Key(notifications[index].title),
-                  onDismissed: (direction) {
-                    removeNotification(index);
+      body: !_notificationsEnabled
+          ? const Center(
+              child: Text(
+                'Notifikasi dinonaktifkan',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            )
+          : notifications.isEmpty
+              ? const EmptyNotification()
+              : ListView.builder(
+                  itemCount: notifications.length,
+                  itemBuilder: (context, index) {
+                    return Dismissible(
+                      key: Key(notifications[index].title),
+                      onDismissed: (direction) {
+                        removeNotification(index);
+                      },
+                      background: Container(
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 20.0),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      child: NotificationCard(
+                        title: notifications[index].title,
+                        message: notifications[index].message,
+                        time: notifications[index].time,
+                        type: notifications[index].type,
+                        isNew: notifications[index].isNew,
+                      ),
+                    );
                   },
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20.0),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: NotificationCard(
-                    title: notifications[index].title,
-                    message: notifications[index].message,
-                    time: notifications[index].time,
-                    type: notifications[index].type,
-                    isNew: notifications[index].isNew,
-                  ),
-                );
-              },
-            ),
+                ),
     );
   }
 }
@@ -238,5 +261,3 @@ class NotificationItem {
 }
 
 enum NotificationType { reminder, success, info, error }
-
-// EmptyNotification class remains the same

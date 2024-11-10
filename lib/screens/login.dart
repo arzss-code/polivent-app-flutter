@@ -403,7 +403,7 @@ class LoginScreenState extends State<LoginScreen>
                         const SizedBox(height: 8),
                         // Remember me switch
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          padding: const EdgeInsets.all(4),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
