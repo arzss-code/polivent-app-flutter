@@ -25,7 +25,7 @@ class WelcomeScreen extends StatelessWidget {
                           // Gambar di bagian atas
                           Positioned.fill(
                             child: Image.asset(
-                              'assets/images/welcome.png', // Ganti dengan path gambar Anda
+                              'assets/images/welcome.png',
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -96,7 +96,10 @@ class WelcomeScreen extends StatelessWidget {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                  fixedSize: const Size(350, 50),
+                                  fixedSize: Size(
+                                    MediaQuery.of(context).size.width * 1,
+                                    50,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30.0),
                                   ),

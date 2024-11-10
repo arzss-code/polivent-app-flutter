@@ -18,9 +18,9 @@ class LoginScreenState extends State<LoginScreen>
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool rememberMe = false;
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
+  bool rememberMe = false;
   bool securePassword = true;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -93,28 +93,39 @@ class LoginScreenState extends State<LoginScreen>
       builder: (BuildContext context) {
         return Center(
           child: Container(
-            width: 200, // Tambahkan lebar yang fixed
+            width: 250, // Fixed width
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 8,
+                  offset: Offset(0, 4), // Shadow position
+                ),
+              ],
             ),
             child: const Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize:
+                  MainAxisSize.min, // Ensure the column takes minimum space
               children: [
                 CircularProgressIndicator(
                   color: UIColor.primaryColor,
                 ),
-                SizedBox(height: 16),
-                Text(
-                  'Logging in...',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontFamily: "Inter",
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
+                // SizedBox(height: 16),
+                // Text(
+                //   'Logging in...',
+                //   textAlign: TextAlign.center, // Center the text
+                //   style: TextStyle(
+                //     fontSize: 16, // Increased font size for better visibility
+                //     fontFamily: "Inter",
+                //     fontWeight: FontWeight.bold,
+                //     color: Colors.black,
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -273,7 +284,7 @@ class LoginScreenState extends State<LoginScreen>
                         const Row(
                           children: [
                             Text(
-                              "Sign in",
+                              "Login",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: UIColor.typoBlack,

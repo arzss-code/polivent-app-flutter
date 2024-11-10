@@ -36,7 +36,7 @@ class _HomeExploreState extends State<HomeExplore> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
+              padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
               decoration: BoxDecoration(
                 image: const DecorationImage(
                   image: AssetImage('assets/images/appbar_image.png'),
@@ -54,49 +54,59 @@ class _HomeExploreState extends State<HomeExplore> {
               child: Column(
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Halo, Atsiila Arya 👋',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontFamily: "Inter",
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 12),
+                          Text(
+                            'Halo, Atsiila Arya 👋',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontFamily: "Inter",
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            "Ayo mulai jelajahi event!",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontFamily: "Inter",
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                          // const Spacer(),
+                        ],
                       ),
                       const Spacer(),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                                color: Color.fromRGBO(255, 255, 255, 0.185))
-                            .copyWith(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: IconButton(
-                            onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationPage()));
-                          },
-                            icon: const Icon(
-                              Icons.notifications_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            )),
-                      )
-                    ],
-                  ),
-                  const Row(
-                    children: [
-                      Text(
-                        "Ayo mulai jelajahi event!",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: "Inter",
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                                    color: Color.fromRGBO(255, 255, 255, 0.305))
+                                .copyWith(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: IconButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const NotificationPage()));
+                                },
+                                icon: const Icon(
+                                  Icons.notifications_rounded,
+                                  color: Colors.white,
+                                  size: 24,
+                                )),
+                          )
+                        ],
                       ),
                     ],
                   ),
@@ -109,27 +119,27 @@ class _HomeExploreState extends State<HomeExplore> {
             const SizedBox(height: 14),
             const QuickCategorySection(),
             const Padding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 12),
               child: Text(
                 'Trending Events',
                 textAlign: TextAlign.right,
                 style: TextStyle(
                   color: UIColor.typoBlack,
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
             const CarouselSection(),
             const Padding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+              padding: EdgeInsets.fromLTRB(20, 24, 20, 0),
               child: Text(
                 'Events Available',
                 textAlign: TextAlign.right,
                 style: TextStyle(
                     color: UIColor.typoBlack,
                     fontSize: 18,
-                    fontWeight: FontWeight.w800),
+                    fontWeight: FontWeight.w700),
               ),
             ),
             const EventList()

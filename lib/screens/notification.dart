@@ -1,12 +1,9 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 
 class NotificationPage extends StatefulWidget {
-  const NotificationPage({Key? key}) : super(key: key);
+  const NotificationPage({super.key});
 
   @override
   _NotificationPageState createState() => _NotificationPageState();
@@ -17,14 +14,14 @@ class _NotificationPageState extends State<NotificationPage> {
     NotificationItem(
       title: 'Pengingat Event',
       message: 'Event "Workshop UI/UX" akan dimulai dalam 1 jam',
-      time: DateTime.now().add(Duration(hours: 1)),
+      time: DateTime.now().add(const Duration(hours: 1)),
       type: NotificationType.reminder,
       isNew: true,
     ),
     NotificationItem(
       title: 'Pendaftaran Berhasil',
       message: 'Anda telah berhasil mendaftar pada event "Seminar Teknologi"',
-      time: DateTime.now().subtract(Duration(hours: 2)),
+      time: DateTime.now().subtract(const Duration(hours: 2)),
       type: NotificationType.success,
       isNew: false,
     ),
@@ -47,14 +44,14 @@ class _NotificationPageState extends State<NotificationPage> {
         title: const Text(
           "Notifikasi",
           style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: UIColor.typoBlack,
-            ),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: UIColor.typoBlack,
           ),
+        ),
       ),
       body: notifications.isEmpty
-          ? EmptyNotification()
+          ? const EmptyNotification()
           : ListView.builder(
               itemCount: notifications.length,
               itemBuilder: (context, index) {
@@ -66,8 +63,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   background: Container(
                     color: Colors.red,
                     alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 20.0),
-                    child: Icon(Icons.delete, color: Colors.white),
+                    padding: const EdgeInsets.only(right: 20.0),
+                    child: const Icon(Icons.delete, color: Colors.white),
                   ),
                   child: NotificationCard(
                     title: notifications[index].title,
@@ -82,8 +79,9 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 }
+
 class EmptyNotification extends StatelessWidget {
-  const EmptyNotification({Key? key}) : super(key: key);
+  const EmptyNotification({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +120,6 @@ class EmptyNotification extends StatelessWidget {
   }
 }
 
-
 class NotificationCard extends StatelessWidget {
   final String title;
   final String message;
@@ -131,13 +128,13 @@ class NotificationCard extends StatelessWidget {
   final bool isNew;
 
   const NotificationCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.message,
     required this.time,
     required this.type,
     required this.isNew,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +143,7 @@ class NotificationCard extends StatelessWidget {
       child: Card(
         color: isNew ? Colors.blue.shade50 : Colors.white,
         elevation: 1,
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(color: Colors.grey.shade200),
@@ -157,28 +154,28 @@ class NotificationCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildIcon(),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         color: UIColor.primaryColor,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       message,
-                      style: TextStyle(fontSize: 14),
+                      style: const TextStyle(fontSize: 14),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       DateFormat('dd MMM yyyy, HH:mm').format(time),
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                   ],
                 ),
@@ -214,7 +211,7 @@ class NotificationCard extends StatelessWidget {
     }
 
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         shape: BoxShape.circle,
