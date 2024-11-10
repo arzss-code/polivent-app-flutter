@@ -38,13 +38,12 @@ class _ShareOptions extends StatelessWidget {
   final String eventLink;
 
   const _ShareOptions({
-    Key? key,
     required this.eventName,
     required this.eventDate,
     required this.eventLocation,
     required this.eventDescription,
     required this.eventLink,
-  }) : super(key: key);
+  });
 
   // Fungsi untuk menyalin link ke clipboard
   void _copyLink(BuildContext context) {
@@ -82,7 +81,7 @@ class _ShareOptions extends StatelessWidget {
       ),
     );
 
-    overlay?.insert(overlayEntry);
+    overlay.insert(overlayEntry);
 
     // Menghilangkan SnackBar setelah 2 detik
     Future.delayed(const Duration(seconds: 2), () {
@@ -178,8 +177,7 @@ class _ShareIcon extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

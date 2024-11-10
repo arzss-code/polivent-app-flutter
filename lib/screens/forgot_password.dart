@@ -91,7 +91,8 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         setState(() {
           _isLoading = false;
         });
-        _showError('Failed to send reset request. Please check your connection.');
+        _showError(
+            'Failed to send reset request. Please check your connection.');
       }
     }
   }
@@ -221,13 +222,16 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                             fillColor: UIColor.solidWhite,
                             labelText: 'Email',
                             errorText: _emailError,
-                            floatingLabelStyle: const TextStyle(color: UIColor.primary),
+                            floatingLabelStyle:
+                                const TextStyle(color: UIColor.primary),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: UIColor.primary),
+                              borderSide:
+                                  const BorderSide(color: UIColor.primary),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             enabledBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: UIColor.typoGray),
+                              borderSide:
+                                  const BorderSide(color: UIColor.typoGray),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             errorBorder: OutlineInputBorder(
@@ -252,7 +256,8 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                         ElevatedButton(
                           onPressed: _isLoading ? null : _resetPassword,
                           style: ElevatedButton.styleFrom(
-                            fixedSize: Size(MediaQuery.of(context).size.width * 1, 52),
+                            fixedSize:
+                                Size(MediaQuery.of(context).size.width * 1, 52),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),

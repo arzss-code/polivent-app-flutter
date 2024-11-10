@@ -301,6 +301,10 @@ class LoginScreenState extends State<LoginScreen>
                           focusNode: emailFocusNode,
                           cursorColor: UIColor.primary,
                           decoration: InputDecoration(
+                            prefixIconConstraints: const BoxConstraints(
+                              minWidth: 50, // Lebar minimum untuk icon
+                              minHeight: 50, // Tinggi minimum untuk icon
+                            ),
                             filled: true,
                             fillColor: UIColor.solidWhite,
                             labelText: 'Email',
@@ -327,6 +331,7 @@ class LoginScreenState extends State<LoginScreen>
                             ),
                             prefixIcon: Icon(
                               UIconsPro.regularRounded.envelope,
+                              size: 22,
                               color: _emailError != null
                                   ? Colors.red
                                   : emailFocusNode.hasFocus
@@ -343,6 +348,10 @@ class LoginScreenState extends State<LoginScreen>
                           obscureText: securePassword,
                           cursorColor: UIColor.primary,
                           decoration: InputDecoration(
+                            prefixIconConstraints: const BoxConstraints(
+                              minWidth: 50, // Lebar minimum untuk icon
+                              minHeight: 50, // Tinggi minimum untuk icon
+                            ),
                             filled: true,
                             fillColor: UIColor.solidWhite,
                             labelText: 'Password',
@@ -369,6 +378,7 @@ class LoginScreenState extends State<LoginScreen>
                             ),
                             prefixIcon: Icon(
                               UIconsPro.regularRounded.lock,
+                              size: 22,
                               color: _passwordError != null
                                   ? Colors.red
                                   : passwordFocusNode.hasFocus
@@ -381,9 +391,12 @@ class LoginScreenState extends State<LoginScreen>
                                   : UIColor.typoGray,
                               onPressed: () => setState(
                                   () => securePassword = !securePassword),
-                              icon: Icon(securePassword
-                                  ? UIconsPro.solidRounded.eye_crossed
-                                  : UIconsPro.solidRounded.eye),
+                              icon: Icon(
+                                securePassword
+                                    ? UIconsPro.solidRounded.eye_crossed
+                                    : UIconsPro.solidRounded.eye,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ),
@@ -399,6 +412,7 @@ class LoginScreenState extends State<LoginScreen>
                                 style: TextStyle(
                                   color: UIColor.typoBlack,
                                   fontWeight: FontWeight.w500,
+                                  fontSize: 14,
                                 ),
                               ),
                               Switch(
@@ -411,23 +425,26 @@ class LoginScreenState extends State<LoginScreen>
                           ),
                         ),
                         // Forgot password button
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ForgotPasswordScreen(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Forgot Password?",
-                            style: TextStyle(
-                              color: UIColor.primary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
+                        // TextButton(
+                        //   onPressed: () {
+                        //     Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //         builder: (context) =>
+                        //             const ForgotPasswordScreen(),
+                        //       ),
+                        //     );
+                        //   },
+                        //   child: const Text(
+                        //     "Forgot Password?",
+                        //     style: TextStyle(
+                        //       color: UIColor.primary,
+                        //       fontWeight: FontWeight.w500,
+                        //       fontSize: 14,
+                        //     ),
+                        //   ),
+                        // ),
+                        const SizedBox(height: 18),
                         // Login button with animation
                         ElevatedButton(
                           onPressed: _login,
@@ -448,6 +465,26 @@ class LoginScreenState extends State<LoginScreen>
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ForgotPasswordScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "Forgot Password?",
+                            style: TextStyle(
+                              color: UIColor.primary,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
                             ),
                           ),
                         ),

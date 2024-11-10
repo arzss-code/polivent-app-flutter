@@ -20,6 +20,12 @@ class PoliventApp extends StatelessWidget {
 
   ThemeData _buildTheme(Brightness brightness) {
     return ThemeData(
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
       splashFactory: NoSplash
           .splashFactory, //! Hilangkan splash effect  saat menekan navbar
       highlightColor: Colors.transparent,
@@ -27,6 +33,10 @@ class PoliventApp extends StatelessWidget {
       fontFamily: "Inter",
       brightness: brightness,
       textTheme: (ThemeData(brightness: brightness).textTheme),
+      textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: UIColor.primaryColor,
+          selectionColor: Color.fromARGB(98, 24, 133, 234),
+          selectionHandleColor: UIColor.primaryColor),
       scaffoldBackgroundColor: UIColor.white,
       primaryColor: UIColor.primaryColor,
     );
