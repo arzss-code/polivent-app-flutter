@@ -1,11 +1,16 @@
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:3100013983.
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/screens/edit_profile.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/help.dart';
 import 'package:polivent_app/screens/login.dart';
+import 'package:polivent_app/services/token_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
+import 'package:http/http.dart' as http;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -43,6 +48,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.clear(); // Membersihkan semua data yang tersimpan
     Navigator.pushReplacementNamed(
         context, '/login'); // Mengarahkan ke layar login
+  }
+
+  Future<void> logout() async {
+    try {
+      final token = await getToken();
+      if (token == null) {
+        print('Token tidak ditemukan');
+        // Hapus token dari storage untuk berjaga-jaga
+        await deleteToken();
+        return;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$devApiBaseUrl/auth'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+      );
+
+      // Untuk 401 atau 200, kita tetap hapus token lokal
+      if (response.statusCode == 401 || response.statusCode == 200) {
+        await deleteToken();
+        print('Logout berhasil');
+        // Di sini bisa tambah navigasi ke halaman login jika perlu
+      } else {
+        print('Logout gagal: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      // Optional: tetap hapus token jika terjadi error
+      await deleteToken();
+    }
   }
 
   @override
@@ -243,6 +281,7 @@ void showLogoutBottomSheet(BuildContext context) {
                   onPressed: () {
                     // Tambahkan logika logout di sini, misalnya:
                     // FirebaseAuth.instance.signOut();
+                    _SettingsScreenState().logout();
 
                     // Setelah logout, arahkan pengguna ke halaman login
                     Navigator.of(context).pushAndRemoveUntil(
