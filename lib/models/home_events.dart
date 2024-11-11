@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/data/events_model.dart';
 import 'package:uicons_pro/uicons_pro.dart';
@@ -45,8 +46,7 @@ class _HomeEventsState extends State<HomeEvents> {
         _error = '';
       });
 
-      final response =
-          await http.get(Uri.parse('https://polivent.my.id/api/events'));
+      final response = await http.get(Uri.parse('$prodApiBaseUrl/events'));
 
       if (response.statusCode == 200) {
         final dynamic jsonResponse = json.decode(response.body);

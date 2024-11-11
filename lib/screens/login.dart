@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:polivent_app/screens/forgot_password.dart';
+import 'package:polivent_app/services/token_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'home.dart';
@@ -135,9 +137,8 @@ class LoginScreenState extends State<LoginScreen>
     );
 
     try {
-      const url = 'https://polivent.my.id/api/auth';
       final response = await http.post(
-        Uri.parse(url),
+        Uri.parse('$devApiBaseUrl/auth'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
@@ -149,31 +150,38 @@ class LoginScreenState extends State<LoginScreen>
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         if (jsonData['status'] == 'success') {
-          await _saveUserPreferences(email, password);
+          final token = jsonData['data']['token'];
 
-          if (mounted) {
-            // Success animation and transition
-            _showSuccessDialog(() {
-              Navigator.pushReplacement(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      const Home(),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.easeInOutCubic;
-                    var tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
-                    var offsetAnimation = animation.drive(tween);
-                    return SlideTransition(
-                        position: offsetAnimation, child: child);
-                  },
-                  transitionDuration: const Duration(milliseconds: 800),
-                ),
-              );
-            });
+          await saveToken(token);
+
+          final storedToken = await getToken();
+          if (storedToken != null && storedToken == token) {
+            await _saveUserPreferences(email, password);
+
+            if (mounted) {
+              // Success animation and transition
+              _showSuccessDialog(() {
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const Home(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0);
+                      const end = Offset.zero;
+                      const curve = Curves.easeInOutCubic;
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+                      var offsetAnimation = animation.drive(tween);
+                      return SlideTransition(
+                          position: offsetAnimation, child: child);
+                    },
+                    transitionDuration: const Duration(milliseconds: 800),
+                  ),
+                );
+              });
+            }
           }
         } else {
           if (mounted) {
