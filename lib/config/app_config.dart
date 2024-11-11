@@ -1,3 +1,2 @@
-class AppConfig {
-  static const String apiBaseUrl = "http://localhost/pbl/rest-api-polyvent";
-}
+const String devApiBaseUrl = "http://localhost/pbl/rest-api-polyvent";
+const String prodApiBaseUrl = "https://polivent/api";
