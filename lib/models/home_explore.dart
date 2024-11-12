@@ -36,14 +36,14 @@ class _HomeExploreState extends State<HomeExplore> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
+              padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
               decoration: BoxDecoration(
                 image: const DecorationImage(
                   image: AssetImage('assets/images/appbar_image.png'),
                   fit: BoxFit.cover,
                 ),
                 border: Border.all(
-                  color: Colors.blue,
+                  color: UIColor.primaryColor,
                   width: 0,
                 ),
                 borderRadius: const BorderRadius.only(
@@ -110,7 +110,7 @@ class _HomeExploreState extends State<HomeExplore> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 68),
+                  const SizedBox(height: 70),
                   SearchEventsWidget(key: _searchKey),
                   const SizedBox(height: 4),
                 ],

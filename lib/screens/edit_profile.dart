@@ -11,8 +11,17 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   String name = 'Atsila Arya';
-  String aboutMe = 'I am a student with a strong interest in mobile app development, UI/UX design, and gaming. I also enjoy competing in the fields of technology and design, constantly striving to improve my skills.';
-  List<String> interests = ['Music', 'Workshop', 'Art', 'Sport', 'Food', 'Seminar', 'E-Sport'];
+  String aboutMe =
+      'I am a student with a strong interest in mobile app development, UI/UX design, and gaming. I also enjoy competing in the fields of technology and design, constantly striving to improve my skills.';
+  List<String> interests = [
+    'Music',
+    'Workshop',
+    'Art',
+    'Sport',
+    'Food',
+    'Seminar',
+    'E-Sport'
+  ];
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
 
@@ -20,7 +29,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        TextEditingController nameController = TextEditingController(text: name);
+        TextEditingController nameController =
+            TextEditingController(text: name);
         return AlertDialog(
           title: const Text("Edit Name"),
           content: TextField(
@@ -47,7 +57,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        TextEditingController aboutController = TextEditingController(text: aboutMe);
+        TextEditingController aboutController =
+            TextEditingController(text: aboutMe);
         return AlertDialog(
           title: const Text("Edit About Me"),
           content: TextField(
@@ -75,18 +86,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        TextEditingController interestsController = TextEditingController(text: interests.join(", "));
+        TextEditingController interestsController =
+            TextEditingController(text: interests.join(", "));
         return AlertDialog(
           title: const Text("Edit Interests"),
           content: TextField(
             controller: interestsController,
-            decoration: const InputDecoration(labelText: "Enter interests (comma separated)"),
+            decoration: const InputDecoration(
+                labelText: "Enter interests (comma separated)"),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 setState(() {
-                  interests = interestsController.text.split(", ").map((e) => e.trim()).toList();
+                  interests = interestsController.text
+                      .split(", ")
+                      .map((e) => e.trim())
+                      .toList();
                 });
                 Navigator.of(context).pop();
               },
@@ -113,10 +129,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_rounded,
+              size: 24, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -147,7 +165,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         image: DecorationImage(
                           image: _profileImage != null
                               ? FileImage(_profileImage!)
-                              : const NetworkImage('https://placeholder.com/150') as ImageProvider,
+                              : const NetworkImage(
+                                      'https://placeholder.com/150')
+                                  as ImageProvider,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -250,7 +270,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             style: const TextStyle(color: Colors.white),
                           ),
                           backgroundColor: Colors.blue,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
                         ))
                     .toList(),
               ),

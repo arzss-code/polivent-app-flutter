@@ -36,25 +36,39 @@ class HelpScreen extends StatelessWidget {
       body: ListView(
         children: const [
           HelpItem(
-            title: 'What is Polivent?',
-            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-                'Ut et massa mi. Aliquam in hendrerit urna. Pellentesque '
-                'sit amet sapien fringilla, mattis ligula consectetur, '
-                'ultrices mauris. Maecenas vitae mattis tellus. Nullam q...',
+            title: 'Bagaimana cara membuat akun?',
+            content: 'Untuk membuat akun, klik tombol "Daftar" di layar login. '
+                'Isi detail Anda dan ikuti petunjuk untuk menyelesaikan proses pendaftaran.',
           ),
           HelpItem(
-            title: 'What is Polivent?',
-            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-                'Ut et massa mi. Aliquam in hendrerit urna. Pellentesque '
-                'sit amet sapien fringilla, mattis ligula consectetur, '
-                'ultrices mauris. Maecenas vitae mattis tellus. Nullam q...',
+            title: 'Bagaimana cara mengatur ulang kata sandi saya?',
+            content:
+                'Jika Anda lupa kata sandi, klik tautan "Lupa Kata Sandi" di layar login. '
+                'Masukkan alamat email Anda dan ikuti petunjuk untuk mengatur ulang kata sandi Anda.',
           ),
           HelpItem(
-            title: 'What is Polivent?',
-            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-                'Ut et massa mi. Aliquam in hendrerit urna. Pellentesque '
-                'sit amet sapien fringilla, mattis ligula consectetur, '
-                'ultrices mauris. Maecenas vitae mattis tellus. Nullam q...',
+            title: 'Bagaimana cara menghubungi dukungan?',
+            content:
+                'Jika Anda memerlukan bantuan, Anda dapat menghubungi tim dukungan kami dengan mengklik tombol "Hubungi Kami" '
+                'di aplikasi. Anda juga dapat mengirim email ke support@polivent.com.',
+          ),
+          HelpItem(
+            title: 'Bagaimana cara memperbarui profil saya?',
+            content:
+                'Untuk memperbarui profil Anda, buka layar "Pengaturan" dan klik "Edit Profil". '
+                'Lakukan perubahan yang diperlukan dan simpan pembaruan Anda.',
+          ),
+          HelpItem(
+            title: 'Bagaimana cara mengaktifkan notifikasi?',
+            content:
+                'Untuk mengaktifkan notifikasi, buka layar "Pengaturan" dan klik "Notifikasi". '
+                'Alihkan sakelar untuk mengaktifkan atau menonaktifkan notifikasi sesuai preferensi Anda.',
+          ),
+          HelpItem(
+            title: 'Bagaimana cara menghapus akun saya?',
+            content:
+                'Jika Anda ingin menghapus akun Anda, silakan hubungi tim dukungan kami di support@polivent.com. '
+                'Mereka akan membantu Anda dengan proses penghapusan akun.',
           ),
         ],
       ),

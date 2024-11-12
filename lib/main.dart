@@ -20,10 +20,15 @@ class PoliventApp extends StatelessWidget {
 
   ThemeData _buildTheme(Brightness brightness) {
     return ThemeData(
+      // Penggunaan:
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: SmoothPageTransitionsBuilder(
+            duration: Duration(milliseconds: 1000),
+            inCurve: Curves.easeOutQuint,
+            outCurve: Curves.easeInQuint,
+          ),
+          TargetPlatform.iOS: SmoothPageTransitionsBuilder(),
         },
       ),
       splashFactory: NoSplash
@@ -49,6 +54,49 @@ class PoliventApp extends StatelessWidget {
       theme: _buildTheme(Brightness.light),
       title: 'Polivent',
       home: const SplashScreen(),
+    );
+  }
+}
+
+// Versi dengan kontrol lebih detail
+class SmoothPageTransitionsBuilder extends PageTransitionsBuilder {
+  final Duration duration;
+  final Curve inCurve;
+  final Curve outCurve;
+
+  const SmoothPageTransitionsBuilder({
+    this.duration = const Duration(milliseconds: 1000),
+    this.inCurve = Curves.ease,
+    this.outCurve = Curves.ease,
+  });
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(1.0, 0.0),
+        end: Offset.zero,
+      ).animate(
+        CurvedAnimation(
+          parent: animation,
+          curve: inCurve,
+          reverseCurve: outCurve,
+        ),
+      ),
+      child: FadeTransition(
+        opacity: animation.drive(
+          Tween<double>(begin: 0.0, end: 1.0).chain(
+            CurveTween(curve: inCurve),
+          ),
+        ),
+        child: child,
+      ),
     );
   }
 }

@@ -87,7 +87,7 @@ class WelcomeScreen extends StatelessWidget {
                             ElevatedButton(
                               onPressed: () {
                                 // Aksi ketika tombol ditekan
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>

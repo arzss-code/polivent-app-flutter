@@ -1,5 +1,4 @@
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:3100013983.
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:polivent_app/config/app_config.dart';
@@ -92,8 +91,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Navigator.pop(context);
           },
           icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 20,
+            Icons.arrow_back_rounded,
+            size: 24,
           ),
         ),
         automaticallyImplyLeading: false, // remove leading(left) back icon
@@ -110,7 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         children: [
           const SizedBox(height: 20.0),
           _buildSectionTitle(title: 'Account Settings'),
@@ -133,8 +132,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             value: _notificationsEnabled,
             onChanged: _toggleNotifications,
             secondary: const Icon(
-              Icons.notifications_on_rounded,
+              Icons.notifications_active_rounded,
               color: UIColor.primaryColor,
+              size: 24,
             ),
             tileColor: UIColor.solidWhite,
             activeColor: UIColor.primaryColor,
@@ -142,7 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           _buildListTile(
-            leadingIcon: Icons.help,
+            leadingIcon: UIconsPro.solidRounded.interrogation,
             title: 'Help',
             trailingIcon: Icons.arrow_forward_ios,
             onTap: () {
@@ -156,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 20.0),
           _buildListTile(
-            leadingIcon: Icons.logout,
+            leadingIcon: UIconsPro.solidRounded.sign_out_alt,
             title: 'Sign Out',
             trailingIcon: null,
             onTap: () {
@@ -191,7 +191,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Color? titleColor,
     Color? leadingIconColor,
     Color? trailingIconColor,
-    Size? iconSize,
+    Size? leadingSize,
+    Size? trailingSize,
   }) {
     return ListTile(
       // Buat background berwarna putih
@@ -203,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       leading: Icon(
         leadingIcon,
         color: leadingIconColor ?? UIColor.primaryColor,
-        size: iconSize?.width ?? 24.0,
+        size: leadingSize?.width ?? 22,
       ),
       title: Text(
         title,
@@ -215,7 +216,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ? Icon(
               trailingIcon,
               color: trailingIconColor ?? Colors.grey,
-              size: iconSize?.width ?? 16.0,
+              size: trailingSize?.width ?? 16.0,
             )
           : null,
       onTap: onTap,

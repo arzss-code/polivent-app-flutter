@@ -7,6 +7,7 @@ import 'package:polivent_app/models/share.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/screens/success_join.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
@@ -30,6 +31,16 @@ class _DetailEventsState extends State<DetailEvents> {
     super.initState();
     futureEvent = fetchEvent();
   }
+
+  // void shareEvent(Event event) {
+  //   final String shareLink = 'https://polivent.my.id/event/${event.eventId}';
+  //   final String shareContent = 'Check out this event: ${event.title}\n'
+  //       'Date: ${formatDate(event.dateStart)}\n'
+  //       'Location: ${event.location}\n'
+  //       'Link: $shareLink';
+
+  //   Share.share(shareContent);
+  // }
 
   Future<Event> fetchEvent() async {
     // Simulate network delay
@@ -302,7 +313,11 @@ class _DetailEventsState extends State<DetailEvents> {
                               color: Colors.white,
                               size: 18,
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              // if (snapshot.hasData) {
+                              //   shareEvent(snapshot.data!);
+                              // }
+                            },
                           ),
                         ),
                       ],
@@ -549,12 +564,18 @@ class _DetailEventsState extends State<DetailEvents> {
                               color: Colors.white,
                               size: 18,
                             ),
-                            onPressed: () {ShareBottomSheet.show(context,
-      eventName: "Flutter Workshop",
-      eventDate: "12 Dec 2024",
-      eventLocation: "Online",
-      eventDescription: "Learn advanced Flutter techniques with experts!",
-      eventLink: "https://example.com",);},
+                            onPressed: () {
+                              // shareEvent(event);
+                              ShareBottomSheet.show(
+                                context,
+                                eventName: event.title,
+                                eventPoster: event.poster,
+                                eventDate: formatDate(event.dateStart),
+                                eventLocation: event.location,
+                                eventDescription: event.descEvent,
+                                eventLink: event.poster,
+                              );
+                            },
                           ),
                         ),
                       ],

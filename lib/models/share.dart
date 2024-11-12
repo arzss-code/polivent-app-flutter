@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:polivent_app/models/ui_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -7,6 +8,7 @@ class ShareBottomSheet {
   static void show(
     BuildContext context, {
     required String eventName,
+    required String eventPoster,
     required String eventDate,
     required String eventLocation,
     required String eventDescription,
@@ -20,6 +22,7 @@ class ShareBottomSheet {
       builder: (BuildContext context) {
         return _ShareOptions(
           eventName: eventName,
+          eventPoster: eventPoster,
           eventDate: eventDate,
           eventLocation: eventLocation,
           eventDescription: eventDescription,
@@ -32,6 +35,7 @@ class ShareBottomSheet {
 
 class _ShareOptions extends StatelessWidget {
   final String eventName;
+  final String eventPoster;
   final String eventDate;
   final String eventLocation;
   final String eventDescription;
@@ -39,23 +43,20 @@ class _ShareOptions extends StatelessWidget {
 
   const _ShareOptions({
     required this.eventName,
+    required this.eventPoster,
     required this.eventDate,
     required this.eventLocation,
     required this.eventDescription,
     required this.eventLink,
   });
 
-  // Fungsi untuk menyalin link ke clipboard
   void _copyLink(BuildContext context) {
     String textToCopy =
-        '$eventName\nDate: $eventDate\nLocation: $eventLocation\nDescription: $eventDescription\nMore info: $eventLink';
+        '$eventName\n$eventPoster\nDate: $eventDate\nLocation: $eventLocation\nDescription: $eventDescription\nMore info: $eventLink';
     Clipboard.setData(ClipboardData(text: textToCopy));
-
-    // Menampilkan SnackBar di bagian atas layar
     _showTopSnackBar(context, 'Event details copied to clipboard!');
   }
 
-  // Fungsi untuk menampilkan SnackBar di bagian atas layar
   void _showTopSnackBar(BuildContext context, String message) {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
@@ -83,13 +84,11 @@ class _ShareOptions extends StatelessWidget {
 
     overlay.insert(overlayEntry);
 
-    // Menghilangkan SnackBar setelah 2 detik
     Future.delayed(const Duration(seconds: 2), () {
       overlayEntry.remove();
     });
   }
 
-  // Fungsi untuk membuka URL
   Future<void> _launchUrl(String platform, String message) async {
     final encodedMessage = Uri.encodeComponent(message);
     String url = '';
@@ -102,7 +101,7 @@ class _ShareOptions extends StatelessWidget {
         url = 'https://www.tiktok.com/share?url=$eventLink';
         break;
       case 'instagram':
-        url = 'https://www.instagram.com/?text=$encodedMessage';
+        url = 'https://www.instagram.com/create/story/?media=$encodedMessage';
         break;
     }
 
@@ -116,7 +115,7 @@ class _ShareOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String shareMessage =
-        '$eventName\nDate: $eventDate\nLocation: $eventLocation\nDetails: $eventDescription\nJoin here: $eventLink';
+        '$eventName\n\nDate: $eventDate\nLocation: $eventLocation\nDetails: $eventDescription\n\nJoin here: $eventLink';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -127,16 +126,39 @@ class _ShareOptions extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // // Menampilkan poster acara
+          // ClipRRect(
+          //   borderRadius: BorderRadius.circular(10),
+          //   child: Image.network(
+          //     eventPoster,
+          //     height: 150,
+          //     width: double.infinity,
+          //     fit: BoxFit.cover,
+          //   ),
+          // ),
+          // const SizedBox(height: 16),
+          Text(
+            eventName,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Date: $eventDate\nLocation: $eventLocation',
+            style: const TextStyle(fontSize: 14, color: UIColor.typoGray),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
           const Text(
-            'Share',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            'Share this event:',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _ShareIcon(
-                icon: Icons.link,
+                icon: Icons.copy,
                 label: 'Copy Link',
                 onTap: () => _copyLink(context),
               ),
@@ -157,10 +179,21 @@ class _ShareOptions extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          TextButton(
+          const SizedBox(height: 24),
+          ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.red)),
+            style: ElevatedButton.styleFrom(
+              fixedSize: Size(
+                MediaQuery.of(context).size.width * 0.8,
+                50,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              // backgroundColor: UIColor.primaryColor
+            ),
+            child: const Text('Cancel',
+                style: TextStyle(color: UIColor.primaryColor, fontSize: 14)),
           ),
         ],
       ),
@@ -185,7 +218,14 @@ class _ShareIcon extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          Icon(icon, size: 40),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.blueAccent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.all(12),
+            child: Icon(icon, size: 35, color: Colors.white),
+          ),
           const SizedBox(height: 8),
           Text(label, style: const TextStyle(fontSize: 12)),
         ],
@@ -193,4 +233,3 @@ class _ShareIcon extends StatelessWidget {
     );
   }
 }
-
