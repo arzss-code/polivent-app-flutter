@@ -8,7 +8,8 @@ class SuccessJoinPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      contentPadding: const EdgeInsets.all(28),
+      backgroundColor: UIColor.solidWhite,
+      contentPadding: const EdgeInsets.all(36),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
       ),

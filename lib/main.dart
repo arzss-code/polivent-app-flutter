@@ -1,40 +1,78 @@
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/screens/detail_events.dart';
 import 'package:polivent_app/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:app_links/app_links.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarBrightness: Brightness.dark,
-    statusBarIconBrightness:
-        Brightness.dark, // Menetapkan warna ikon status bar
-    systemNavigationBarColor:
-        Colors.transparent, // Menetapkan warna navigation bar
-    statusBarColor: Colors.transparent, // Set the status bar color
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: Colors.transparent,
+    statusBarColor: Colors.transparent,
   ));
   runApp(const PoliventApp());
 }
 
-class PoliventApp extends StatelessWidget {
+class PoliventApp extends StatefulWidget {
   const PoliventApp({super.key});
+
+  @override
+  _PoliventAppState createState() => _PoliventAppState();
+}
+
+class _PoliventAppState extends State<PoliventApp> {
+  final AppLinks _appLinks = AppLinks();
+  String _linkMessage = 'No link received yet';
+
+  @override
+  void initState() {
+    super.initState();
+    _initAppLinks();
+  }
+
+  Future<void> _initAppLinks() async {
+    // Mendengarkan link yang diterima
+    _appLinks.uriLinkStream.listen((Uri? uri) {
+      if (uri != null) {
+        setState(() {
+          _linkMessage = 'Received link: $uri';
+        });
+        // Tambahkan logika untuk menavigasi berdasarkan link
+        _handleDeepLink(uri);
+      }
+    });
+  }
+
+  void _handleDeepLink(Uri uri) {
+    if (uri.pathSegments.isNotEmpty && uri.pathSegments.first == 'event') {
+      final String eventIdString =
+          uri.pathSegments[1]; // Misalnya, jika URI adalah /event/123
+      final int eventId = int.parse(eventIdString); // Mengonversi String ke int
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => DetailEvents(eventId: eventId),
+        ),
+      );
+    }
+  }
 
   ThemeData _buildTheme(Brightness brightness) {
     return ThemeData(
-      // Penggunaan:
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: SmoothPageTransitionsBuilder(
             duration: Duration(milliseconds: 1000),
-            inCurve: Curves.easeOutQuint,
-            outCurve: Curves.easeInQuint,
+            inCurve: Curves.easeIn,
+            outCurve: Curves.easeOut,
           ),
           TargetPlatform.iOS: SmoothPageTransitionsBuilder(),
         },
       ),
-      splashFactory: NoSplash
-          .splashFactory, //! Hilangkan splash effect  saat menekan navbar
+      splashFactory: NoSplash.splashFactory,
       highlightColor: Colors.transparent,
-      // const Color(0x2260A2FF), //! Hilangkan highlight color saat menekan navbar
       fontFamily: "Inter",
       brightness: brightness,
       textTheme: (ThemeData(brightness: brightness).textTheme),
@@ -53,12 +91,25 @@ class PoliventApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(Brightness.light),
       title: 'Polivent',
+      initialRoute: '/',
+      onGenerateRoute: (RouteSettings settings) {
+        // Cek apakah ada deep link yang diterima
+        if (settings.name!.startsWith('/event/')) {
+          final eventId = settings.name!.replaceFirst('/event/', '');
+          return MaterialPageRoute(
+            builder: (context) => DetailEvents(
+                eventId:
+                    int.parse(eventId)), // Navigasi ke DetailEvents dengan ID
+          );
+        }
+        return null; // Kembali ke default route jika tidak ada yang cocok
+      },
       home: const SplashScreen(),
+      // Menambahkan route untuk navigasi
     );
   }
 }
 
-// Versi dengan kontrol lebih detail
 class SmoothPageTransitionsBuilder extends PageTransitionsBuilder {
   final Duration duration;
   final Curve inCurve;
@@ -66,8 +117,8 @@ class SmoothPageTransitionsBuilder extends PageTransitionsBuilder {
 
   const SmoothPageTransitionsBuilder({
     this.duration = const Duration(milliseconds: 1000),
-    this.inCurve = Curves.ease,
-    this.outCurve = Curves.ease,
+    this.inCurve = Curves.easeIn,
+    this.outCurve = Curves.easeOut,
   });
 
   @override
@@ -78,10 +129,11 @@ class SmoothPageTransitionsBuilder extends PageTransitionsBuilder {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
+    // Menggunakan SlideTransition tanpa FadeTransition
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(1.0, 0.0),
-        end: Offset.zero,
+        begin: const Offset(1.0, 0.0), // Halaman baru masuk dari kanan
+        end: Offset.zero, // Halaman baru berada di posisi akhir
       ).animate(
         CurvedAnimation(
           parent: animation,
@@ -89,14 +141,7 @@ class SmoothPageTransitionsBuilder extends PageTransitionsBuilder {
           reverseCurve: outCurve,
         ),
       ),
-      child: FadeTransition(
-        opacity: animation.drive(
-          Tween<double>(begin: 0.0, end: 1.0).chain(
-            CurveTween(curve: inCurve),
-          ),
-        ),
-        child: child,
-      ),
+      child: child,
     );
   }
 }

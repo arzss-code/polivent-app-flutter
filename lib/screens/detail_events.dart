@@ -32,15 +32,18 @@ class _DetailEventsState extends State<DetailEvents> {
     futureEvent = fetchEvent();
   }
 
-  // void shareEvent(Event event) {
-  //   final String shareLink = 'https://polivent.my.id/event/${event.eventId}';
-  //   final String shareContent = 'Check out this event: ${event.title}\n'
-  //       'Date: ${formatDate(event.dateStart)}\n'
-  //       'Location: ${event.location}\n'
-  //       'Link: $shareLink';
+  void shareEvent(Event event) {
+    final String shareLink =
+        'https://polivent.my.id/event-detail?id=${event.eventId}';
+    final String shareContent = 'Ayo segera gabung event ini!\n\n'
+        'Title: ${event.title}\n'
+        'Date: ${formatDate(event.dateStart)}\n'
+        'Location: ${event.location}\n'
+        '${event.descEvent}\n\n'
+        '$shareLink';
 
-  //   Share.share(shareContent);
-  // }
+    Share.share(shareContent);
+  }
 
   Future<Event> fetchEvent() async {
     // Simulate network delay
@@ -573,7 +576,8 @@ class _DetailEventsState extends State<DetailEvents> {
                                 eventDate: formatDate(event.dateStart),
                                 eventLocation: event.location,
                                 eventDescription: event.descEvent,
-                                eventLink: event.poster,
+                                eventLink:
+                                    'https://polivent.my.id/event-detail?id=${event.eventId}',
                               );
                             },
                           ),

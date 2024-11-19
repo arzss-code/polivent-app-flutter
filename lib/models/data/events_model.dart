@@ -9,6 +9,7 @@ class Event {
   final int quota;
   final String dateStart;
   final String dateEnd;
+  final String? category;
 
   Event({
     required this.eventId,
@@ -21,6 +22,7 @@ class Event {
     required this.quota,
     required this.dateStart,
     required this.dateEnd,
+    this.category, // Tambahkan sebagai opsional
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,8 @@ class Event {
       quota: json['quota'] != null ? int.parse(json['quota'].toString()) : 0,
       dateStart: json['date_start']?.toString() ?? '',
       dateEnd: json['date_end']?.toString() ?? '',
+      category:
+          json['category']?.toString(), // Tambahkan parsing untuk category
     );
   }
 }

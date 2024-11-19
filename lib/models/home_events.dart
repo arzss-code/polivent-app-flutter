@@ -19,7 +19,7 @@ class HomeEvents extends StatefulWidget {
 }
 
 class _HomeEventsState extends State<HomeEvents> {
-  List<Event> _events = [];
+  List<Event> events = [];
   bool _isLoading = true;
   String _error = '';
 
@@ -54,7 +54,7 @@ class _HomeEventsState extends State<HomeEvents> {
         if (jsonResponse is Map && jsonResponse.containsKey('data')) {
           final List<dynamic> eventsList = jsonResponse['data'] as List;
           setState(() {
-            _events = eventsList
+            events = eventsList
                 .map((event) => Event.fromJson(event as Map<String, dynamic>))
                 .toList();
             _isLoading = false;
@@ -176,7 +176,7 @@ class _HomeEventsState extends State<HomeEvents> {
                     ? _buildShimmerLoading()
                     : _error.isNotEmpty
                         ? Center(child: Text(_error))
-                        : _events.isEmpty
+                        : events.isEmpty
                             ? const Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -212,7 +212,7 @@ class _HomeEventsState extends State<HomeEvents> {
                             : ListView.builder(
                                 padding: EdgeInsets.zero,
                                 physics: const AlwaysScrollableScrollPhysics(),
-                                itemCount: _events.length,
+                                itemCount: events.length,
                                 itemBuilder: (context, index) {
                                   return Padding(
                                     padding:
@@ -224,11 +224,11 @@ class _HomeEventsState extends State<HomeEvents> {
                                           MaterialPageRoute(
                                             builder: (context) => DetailEvents(
                                                 eventId:
-                                                    _events[index].eventId),
+                                                    events[index].eventId),
                                           ),
                                         );
                                       },
-                                      child: _buildEventCard(_events[index]),
+                                      child: _buildEventCard(events[index]),
                                     ),
                                   );
                                 },
