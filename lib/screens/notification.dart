@@ -29,7 +29,7 @@ class _NotificationPageState extends State<NotificationPage> {
     // Tambahkan notifikasi lain sesuai kebutuhan
   ];
 
-  bool _notificationsEnabled = false;
+  bool _notificationsEnabled = true;
 
   @override
   void initState() {

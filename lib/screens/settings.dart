@@ -1,5 +1,3 @@
-// Suggested code may be subject to a license. Learn more: ~LicenseLog:3100013983.
-
 import 'package:flutter/material.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/screens/edit_profile.dart';
@@ -19,7 +17,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _notificationsEnabled = false;
+  bool _notificationsEnabled = true;
 
   @override
   void initState() {
