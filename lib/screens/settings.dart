@@ -47,38 +47,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         context, '/login'); // Mengarahkan ke layar login
   }
 
-  Future<void> logout() async {
-    try {
-      final token = await getToken();
-      if (token == null) {
-        print('Token tidak ditemukan');
-        // Hapus token dari storage untuk berjaga-jaga
-        await deleteToken();
-        return;
-      }
-
-      final response = await http.delete(
-        Uri.parse('$devApiBaseUrl/auth'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
-        },
-      );
-
-      // Untuk 401 atau 200, kita tetap hapus token lokal
-      if (response.statusCode == 401 || response.statusCode == 200) {
-        await deleteToken();
-        print('Logout berhasil');
-        // Di sini bisa tambah navigasi ke halaman login jika perlu
-      } else {
-        print('Logout gagal: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error: $e');
-      // Optional: tetap hapus token jika terjadi error
-      await deleteToken();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -278,15 +246,8 @@ void showLogoutBottomSheet(BuildContext context) {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Tambahkan logika logout di sini, misalnya:
-                    // FirebaseAuth.instance.signOut();
-                    _SettingsScreenState().logout();
-
-                    // Setelah logout, arahkan pengguna ke halaman login
-                    Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => const LoginScreen()),
-                        (Route<dynamic> route) => false);
+                    // Panggil fungsi logout
+                    logout(context);
                   },
                   style: ElevatedButton.styleFrom(
                     fixedSize: const Size(150, 50),
@@ -310,3 +271,39 @@ void showLogoutBottomSheet(BuildContext context) {
     },
   );
 }
+
+Future<void> logout(BuildContext context) async {
+    try {
+      final token = await getToken();
+      if (token == null) {
+        print('Token tidak ditemukan');
+        // Hapus token dari storage untuk berjaga-jaga
+        await deleteToken();
+        return;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$devApiBaseUrl/auth'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+      );
+  
+      // Untuk 401 atau 200, kita tetap hapus token lokal
+      if (response.statusCode == 401 || response.statusCode == 200) {
+        await deleteToken();
+        print('Logout berhasil');
+        // Arahkan ke halaman login
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginScreen()), // Ganti dengan nama kelas halaman login Anda
+        );
+      } else {
+        print('Logout gagal: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      // Optional: tetap hapus token jika terjadi error
+      await deleteToken();
+    }
+ }

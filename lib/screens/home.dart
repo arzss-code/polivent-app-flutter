@@ -5,6 +5,7 @@ import 'package:polivent_app/models/home_explore.dart';
 import 'package:polivent_app/models/home_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:polivent_app/screens/scan_qr_screen.dart';
+import 'package:polivent_app/services/token_util.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -24,6 +25,12 @@ class _HomeState extends State<Home> {
     const HomeTicket(),
     const HomeProfile(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    checkToken(context);
+  }
 
   void _onItemTapped(int index) {
     setState(() {

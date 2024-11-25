@@ -4,6 +4,7 @@ import 'package:polivent_app/models/ui_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:polivent_app/screens/forgot_password.dart';
+import 'package:polivent_app/services/token_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'home.dart';
@@ -33,6 +34,7 @@ class LoginScreenState extends State<LoginScreen>
   void initState() {
     super.initState();
     _loadUserPreferences();
+    _checkForToken();
     _setupAnimations();
     emailFocusNode.addListener(() {
       if (emailFocusNode.hasFocus) setState(() => _emailError = null);
@@ -40,6 +42,18 @@ class LoginScreenState extends State<LoginScreen>
     passwordFocusNode.addListener(() {
       if (passwordFocusNode.hasFocus) setState(() => _passwordError = null);
     });
+  }
+
+  // Method untuk memeriksa token
+  Future<void> _checkForToken() async {
+    final storedToken = await getToken(); // Ambil token yang disimpan
+    if (storedToken != null) {
+      // Jika token ada, arahkan ke Home
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+    }
   }
 
   void _setupAnimations() {
@@ -137,7 +151,7 @@ class LoginScreenState extends State<LoginScreen>
 
     try {
       final response = await http.post(
-        Uri.parse('$prodApiBaseUrl/auth'),
+        Uri.parse('$devApiBaseUrl/auth'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
@@ -149,24 +163,19 @@ class LoginScreenState extends State<LoginScreen>
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         if (jsonData['status'] == 'success') {
-          // final token = jsonData['data']['token'];
+          final token = jsonData['data']['token'];
 
-          // await saveToken(token);
+          await saveToken(token);
 
-          // final storedToken = await getToken();
-          // if (storedToken != null && storedToken == token) {
-          await _saveUserPreferences(email, password);
+          final storedToken = await getToken();
+          if (storedToken != null && storedToken == token) {
+            await _saveUserPreferences(email, password);
 
-          if (mounted) {
-            // Success animation and transition
-            _showSuccessDialog(() async {
-              // Menunggu hingga dialog ditutup
-              await Future.delayed(
-                  const Duration(milliseconds: 300)); // Waktu tunggu (opsional)
-
-              if (mounted) {
-                // Memastikan widget masih terpasang
-                Navigator.of(context).pushAndRemoveUntil(
+            if (mounted) {
+              // Success animation and transition
+              _showSuccessDialog(() {
+                Navigator.pushReplacement(
+                  context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
                         const Home(),
@@ -183,13 +192,10 @@ class LoginScreenState extends State<LoginScreen>
                     },
                     transitionDuration: const Duration(milliseconds: 800),
                   ),
-                  (Route<dynamic> route) =>
-                      false, // Menghapus semua halaman sebelumnya
                 );
-              }
-            });
+              });
+            }
           }
-          // }
         } else {
           if (mounted) {
             _showError(jsonData['message']);

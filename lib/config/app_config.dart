@@ -1,2 +1,2 @@
-const String devApiBaseUrl = "http://localhost/pbl/rest-api-polyvent";
+const String devApiBaseUrl = "https://polivent.my.id/rest-api";
 const String prodApiBaseUrl = "https://polivent.my.id/api";

@@ -192,3 +192,5 @@ Future<bool> deleteCategory(int categoryId) async {
     throw Exception('Error deleting category: $e');
   }
 }
+
+

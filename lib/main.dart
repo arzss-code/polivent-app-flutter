@@ -1,9 +1,11 @@
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/detail_events.dart';
+import 'package:polivent_app/screens/home.dart';
 import 'package:polivent_app/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:app_links/app_links.dart';
+import 'package:polivent_app/services/token_util.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -104,8 +106,21 @@ class _PoliventAppState extends State<PoliventApp> {
         }
         return null; // Kembali ke default route jika tidak ada yang cocok
       },
-      home: const SplashScreen(),
-      // Menambahkan route untuk navigasi
+      home: FutureBuilder(
+        future: getToken(), // Ambil token dari SharedPreferences
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Tampilkan SplashScreen sementara menunggu
+            return const SplashScreen();
+          } else if (snapshot.hasData && snapshot.data != null) {
+            // Jika token ada, arahkan ke Home
+            return const Home();
+          } else {
+            // Jika tidak ada token, tampilkan SplashScreen
+            return const SplashScreen();
+          }
+        },
+      ),
     );
   }
 }

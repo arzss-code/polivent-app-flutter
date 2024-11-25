@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:polivent_app/config/app_config.dart';
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:uicons_pro/uicons_pro.dart';
@@ -53,7 +54,7 @@ class _CarouselEventsState extends State<CarouselSection> {
       });
 
       final response =
-          await http.get(Uri.parse('https://polivent.my.id/api/events'));
+          await http.get(Uri.parse('$prodApiBaseUrl/events'));
 
       if (response.statusCode == 200) {
         final dynamic jsonResponse = json.decode(response.body);
