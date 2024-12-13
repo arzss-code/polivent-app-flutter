@@ -4,6 +4,7 @@ import 'package:polivent_app/models/ui_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:polivent_app/screens/forgot_password.dart';
+import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/token_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
@@ -46,8 +47,11 @@ class LoginScreenState extends State<LoginScreen>
 
   // Method untuk memeriksa token
   Future<void> _checkForToken() async {
-    final storedToken = await getToken(); // Ambil token yang disimpan
-    if (storedToken != null) {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+    final refreshToken = prefs.getString('refresh_token');
+
+    if (accessToken != null && refreshToken != null) {
       // Jika token ada, arahkan ke Home
       Navigator.pushReplacement(
         context,
@@ -131,17 +135,6 @@ class LoginScreenState extends State<LoginScreen>
                 CircularProgressIndicator(
                   color: UIColor.primaryColor,
                 ),
-                // SizedBox(height: 16),
-                // Text(
-                //   'Logging in...',
-                //   textAlign: TextAlign.center, // Center the text
-                //   style: TextStyle(
-                //     fontSize: 16, // Increased font size for better visibility
-                //     fontFamily: "Inter",
-                //     fontWeight: FontWeight.bold,
-                //     color: Colors.black,
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -150,68 +143,58 @@ class LoginScreenState extends State<LoginScreen>
     );
 
     try {
-      final response = await http.post(
-        Uri.parse('$devApiBaseUrl/auth'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+      await AuthService().login(email, password);
+
+      // Simpan preferensi pengguna
+      await _saveUserPreferences(
+        email,
+        password,
       );
 
+      // Tutup loading dialog
       if (mounted) {
-        Navigator.of(context).pop(); // Close loading dialog
+        Navigator.of(context).pop();
       }
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        if (jsonData['status'] == 'success') {
-          final token = jsonData['data']['token'];
-
-          await saveToken(token);
-
-          final storedToken = await getToken();
-          if (storedToken != null && storedToken == token) {
-            await _saveUserPreferences(email, password);
-
-            if (mounted) {
-              // Success animation and transition
-              _showSuccessDialog(() {
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        const Home(),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.easeInOutCubic;
-                      var tween = Tween(begin: begin, end: end)
-                          .chain(CurveTween(curve: curve));
-                      var offsetAnimation = animation.drive(tween);
-                      return SlideTransition(
-                          position: offsetAnimation, child: child);
-                    },
-                    transitionDuration: const Duration(milliseconds: 800),
-                  ),
-                );
-              });
-            }
-          }
-        } else {
-          if (mounted) {
-            _showError(jsonData['message']);
-          }
-        }
-      } else {
-        if (mounted) {
-          _showError('Error: ${response.statusCode}');
-        }
-      }
+      // Tampilkan dialog sukses
+      _showSuccessDialog(() {
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const Home(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0);
+              const end = Offset.zero;
+              const curve = Curves.easeInOutCubic;
+              var tween =
+                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+              return SlideTransition(position: offsetAnimation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 800),
+          ),
+        );
+      });
     } catch (error) {
       if (mounted) {
         Navigator.of(context).pop();
+        // _showError(error.toString());
         _showError('Login failed. Please check your connection and try again.');
       }
     }
+  }
+
+  // Tambahkan metode baru untuk menyimpan token
+  Future<void> saveAccessToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('access_token', token);
+  }
+
+  Future<void> saveRefreshToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('refresh_token', token);
   }
 
   void _showError(String message) {

@@ -16,7 +16,7 @@ class HelpScreen extends StatelessWidget {
         ),
         centerTitle: true,
         title: const Text(
-          'Help',
+          'Bantuan',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -26,7 +26,7 @@ class HelpScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // Add search functionality
+              // Tambahkan fungsi pencarian
             },
           ),
         ],
@@ -34,12 +34,8 @@ class HelpScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: ListView(
+        padding: const EdgeInsets.all(16.0),
         children: const [
-          HelpItem(
-            title: 'Bagaimana cara membuat akun?',
-            content: 'Untuk membuat akun, klik tombol "Daftar" di layar login. '
-                'Isi detail Anda dan ikuti petunjuk untuk menyelesaikan proses pendaftaran.',
-          ),
           HelpItem(
             title: 'Bagaimana cara mengatur ulang kata sandi saya?',
             content:
@@ -72,7 +68,7 @@ class HelpScreen extends StatelessWidget {
           ),
         ],
       ),
-      backgroundColor: Colors.grey[50],
+      
     );
   }
 }
@@ -92,7 +88,7 @@ class HelpItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 204, 203, 203),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
@@ -117,10 +113,9 @@ class HelpItem extends StatelessWidget {
                   ),
                 ),
                 const Divider(
-                  height: 2, // Reduced height to make divider more compact
-                  thickness: 2, // Increased thickness for a more prominent line
-                  color: Colors
-                      .black26, // Slightly darker color for better visibility
+                  height: 2,
+                  thickness: 2,
+                  color: Colors.black26,
                 ),
               ],
             ),

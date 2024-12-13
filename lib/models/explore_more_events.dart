@@ -52,7 +52,7 @@ class _EventListWidgetState extends State<EventList> {
       });
 
       final response =
-          await http.get(Uri.parse('$prodApiBaseUrl/events'));
+          await http.get(Uri.parse('$prodApiBaseUrl/available_events'));
 
       if (response.statusCode == 200) {
         final dynamic jsonResponse = json.decode(response.body);

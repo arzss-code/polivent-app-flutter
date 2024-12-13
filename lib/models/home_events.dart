@@ -46,7 +46,8 @@ class _HomeEventsState extends State<HomeEvents> {
         _error = '';
       });
 
-      final response = await http.get(Uri.parse('$prodApiBaseUrl/events'));
+      final response =
+          await http.get(Uri.parse('$prodApiBaseUrl/available_events'));
 
       if (response.statusCode == 200) {
         final dynamic jsonResponse = json.decode(response.body);
@@ -223,8 +224,7 @@ class _HomeEventsState extends State<HomeEvents> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => DetailEvents(
-                                                eventId:
-                                                    events[index].eventId),
+                                                eventId: events[index].eventId),
                                           ),
                                         );
                                       },

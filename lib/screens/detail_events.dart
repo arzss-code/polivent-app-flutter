@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -29,7 +32,7 @@ class _DetailEventsState extends State<DetailEvents> {
   @override
   void initState() {
     super.initState();
-    futureEvent = fetchEvent();
+    futureEvent = fetchEventById();
   }
 
   void shareEvent(Event event) {
@@ -39,34 +42,68 @@ class _DetailEventsState extends State<DetailEvents> {
         'Title: ${event.title}\n'
         'Date: ${formatDate(event.dateStart)}\n'
         'Location: ${event.location}\n'
-        '${event.descEvent}\n\n'
+        '${event.description}\n\n'
         '$shareLink';
 
     Share.share(shareContent);
   }
 
-  Future<Event> fetchEvent() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
+  Future<Event> fetchEventById() async {
+    try {
+      // Tambahkan timeout untuk mencegah hanging request
+      final response = await http
+          .get(
+        Uri.parse(
+            'https://polivent.my.id/api/available_events?event_id=${widget.eventId}'),
+      )
+          .timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Request timeout');
+        },
+      );
 
-    final response = await http.get(
-      Uri.parse('https://polivent.my.id/api/events/${widget.eventId}'),
-    );
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
 
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
+        // Penanganan berbagai format respons JSON
+        if (jsonResponse is Map<String, dynamic>) {
+          // Cek apakah ada nested 'data' key
+          if (jsonResponse.containsKey('data')) {
+            // Jika 'data' adalah Map
+            if (jsonResponse['data'] is Map<String, dynamic>) {
+              return Event.fromJson(jsonResponse['data']);
+            }
+            // Jika 'data' adalah List dan memiliki elemen
+            else if (jsonResponse['data'] is List &&
+                (jsonResponse['data'] as List).isNotEmpty) {
+              return Event.fromJson((jsonResponse['data'] as List).first);
+            }
+          }
 
-      if (jsonResponse is Map) {
-        if (jsonResponse.containsKey('data')) {
-          return Event.fromJson(jsonResponse['data'] as Map<String, dynamic>);
+          // Jika tidak ada 'data' key, gunakan response langsung
+          return Event.fromJson(jsonResponse);
         } else {
-          return Event.fromJson(jsonResponse as Map<String, dynamic>);
+          throw Exception('Unexpected response format: not a map');
         }
       } else {
-        throw Exception('Unexpected response format');
+        // Log error response untuk debugging
+        print('Error response: ${response.body}');
+        throw Exception(
+            'Failed to load event. Status code: ${response.statusCode}');
       }
-    } else {
-      throw Exception('Failed to load event: ${response.statusCode}');
+    } on SocketException {
+      // Tangani masalah koneksi internet
+      throw Exception('No internet connection');
+    } on HttpException {
+      // Tangani masalah HTTP
+      throw Exception('Failed to fetch event');
+    } on FormatException {
+      // Tangani masalah parsing JSON
+      throw Exception('Bad response format');
+    } catch (e) {
+      // Tangani error yang tidak terduga
+      throw Exception('An unexpected error occurred: $e');
     }
   }
 
@@ -454,10 +491,10 @@ class _DetailEventsState extends State<DetailEvents> {
                               children: [
                                 Text(
                                   _showFullDescription
-                                      ? event.descEvent
-                                      : (event.descEvent.length > 200
-                                          ? '${event.descEvent.substring(0, 200)}...'
-                                          : event.descEvent),
+                                      ? event.description
+                                      : (event.description.length > 200
+                                          ? '${event.description.substring(0, 200)}...'
+                                          : event.description),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontFamily: 'Inter',
@@ -465,7 +502,7 @@ class _DetailEventsState extends State<DetailEvents> {
                                     color: Colors.grey[700],
                                   ),
                                 ),
-                                if (event.descEvent.length > 200)
+                                if (event.description.length > 200)
                                   TextButton(
                                     onPressed: () {
                                       setState(() {
@@ -575,7 +612,7 @@ class _DetailEventsState extends State<DetailEvents> {
                                 eventPoster: event.poster,
                                 eventDate: formatDate(event.dateStart),
                                 eventLocation: event.location,
-                                eventDescription: event.descEvent,
+                                eventDescription: event.description,
                                 eventLink:
                                     'https://polivent.my.id/event-detail?id=${event.eventId}',
                               );
@@ -679,7 +716,7 @@ class _DetailEventsState extends State<DetailEvents> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        futureEvent = fetchEvent();
+                        futureEvent = fetchEventById();
                       });
                     },
                     child: const Text('Retry'),

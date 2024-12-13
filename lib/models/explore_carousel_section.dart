@@ -28,7 +28,6 @@ class _CarouselEventsState extends State<CarouselSection> {
     super.initState();
     initializeDateFormatting('id_ID', null).then((_) => fetchEvents());
   }
-  
 
   void updateCarousel() {
     setState(() {
@@ -54,7 +53,7 @@ class _CarouselEventsState extends State<CarouselSection> {
       });
 
       final response =
-          await http.get(Uri.parse('$prodApiBaseUrl/events'));
+          await http.get(Uri.parse('$prodApiBaseUrl/available_events'));
 
       if (response.statusCode == 200) {
         final dynamic jsonResponse = json.decode(response.body);
@@ -330,103 +329,44 @@ class _CarouselEventsState extends State<CarouselSection> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.end,
                                       children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              event.title,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: UIColor.solidWhite,
-                                              ),
-                                            ),
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  UIconsPro.regularRounded.ticket_alt,
-                                                  color: UIColor.solidWhite,
-                                                  size: 12,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  "${event.quota} tiket",
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: UIColor.solidWhite,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  UIconsPro.regularRounded
-                                                      .house_building,
-                                                  color: UIColor.solidWhite,
-                                                  size: 12,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  event.location,
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: UIColor.solidWhite,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  UIconsPro
-                                                      .regularRounded.calendar,
-                                                  color: UIColor.solidWhite,
-                                                  size: 12,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  formatDate(event.dateStart),
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: UIColor.solidWhite,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        Column(
-                                          children: [
-                                            Container(
-                                              width: 100,
-                                              height: 30,
-                                              decoration: BoxDecoration(
-                                                color: event.quota > 0
-                                                    ? UIColor.secondaryColor
-                                                    : UIColor.rejected,
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                              ),
-                                              child: Text(
-                                                event.quota > 0
-                                                    ? "Join"
-                                                    : "Full",
-                                                textAlign: TextAlign.center,
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                event.title,
                                                 style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
                                                   color: UIColor.solidWhite,
-                                                  height: 2.5,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 12,
                                                 ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                            ),
-                                          ],
+                                              const SizedBox(height: 4),
+                                              _buildInfoRow(
+                                                icon: UIconsPro
+                                                    .regularRounded.ticket_alt,
+                                                text: "${event.quota} tiket",
+                                              ),
+                                              _buildInfoRow(
+                                                icon: UIconsPro.regularRounded
+                                                    .house_building,
+                                                text: event.location,
+                                              ),
+                                              _buildInfoRow(
+                                                icon: UIconsPro
+                                                    .regularRounded.calendar,
+                                                text:
+                                                    formatDate(event.dateStart),
+                                              ),
+                                            ],
+                                          ),
                                         ),
+                                        const SizedBox(width: 8),
+                                        _buildJoinButton(event),
                                       ],
                                     ),
                                   ),
@@ -445,4 +385,56 @@ class _CarouselEventsState extends State<CarouselSection> {
       ],
     );
   }
+}
+
+// Helper method to create consistent info rows
+Widget _buildInfoRow({required IconData icon, required String text}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 1),
+    child: Row(
+      children: [
+        Icon(
+          icon,
+          color: UIColor.solidWhite,
+          size: 12,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              color: UIColor.solidWhite,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// Helper method to create join button
+Widget _buildJoinButton(Event event) {
+  return Align(
+    alignment: Alignment.bottomCenter,
+    child: Container(
+      width: 100,
+      height: 30,
+      decoration: BoxDecoration(
+        color: event.quota > 0 ? UIColor.secondaryColor : UIColor.rejected,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        event.quota > 0 ? "Join" : "Full",
+        style: const TextStyle(
+          color: UIColor.solidWhite,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+      ),
+    ),
+  );
 }

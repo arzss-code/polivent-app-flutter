@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -25,6 +26,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+    _loadProfileImage();
+  }
+
+  Future<void> _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      name = prefs.getString('name') ?? name;
+      aboutMe = prefs.getString('about_me') ?? aboutMe;
+      interests = prefs.getStringList('interests') ?? interests;
+    });
+  }
+
+  Future<void> _saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('name', name);
+    await prefs.setString('about_me', aboutMe);
+    await prefs.setStringList('interests', interests);
+  }
+
   void _editName() {
     showDialog(
       context: context,
@@ -43,6 +67,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 setState(() {
                   name = nameController.text;
                 });
+                _saveData();
                 Navigator.of(context).pop();
               },
               child: const Text("Save"),
@@ -72,6 +97,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 setState(() {
                   aboutMe = aboutController.text;
                 });
+                _saveData();
                 Navigator.of(context).pop();
               },
               child: const Text("Save"),
@@ -104,6 +130,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       .map((e) => e.trim())
                       .toList();
                 });
+                _saveData();
                 Navigator.of(context).pop();
               },
               child: const Text("Save"),
@@ -120,6 +147,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         _profileImage = File(pickedFile.path);
       });
+      _saveProfileImage(pickedFile.path);
+    }
+  }
+
+  Future<void> _saveProfileImage(String path) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('profile_image', path);
+  }
+
+  Future<void> _loadProfileImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? path = prefs.getString('profile_image');
+    if (path != null) {
+      setState(() {
+        _profileImage = File(path);
+      });
     }
   }
 
@@ -129,7 +172,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        scrolledUnderElevation: 0,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
@@ -165,8 +207,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         image: DecorationImage(
                           image: _profileImage != null
                               ? FileImage(_profileImage!)
-                              : const NetworkImage(
-                                      'https://placeholder.com/150')
+                              : const AssetImage('assets/images/150.png')
                                   as ImageProvider,
                           fit: BoxFit.cover,
                         ),

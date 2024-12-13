@@ -3,86 +3,113 @@ class Event {
   final String title;
   final String dateAdd;
   final int categoryId;
-  final String descEvent;
+  final String description; // Pastikan ini sesuai dengan key di JSON
   final String poster;
   final String location;
+  final String place;
   final int quota;
   final String dateStart;
   final String dateEnd;
   final String? category;
+  final String? proposeUser;
+  final String? proposeUserAvatar;
+  final String? status;
+  final String? schedule;
+  final String? updated;
+  final String? adminUser;
+  final String? note;
+  final List<InvitedUser>? invitedUsers;
 
-  Event({
+  const Event({
     required this.eventId,
     required this.title,
     required this.dateAdd,
     required this.categoryId,
-    required this.descEvent,
+    required this.description,
     required this.poster,
     required this.location,
+    required this.place,
     required this.quota,
     required this.dateStart,
     required this.dateEnd,
-    this.category, // Tambahkan sebagai opsional
+    this.category,
+    this.proposeUser,
+    this.proposeUserAvatar,
+    this.status,
+    this.schedule,
+    this.updated,
+    this.adminUser,
+    this.note,
+    this.invitedUsers,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-      eventId:
-          json['event_id'] != null ? int.parse(json['event_id'].toString()) : 0,
-      title: json['title']?.toString() ?? 'No Title',
-      dateAdd: json['date_add']?.toString() ?? '',
-      categoryId: json['category_id'] != null
-          ? int.parse(json['category_id'].toString())
-          : 0,
-      descEvent: json['desc_event']?.toString() ?? '',
-      poster: json['poster']?.toString() ?? '',
-      location: json['location']?.toString() ?? '',
-      quota: json['quota'] != null ? int.parse(json['quota'].toString()) : 0,
-      dateStart: json['date_start']?.toString() ?? '',
-      dateEnd: json['date_end']?.toString() ?? '',
-      category:
-          json['category']?.toString(), // Tambahkan parsing untuk category
+      eventId: _parseIntSafely(json['event_id']),
+      title: _parseStringSafely(json['title'], defaultValue: 'No Title'),
+      dateAdd: _parseStringSafely(json['date_add']),
+      categoryId: _parseIntSafely(json['category_id']),
+      description: _parseStringSafely(
+          json['desc_event'] ?? json['description']), // Tambahkan fallback
+      poster: _parseStringSafely(json['poster']),
+      location: _parseStringSafely(json['location']),
+      place: _parseStringSafely(json['place']),
+      quota: _parseIntSafely(json['quota']),
+      dateStart: _parseStringSafely(json['date_start']),
+      dateEnd: _parseStringSafely(json['date_end']),
+      category: json['category']?.toString(),
+      proposeUser: json['propose_user']?.toString(),
+      proposeUserAvatar: json['propose_user_avatar']?.toString(),
+      status: json['status']?.toString(),
+      schedule: json['schedule']?.toString(),
+      updated: json['updated']?.toString(),
+      adminUser: json['admin_user']?.toString(),
+      note: json['note']?.toString(),
+      invitedUsers: json['invited_users'] != null
+          ? (json['invited_users'] as List)
+              .map((userJson) => InvitedUser.fromJson(userJson))
+              .toList()
+          : null,
     );
+  }
+
+  // Tambahkan method toString untuk debugging
+  @override
+  String toString() {
+    return 'Event(eventId: $eventId, title: $title, description: $description)';
+  }
+
+  // Metode pembantu untuk parsing aman
+  static int _parseIntSafely(dynamic value, {int defaultValue = 0}) {
+    if (value == null) return defaultValue;
+    return int.tryParse(value.toString()) ?? defaultValue;
+  }
+
+  static String _parseStringSafely(dynamic value, {String defaultValue = ''}) {
+    return value?.toString() ?? defaultValue;
   }
 }
 
-// class Event {
-//   final int eventId;
-//   final String title;
-//   final String dateAdd;
-//   final int categoryId;
-//   final String descEvent;
-//   final String poster;
-//   final String location;
-//   final int quota;
-//   final String dateStart;
-//   final String dateEnd;
+class InvitedUser {
+  final String username;
+  final String? avatar;
 
-//   Event({
-//     required this.eventId,
-//     required this.title,
-//     required this.dateAdd,
-//     required this.categoryId,
-//     required this.descEvent,
-//     required this.poster,
-//     required this.location,
-//     required this.quota,
-//     required this.dateStart,
-//     required this.dateEnd,
-//   });
+  const InvitedUser({
+    required this.username,
+    this.avatar,
+  });
 
-//   factory Event.fromJson(Map<String, dynamic> json) {
-//     return Event(
-//       eventId: json['event_id'] ?? 0,
-//       title: json['title'] ?? 'No Title',
-//       dateAdd: json['date_add'] ?? '',
-//       categoryId: json['category_id'] ?? 0,
-//       descEvent: json['desc_event'] ?? '',
-//       poster: json['poster'] ?? '',
-//       location: json['location'] ?? '',
-//       quota: json['quota'] ?? 0,
-//       dateStart: json['date_start'] ?? '',
-//       dateEnd: json['date_end'] ?? '',
-//     );
-//   }
-// }
+  factory InvitedUser.fromJson(Map<String, dynamic> json) {
+    return InvitedUser(
+      username: json['username']?.toString() ?? '',
+      avatar: json['avatar']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'username': username,
+      'avatar': avatar,
+    };
+  }
+}
