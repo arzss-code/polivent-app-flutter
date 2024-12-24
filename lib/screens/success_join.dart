@@ -80,7 +80,7 @@ class SuccessJoinPopup extends StatelessWidget {
               ),
             ),
             child: const Text(
-              'Back',
+              'OK',
               style: TextStyle(color: UIColor.primaryColor),
             ),
           ),

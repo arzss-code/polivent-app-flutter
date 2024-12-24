@@ -193,58 +193,58 @@ class _HomeTicketState extends State<HomeTicket> {
           ),
           // Buttons Section
           Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              // Conditional for "Available" ticket
-              if (ticket.status == "Available") 
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Implementasi view ticket
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: UIColor.primaryColor,
-                      foregroundColor: Colors.white,
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Conditional for "Available" ticket
+                if (ticket.status == "Available")
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Implementasi view ticket
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: UIColor.primaryColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text("Lihat Tiket"),
                     ),
-                    child: const Text("Lihat Tiket"),
-                  ),
-                )
-              else ...[
-                // View Ticket Button (for non-available tickets)
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Implementasi view ticket
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: UIColor.primaryColor,
-                      side: const BorderSide(color: UIColor.primaryColor),
+                  )
+                else ...[
+                  // View Ticket Button (for non-available tickets)
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Implementasi view ticket
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: UIColor.primaryColor,
+                        side: const BorderSide(color: UIColor.primaryColor),
+                      ),
+                      child: const Text("Lihat Tiket"),
                     ),
-                    child: const Text("Lihat Tiket"),
                   ),
-                ),
-                const SizedBox(width: 10),
-                // Leave Review Button (only for completed tickets)
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Implementasi leave review
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: UIColor.primaryColor,
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: UIColor.primaryColor),
+                  const SizedBox(width: 10),
+                  // Leave Review Button (only for completed tickets)
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Implementasi leave review
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: UIColor.primaryColor,
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: UIColor.primaryColor),
+                      ),
+                      child: const Text("Beri Ulasan"),
                     ),
-                    child: const Text("Beri Ulasan"),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
         ],
       ),
     );
