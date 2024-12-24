@@ -160,7 +160,6 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
     _searchEvents(
       _searchController.text,
       category: filter.category,
-      location: filter.location,
       date: filter.date?.toIso8601String(),
     );
   }

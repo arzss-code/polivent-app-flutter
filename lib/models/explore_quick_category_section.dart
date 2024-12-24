@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/screens/search_event_result.dart';
+import 'package:polivent_app/services/data/events_model.dart'; // Pastikan Anda memiliki model Event
 import 'package:polivent_app/services/data/category_model.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -13,14 +15,14 @@ class QuickCategorySection extends StatefulWidget {
 }
 
 class _QuickCategorySectionState extends State<QuickCategorySection> {
-  int _selectedIndex = 0; // Untuk melacak kategori yang dipilih
-  List<Category> categories = []; // Daftar kategori yang akan diisi
-  bool _isLoading = true; // Menandakan apakah data sedang dimuat
+  int? _selectedIndex; // Bisa null untuk menampilkan semua event
+  List<Category> categories = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchCategories(); // Memanggil fungsi untuk mengambil kategori
+    fetchCategories();
   }
 
   Future<void> fetchCategories() async {
@@ -29,25 +31,27 @@ class _QuickCategorySectionState extends State<QuickCategorySection> {
           await http.get(Uri.parse('https://polivent.my.id/api/categories'));
 
       if (response.statusCode == 200) {
-        // Jika server mengembalikan respons OK, parse data
         final jsonResponse = json.decode(response.body);
-        List<dynamic> data = jsonResponse['data']; // Mengakses data kategori
+        List<dynamic> data = jsonResponse['data'];
 
         setState(() {
-          categories =
-              data.map((category) => Category.fromJson(category)).toList();
-          _isLoading = false; // Set loading menjadi false setelah data diambil
+          // Tambahkan kategori "Semua" di awal
+          categories = [Category(categoryId: null, categoryName: 'Semua')];
+
+          // Tambahkan kategori dari API
+          categories.addAll(
+              data.map((category) => Category.fromJson(category)).toList());
+
+          _isLoading = false;
         });
       } else {
-        // Jika server tidak mengembalikan respons OK
-        print('Error: ${response.statusCode}'); // Menampilkan status code error
+        print('Error: ${response.statusCode}');
         throw Exception('Failed to load categories');
       }
     } catch (e) {
-      // Menangani kesalahan jaringan atau parsing
       print('Error fetching categories: $e');
       setState(() {
-        _isLoading = false; // Set loading menjadi false jika terjadi kesalahan
+        _isLoading = false;
       });
     }
   }
@@ -56,21 +60,33 @@ class _QuickCategorySectionState extends State<QuickCategorySection> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 30,
-      child: _isLoading // Menampilkan shimmer jika data sedang diambil
+      child: _isLoading
           ? _buildShimmerLoading()
           : ListView.separated(
               itemCount: categories.length,
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.only(left: 20, right: 20),
-              separatorBuilder: (context, index) => const SizedBox(
-                width: 10,
-              ),
+              separatorBuilder: (context, index) => const SizedBox(width: 10),
               itemBuilder: (context, index) {
                 bool isSelected = _selectedIndex == index;
 
                 return GestureDetector(
                   onTap: () {
+                    // Navigasi ke SearchEventsResultScreen dengan kategori
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchEventsResultScreen(
+                          searchQuery: '', // Kosongkan query
+                          category: categories[index].categoryName != 'Semua'
+                              ? categories[index].categoryName
+                              : null,
+                        ),
+                      ),
+                    );
+
                     setState(() {
+                      // Update selected index untuk visual feedback
                       _selectedIndex = index;
                     });
                   },
@@ -81,15 +97,12 @@ class _QuickCategorySectionState extends State<QuickCategorySection> {
                           ? UIColor.primaryColor
                           : UIColor.solidWhite,
                       border: Border.all(
-                        color: isSelected
-                            ? UIColor.primaryColor
-                            : UIColor.primaryColor,
+                        color: UIColor.primaryColor,
                       ),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Text(
-                      categories[index]
-                          .categoryName, // Menggunakan categoryName dari model Category
+                      categories[index].categoryName,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: isSelected
@@ -108,7 +121,7 @@ class _QuickCategorySectionState extends State<QuickCategorySection> {
 
   Widget _buildShimmerLoading() {
     return ListView.separated(
-      itemCount: 8, // Jumlah item shimmer yang ingin ditampilkan
+      itemCount: 8,
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.only(left: 20, right: 20),
       separatorBuilder: (context, index) => const SizedBox(width: 10),

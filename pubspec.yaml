@@ -54,8 +54,6 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   app_links: ^6.3.2
   provider: ^6.1.2
-  riverpod: ^2.6.1
-  flutter_riverpod: ^2.6.1
   jwt_decoder: ^2.0.1
   dio: ^5.7.0
   cached_network_image: ^3.4.1

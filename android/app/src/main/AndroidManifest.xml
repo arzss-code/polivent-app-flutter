@@ -45,20 +45,14 @@
                 android:name="flutter_deeplinking_enabled" 
                 android:value="true" /> <!-- Ubah menjadi true -->
 
-            <!-- App Link -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="polivent" android:host="polivent.my.id" android:pathPrefix="/events/" />
-            </intent-filter>
+            
 
             <!-- Deep Link -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="polivent" android:host="polivent.my.id" android:pathPrefix="/events/" />
+                <data android:scheme="https" android:host="polivent.my.id" />
             </intent-filter>
             
             <!-- Launcher Intent -->

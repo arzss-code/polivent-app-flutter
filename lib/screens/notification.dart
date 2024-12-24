@@ -17,7 +17,6 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   List<NotificationItem> notifications = [];
   bool _notificationsEnabled = true;
-  StreamSubscription? _notificationSubscription;
 
   @override
   void initState() {

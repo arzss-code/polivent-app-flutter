@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:polivent_app/models/search_events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/ui_colors.dart';
@@ -31,19 +32,22 @@ class SearchEventsResultScreen extends StatefulWidget {
 }
 
 class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
+  // final GlobalKey<SearchEventsWidgetState> _searchKey =
+  //     GlobalKey<SearchEventsWidgetState>();
   List<Map<String, dynamic>> _events = [];
   late EventFilter _currentFilter;
   bool _isLoading = true;
   String _errorMessage = '';
+  late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
+    _searchController = TextEditingController(text: widget.searchQuery);
 
     // Inisialisasi filter dari parameter konstruktor
     _currentFilter = EventFilter(
       category: widget.category ?? '',
-      location: widget.location ?? '',
       date: widget.date != null ? DateTime.tryParse(widget.date!) : null,
     );
 
@@ -63,9 +67,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
       if (_currentFilter.category.isNotEmpty) {
         url += '&category=${_currentFilter.category}';
       }
-      if (_currentFilter.location.isNotEmpty) {
-        url += '&location=${_currentFilter.location}';
-      }
+
       if (_currentFilter.date != null) {
         url += '&date=${DateFormat('yyyy-MM-dd').format(_currentFilter.date!)}';
       }
@@ -153,30 +155,180 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
     _fetchEvents();
   }
 
+  void _editSearchQuery() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 10,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Ubah Pencarian',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: UIColor.primaryColor,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Masukkan kata kunci pencarian',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: UIColor.primaryColor,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                    ),
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 16,
+                    ),
+                    autofocus: true,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (_) => _performNewSearch(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: UIColor.primaryColor,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: _performNewSearch,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.search, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              'Cari',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _performNewSearch() {
+    if (_searchController.text.trim().isNotEmpty) {
+      Navigator.of(context).pop(); // Tutup dialog
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SearchEventsResultScreen(
+            searchQuery: _searchController.text.trim(),
+            category: _currentFilter.category,
+            date: _currentFilter.date != null
+                ? DateFormat('yyyy-MM-dd').format(_currentFilter.date!)
+                : null,
+          ),
+        ),
+      );
+    } else {
+      // Tampilkan pesan jika input kosong
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Masukkan kata kunci pencarian'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        scrolledUnderElevation: 0,
         backgroundColor: UIColor.solidWhite,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Hasil Pencarian',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 0, 0, 0),
+        title: GestureDetector(
+          onTap: _editSearchQuery, // Tambahkan aksi tap
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Hasil Pencarian',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
               ),
-            ),
-            Text(
-              widget.searchQuery,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
+              Text(
+                widget.searchQuery,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+            ],
+          ),
         ),
         actions: [
           IconButton(
@@ -217,6 +369,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
       ),
       body: Column(
         children: [
+          // SearchEventsWidget(key: _searchKey),
           // Filter Summary
           if (!_currentFilter.isEmpty())
             Container(
@@ -235,14 +388,6 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
                     _buildFilterChip(_currentFilter.category, () {
                       setState(() {
                         _currentFilter.category = '';
-                        _isLoading = true;
-                      });
-                      _fetchEvents();
-                    }),
-                  if (_currentFilter.location.isNotEmpty)
-                    _buildFilterChip(_currentFilter.location, () {
-                      setState(() {
-                        _currentFilter.location = '';
                         _isLoading = true;
                       });
                       _fetchEvents();
@@ -316,7 +461,6 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
   int _calculateActiveFiltersCount() {
     int count = 0;
     if (_currentFilter.category.isNotEmpty) count++;
-    if (_currentFilter.location.isNotEmpty) count++;
     if (_currentFilter.date != null) count++;
     return count;
   }
@@ -439,5 +583,12 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Jangan lupa dispose controller
+    _searchController.dispose();
+    super.dispose();
   }
 }

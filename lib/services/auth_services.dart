@@ -23,29 +23,6 @@ class AuthService {
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
 
-  // // Login (POST)
-  // Future<Map<String, dynamic>> login(
-  //     {required String email, required String password}) async {
-  //   try {
-  //     final response = await _dio.post('$prodApiBaseUrl/auth',
-  //         data: {'email': email, 'password': password});
-
-  //     if (response.data['status'] == 'success') {
-  //       final accessToken = response.data['data']['access_token'];
-  //       final refreshToken = response.data['data']['refresh_token'];
-
-  //       await _storage.write(key: _accessTokenKey, value: accessToken);
-  //       await _storage.write(key: _refreshTokenKey, value: refreshToken);
-
-  //       return response.data;
-  //     } else {
-  //       throw Exception(response.data['message'] ?? 'Login failed');
-  //     }
-  //   } on DioException catch (e) {
-  //     throw Exception(e.response?.data['message'] ?? 'Network error');
-  //   }
-  // }
-
   Future<void> login(String email, String password) async {
     try {
       final response = await http.post(
@@ -406,21 +383,6 @@ class AuthService {
       ),
     );
   }
-
-  // Refresh Token
-  // Future<String?> refreshToken() async {
-  //   try {
-  //     final refreshToken = await _storage.read(key: _refreshTokenKey);
-
-  //     if (refreshToken == null) {
-  //       await logout();
-  //       return null;
-  //     }
-  //   } catch (e) {
-  //     await logout();
-  //     return null;
-  //   }
-  // }
 
   // Dio Interceptor untuk Token Management
   Dio getDioWithInterceptors() {

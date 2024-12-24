@@ -6,17 +6,17 @@ import 'package:http/http.dart' as http;
 import 'package:polivent_app/config/app_config.dart';
 
 const _storage = FlutterSecureStorage();
-const _tokenKey = 'auth_token';
+const _accessTokenKey = 'access_token';
 const _refreshTokenKey = 'refresh_token';
 
 // Simpan token
 Future<void> saveToken(String token) async {
-  await _storage.write(key: _tokenKey, value: token);
+  await _storage.write(key: _accessTokenKey, value: token);
 }
 
 // Ambil token
 Future<String?> getToken() async {
-  return await _storage.read(key: _tokenKey);
+  return await _storage.read(key: _accessTokenKey);
 }
 
 // Decode payload token
@@ -30,7 +30,7 @@ Future<Map<String, dynamic>?> decodeTokenPayload(String token) async {
 
 // Hapus token
 Future<void> removeToken() async {
-  await _storage.delete(key: _tokenKey);
+  await _storage.delete(key: _accessTokenKey);
 }
 
 // Simpan refresh token

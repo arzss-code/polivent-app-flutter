@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/app_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EventFilter {
   String category;
-  String location;
   DateTime? date;
 
   EventFilter({
     this.category = '',
-    this.location = '',
     this.date,
   });
 
-  // Method untuk mereset filter
   void resetFilter() {
     category = '';
-    location = '';
     date = null;
   }
 
-  // Method untuk mengecek apakah filter kosong
   bool isEmpty() {
-    return category.isEmpty && location.isEmpty && date == null;
+    return category.isEmpty && date == null;
   }
 
-  // Method untuk menampilkan bottom sheet filter
   static Future<EventFilter?> showFilterBottomSheet(BuildContext context) {
     return showModalBottomSheet<EventFilter>(
       context: context,
@@ -50,8 +48,58 @@ class _FilterBottomSheetContent extends StatefulWidget {
 
 class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   String _selectedCategory = '';
-  String _selectedLocation = '';
   DateTime? _selectedDate;
+  List<String> _categories = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      final accessToken = await _getAccessToken();
+      final response = await http.get(
+        Uri.parse('$prodApiBaseUrl/categories'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == 'success') {
+          setState(() {
+            _categories = List<String>.from(jsonResponse['data']
+                .map((category) => category['category_name']));
+            _isLoading = false;
+          });
+        } else {
+          throw Exception(
+              jsonResponse['message'] ?? 'Gagal mengambil kategori');
+        }
+      } else {
+        throw Exception(
+            'Gagal mengambil kategori. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching categories: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat kategori: $e')),
+      );
+    }
+  }
+
+  Future<String> _getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('access_token') ?? '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,60 +143,46 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
 
               // Scrollable content
               Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    // Category Filter
-                    _buildFilterSection(
-                      title: 'Kategori',
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         children: [
-                          _buildCategoryChip('Seminar'),
-                          _buildCategoryChip('Workshop'),
-                          _buildCategoryChip('Konferensi'),
-                          _buildCategoryChip('Musik'),
-                          _buildCategoryChip('E-Sport'),
-                          _buildCategoryChip('Olahraga'),
-                        ],
-                      ),
-                    ),
-
-                    // Location Filter
-                    _buildFilterSection(
-                      title: 'Lokasi',
-                      child: Wrap(
-                        spacing: 8,
-                        children: [
-                          _buildLocationChip('Online'),
-                          _buildLocationChip('Offline'),
-                        ],
-                      ),
-                    ),
-
-                    // Date Filter
-                    _buildFilterSection(
-                      title: 'Tanggal',
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: UIColor.primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
+                          // Category Filter
+                          _buildFilterSection(
+                            title: 'Kategori',
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _categories
+                                  .map((category) =>
+                                      _buildCategoryChip(category))
+                                  .toList(),
+                            ),
                           ),
-                        ),
-                        onPressed: _selectDate,
-                        child: Text(
-                          _selectedDate == null
-                              ? 'Pilih Tanggal'
-                              : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
+
+                          // Date Filter
+                          _buildFilterSection(
+                            title: 'Tanggal',
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: UIColor.primaryColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                              ),
+                              onPressed: _selectDate,
+                              child: Text(
+                                _selectedDate == null
+                                    ? 'Pilih Tanggal'
+                                    : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               ),
 
               // Apply Filter Button
@@ -233,32 +267,6 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
     );
   }
 
-  Widget _buildLocationChip(String location) {
-    return ChoiceChip(
-      label: Text(location),
-      selected: _selectedLocation == location,
-      backgroundColor: Colors.white,
-      selectedColor: UIColor.primaryColor.withOpacity(0.2),
-      labelStyle: TextStyle(
-        color:
-            _selectedLocation == location ? UIColor.primaryColor : Colors.black,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(
-          color: _selectedLocation == location
-              ? UIColor.primaryColor
-              : Colors.grey.shade300,
-        ),
-      ),
-      onSelected: (bool selected) {
-        setState(() {
-          _selectedLocation = selected ? location : '';
-        });
-      },
-    );
-  }
-
   void _selectDate() async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -276,7 +284,6 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   void _applyFilter() {
     Navigator.of(context).pop(EventFilter(
       category: _selectedCategory,
-      location: _selectedLocation,
       date: _selectedDate,
     ));
   }

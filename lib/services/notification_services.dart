@@ -40,7 +40,7 @@ class NotificationService {
   }) async {
     // Notifikasi pendaftaran
     await AwesomeNotifications().createNotification(
-      content: NotificationContent(
+      content: NotificationContent( 
         id: eventId,
         channelKey: 'event_channel',
         title: 'Pendaftaran Berhasil',
