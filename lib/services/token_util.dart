@@ -4,20 +4,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
 import 'package:polivent_app/config/app_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const _storage = FlutterSecureStorage();
 const _accessTokenKey = 'access_token';
 const _refreshTokenKey = 'refresh_token';
-
-// Simpan token
-Future<void> saveToken(String token) async {
-  await _storage.write(key: _accessTokenKey, value: token);
-}
-
-// Ambil token
-Future<String?> getToken() async {
-  return await _storage.read(key: _accessTokenKey);
-}
 
 // Decode payload token
 Future<Map<String, dynamic>?> decodeTokenPayload(String token) async {
@@ -28,19 +19,47 @@ Future<Map<String, dynamic>?> decodeTokenPayload(String token) async {
   }
 }
 
-// Hapus token
-Future<void> removeToken() async {
-  await _storage.delete(key: _accessTokenKey);
+// Simpan access token
+Future<void> saveAccessToken(String token) async {
+  await _storage.write(key: _accessTokenKey, value: token);
 }
 
 // Simpan refresh token
-Future<void> saveRefreshToken(String refreshToken) async {
-  await _storage.write(key: _refreshTokenKey, value: refreshToken);
+Future<void> saveRefreshToken(String token) async {
+  await _storage.write(key: _refreshTokenKey, value: token);
+}
+
+// Ambil access token
+Future<String?> getAccessToken() async {
+  return await _storage.read(key: _accessTokenKey);
+}
+
+// Ambil access token
+Future<String?> getToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString(_accessTokenKey);
 }
 
 // Ambil refresh token
 Future<String?> getRefreshToken() async {
   return await _storage.read(key: _refreshTokenKey);
+}
+
+// Cek validitas access token
+Future<bool> isTokenValid() async {
+  final token = await getToken();
+  if (token == null) return false;
+
+  try {
+    return !JwtDecoder.isExpired(token);
+  } catch (e) {
+    return false;
+  }
+}
+
+// Hapus token
+Future<void> removeToken() async {
+  await _storage.delete(key: _accessTokenKey);
 }
 
 // Hapus refresh token
@@ -50,7 +69,7 @@ Future<void> removeRefreshToken() async {
 
 // Cek apakah token sudah expired
 Future<bool> isTokenExpired() async {
-  final token = await getToken();
+  final token = await getAccessToken();
   if (token == null) return true;
 
   try {
@@ -62,7 +81,7 @@ Future<bool> isTokenExpired() async {
 
 // Decode token untuk mendapatkan payload
 Future<Map<String, dynamic>?> decodeToken() async {
-  final token = await getToken();
+  final token = await getAccessToken();
   if (token == null) return null;
 
   try {
@@ -92,7 +111,7 @@ Future<String?> refreshToken() async {
 
       if (jsonResponse['status'] == 'success') {
         final newToken = jsonResponse['data']['token'];
-        await saveToken(newToken);
+        await saveAccessToken(newToken);
         return newToken;
       }
     }
@@ -114,7 +133,7 @@ Future<void> logout() async {
 
 // Cek status autentikasi
 Future<bool> isAuthenticated() async {
-  final token = await getToken();
+  final token = await getAccessToken();
 
   if (token == null) return false;
 

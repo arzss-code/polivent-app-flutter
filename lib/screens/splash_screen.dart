@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/screens/welcome_screen.dart'; // Pastikan path benar
+import 'package:polivent_app/screens/home.dart';
+import 'package:polivent_app/screens/login.dart';
+import 'package:polivent_app/screens/welcome_screen.dart';
+import 'package:polivent_app/services/token.dart'; // Pastikan path benar
 
 void main() {
   runApp(const MyApp());
@@ -33,6 +36,7 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    _checkTokenAndNavigate();
 
     // Mulai animasi fade out setelah 2 detik
     Future.delayed(const Duration(seconds: 2), () {
@@ -66,6 +70,24 @@ class SplashScreenState extends State<SplashScreen> {
         }
       });
     });
+  }
+
+  Future<void> _checkTokenAndNavigate() async {
+    final isTokenValid = await TokenService.checkTokenValidity();
+
+    if (isTokenValid) {
+      // Token valid, navigasi ke Home
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+    } else {
+      // Token tidak valid, navigasi ke Login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
   }
 
   @override

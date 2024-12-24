@@ -38,7 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _loadNotificationPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
+      _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
     });
   }
 
