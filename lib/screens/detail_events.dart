@@ -7,12 +7,14 @@ import 'dart:convert';
 import 'package:photo_view/photo_view.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/screens/notification.dart';
+import 'package:polivent_app/services/like_services.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:polivent_app/models/share.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/screens/success_join.dart';
+import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/services/notification_services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,14 +32,90 @@ class DetailEvents extends StatefulWidget {
 }
 
 class _DetailEventsState extends State<DetailEvents> {
+  // User? _currentUser;
+  // String _errorMessage = '';
   late Future<Event> futureEvent;
   bool _showFullDescription = false;
   bool isLoved = false;
+  int? likeId;
+  bool _isLikeLoading = false;
 
   @override
   void initState() {
     super.initState();
     futureEvent = fetchEventById();
+    _checkInitialLikeStatus();
+  }
+
+  Future<void> _checkInitialLikeStatus() async {
+    try {
+      final likeService = LikeService();
+      final likeStatus = await likeService.checkLikeStatus(widget.eventId);
+
+      setState(() {
+        isLoved = likeStatus['is_liked'];
+        likeId = likeStatus['like_id'];
+      });
+    } catch (e) {
+      print('Error fetching like status: $e');
+    }
+  }
+
+  void _toggleLike() async {
+    // Cek apakah sudah login
+    final authService = AuthService();
+    final userData = await authService.getUserData();
+
+    if (userData == null) {
+      // Tampilkan dialog login
+      _showLoginRequiredDialog();
+      return;
+    }
+
+    // Hindari multiple request
+    if (_isLikeLoading) return;
+
+    setState(() {
+      _isLikeLoading = true;
+    });
+
+    // Simpan status sebelumnya
+    final bool previousLikeStatus = isLoved;
+    final int? previousLikeId = likeId;
+
+    // Optimistic update
+    setState(() {
+      isLoved = !isLoved;
+      likeId = null;
+    });
+
+    final likeService = LikeService();
+    final result = await likeService.toggleLike(widget.eventId);
+
+    if (!result['success']) {
+      // Jika gagal, kembalikan ke status sebelumnya
+      setState(() {
+        isLoved = previousLikeStatus;
+        likeId = previousLikeId;
+        _isLikeLoading = false;
+      });
+
+      // Tampilkan snackbar error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(previousLikeStatus
+              ? 'Gagal membatalkan like'
+              : 'Gagal menambahkan like'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      setState(() {
+        isLoved = result['is_liked'];
+        likeId = result['like_id'];
+        _isLikeLoading = false;
+      });
+    }
   }
 
   void shareEvent(Event event) {
@@ -218,6 +296,25 @@ class _DetailEventsState extends State<DetailEvents> {
 
     // Simpan kembali ke SharedPreferences
     await prefs.setStringList('notifications', savedNotifications);
+  }
+
+// Method untuk menampilkan dialog login yang diperlukan
+  void _showLoginRequiredDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Login Required'),
+          content: const Text('You need to be logged in to like this event.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
 // Method untuk menampilkan dialog error yang sudah ada
@@ -576,6 +673,7 @@ class _DetailEventsState extends State<DetailEvents> {
                                     ),
                                   ),
                                 ),
+                                // Dalam method build, ubah IconButton like
                                 IconButton(
                                   icon: Icon(
                                     isLoved
@@ -583,10 +681,8 @@ class _DetailEventsState extends State<DetailEvents> {
                                         : Icons.favorite_border,
                                     color: isLoved ? Colors.red : Colors.grey,
                                   ),
-                                  onPressed: () {
-                                    setState(() => isLoved = !isLoved);
-                                  },
-                                ),
+                                  onPressed: _toggleLike,
+                                )
                               ],
                             ),
                             const SizedBox(height: 4),
