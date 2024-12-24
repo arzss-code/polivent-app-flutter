@@ -162,7 +162,7 @@ class _DetailEventsState extends State<DetailEvents> {
 
   Future<String> _getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('refresh_token') ?? '';
+    return prefs.getString('access_token') ?? '';
   }
 
   void _handleRegistrationError(http.Response response) {

@@ -38,31 +38,31 @@ class SuccessJoinPopup extends StatelessWidget {
             style: TextStyle(fontSize: 14),
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the TicketScreen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const TicketScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              fixedSize: const Size(250, 50),
-              // padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              textStyle: const TextStyle(
-                fontSize: 16,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-            ),
-            child: const Text(
-              'View E-Ticket',
-              style: TextStyle(color: UIColor.solidWhite),
-            ),
-          ),
-          const SizedBox(height: 16),
+          // ElevatedButton(
+          //   onPressed: () {
+          //     // Navigate to the TicketScreen
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const TicketScreen()),
+          //     );
+          //   },
+          //   style: ElevatedButton.styleFrom(
+          //     backgroundColor: Colors.blue,
+          //     fixedSize: const Size(250, 50),
+          //     // padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          //     textStyle: const TextStyle(
+          //       fontSize: 16,
+          //     ),
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(24),
+          //     ),
+          //   ),
+          //   child: const Text(
+          //     'View E-Ticket',
+          //     style: TextStyle(color: UIColor.solidWhite),
+          //   ),
+          // ),
+          // const SizedBox(height: 16),
           TextButton(
             onPressed: () {
               // Close the popup
