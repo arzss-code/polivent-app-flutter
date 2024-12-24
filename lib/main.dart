@@ -1,19 +1,33 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:app_links/app_links.dart';
+
+// Import service dan screen yang diperlukan
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/detail_events.dart';
 import 'package:polivent_app/screens/home.dart';
 import 'package:polivent_app/screens/splash_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:app_links/app_links.dart';
 import 'package:polivent_app/services/token_util.dart';
+import 'package:polivent_app/services/notification_services.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi notifikasi
+  await NotificationService.initializeNotification();
+
+  // Request izin notifikasi
+  await NotificationService.requestNotificationPermissions();
+
+  // Atur style system UI
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarBrightness: Brightness.dark,
     statusBarIconBrightness: Brightness.dark,
     systemNavigationBarColor: Colors.transparent,
     statusBarColor: Colors.transparent,
   ));
+
   runApp(const PoliventApp());
 }
 
@@ -26,34 +40,33 @@ class PoliventApp extends StatefulWidget {
 
 class _PoliventAppState extends State<PoliventApp> {
   final AppLinks _appLinks = AppLinks();
-  String _linkMessage = 'No link received yet';
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
     super.initState();
+
+    // Inisialisasi deep links
     _initAppLinks();
   }
 
+  // Method untuk handle deep links
   Future<void> _initAppLinks() async {
-    // Mendengarkan link yang diterima
     _appLinks.uriLinkStream.listen((Uri? uri) {
       if (uri != null) {
-        setState(() {
-          _linkMessage = 'Received link: $uri';
-        });
-        // Tambahkan logika untuk menavigasi berdasarkan link
         _handleDeepLink(uri);
       }
     });
   }
 
+  // Handler untuk deep links
   void _handleDeepLink(Uri uri) {
     if (uri.pathSegments.isNotEmpty && uri.pathSegments.first == 'event') {
-      final String eventIdString =
-          uri.pathSegments[1]; // Misalnya, jika URI adalah /event/123
-      final int eventId = int.parse(eventIdString); // Mengonversi String ke int
+      final String eventIdString = uri.pathSegments[1];
+      final int eventId = int.parse(eventIdString);
 
-      Navigator.of(context).push(
+      // Navigasi ke halaman detail event
+      _navigatorKey.currentState?.push(
         MaterialPageRoute(
           builder: (context) => DetailEvents(eventId: eventId),
         ),
@@ -61,6 +74,7 @@ class _PoliventAppState extends State<PoliventApp> {
     }
   }
 
+  // Build theme method
   ThemeData _buildTheme(Brightness brightness) {
     return ThemeData(
       pageTransitionsTheme: const PageTransitionsTheme(
@@ -93,15 +107,13 @@ class _PoliventAppState extends State<PoliventApp> {
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(Brightness.light),
       title: 'Polivent',
+      navigatorKey: _navigatorKey, // Tambahkan navigator key
       initialRoute: '/',
       onGenerateRoute: (RouteSettings settings) {
-        // Cek apakah ada deep link yang diterima
         if (settings.name!.startsWith('/event/')) {
           final eventId = settings.name!.replaceFirst('/event/', '');
           return MaterialPageRoute(
-            builder: (context) => DetailEvents(
-                eventId:
-                    int.parse(eventId)), // Navigasi ke DetailEvents dengan ID
+            builder: (context) => DetailEvents(eventId: int.parse(eventId)),
           );
         }
         return null; // Kembali ke default route jika tidak ada yang cocok
@@ -110,13 +122,10 @@ class _PoliventAppState extends State<PoliventApp> {
         future: getToken(), // Ambil token dari SharedPreferences
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // Tampilkan SplashScreen sementara menunggu
             return const SplashScreen();
           } else if (snapshot.hasData && snapshot.data != null) {
-            // Jika token ada, arahkan ke Home
             return const Home();
           } else {
-            // Jika tidak ada token, tampilkan SplashScreen
             return const SplashScreen();
           }
         },

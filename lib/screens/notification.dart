@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/services/notification_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -11,43 +15,146 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  List<NotificationItem> notifications = [
-    NotificationItem(
-      title: 'Pengingat Event',
-      message: 'Event "Workshop UI/UX" akan dimulai dalam 1 jam',
-      time: DateTime.now().add(const Duration(hours: 1)),
-      type: NotificationType.reminder,
-      isNew: true,
-    ),
-    NotificationItem(
-      title: 'Pendaftaran Berhasil',
-      message: 'Anda telah berhasil mendaftar pada event "Seminar Teknologi"',
-      time: DateTime.now().subtract(const Duration(hours: 2)),
-      type: NotificationType.success,
-      isNew: false,
-    ),
-    // Tambahkan notifikasi lain sesuai kebutuhan
-  ];
-
+  List<NotificationItem> notifications = [];
   bool _notificationsEnabled = true;
+  StreamSubscription? _notificationSubscription;
 
   @override
   void initState() {
     super.initState();
     _loadNotificationPreference();
+    _loadNotifications();
+    _initNotificationListeners();
+  }
+
+  void _initNotificationListeners() {
+    // Gunakan metode setListeners
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: _onActionReceivedMethod,
+      onNotificationCreatedMethod: _onNotificationCreatedMethod,
+      onNotificationDisplayedMethod: _onNotificationDisplayedMethod,
+    );
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> _onActionReceivedMethod(
+      ReceivedAction receivedAction) async {
+    // Simpan notifikasi ke SharedPreferences
+    await _saveNotificationFromAction(receivedAction);
+  }
+
+  static Future<void> _saveNotificationFromAction(
+      ReceivedAction receivedAction) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Ambil daftar notifikasi yang sudah ada
+    List<String>? savedNotifications =
+        prefs.getStringList('notifications') ?? [];
+
+    // Buat NotificationItem dari ReceivedAction
+    final notificationItem = {
+      'title': receivedAction.title ?? 'Notifikasi',
+      'message': receivedAction.body ?? '',
+      'time': DateTime.now().toIso8601String(),
+      'type': receivedAction.payload?['type'] ?? 'info',
+      'isNew': true,
+    };
+
+    // Tambahkan notifikasi baru
+    savedNotifications.insert(0, json.encode(notificationItem));
+
+    // Simpan kembali ke SharedPreferences
+    await prefs.setStringList('notifications', savedNotifications);
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> _onNotificationCreatedMethod(
+      ReceivedNotification receivedNotification) async {
+    debugPrint('Notifikasi Dibuat: ${receivedNotification.id}');
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> _onNotificationDisplayedMethod(
+      ReceivedNotification receivedNotification) async {
+    debugPrint('Notifikasi Ditampilkan: ${receivedNotification.id}');
+  }
+
+  NotificationType _getNotificationType(String type) {
+    switch (type) {
+      case 'event_registration':
+        return NotificationType.success;
+      case 'event_reminder':
+        return NotificationType.reminder;
+      case 'info':
+        return NotificationType.info;
+      case 'error':
+        return NotificationType.error;
+      default:
+        return NotificationType.info;
+    }
+  }
+
+  void _loadNotifications() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? savedNotifications = prefs.getStringList('notifications');
+
+    if (savedNotifications != null) {
+      setState(() {
+        notifications = savedNotifications.map((jsonString) {
+          final Map<String, dynamic> map = json.decode(jsonString);
+          return NotificationItem(
+            title: map['title'],
+            message: map['message'],
+            time: DateTime.parse(map['time']),
+            type: _getNotificationType(map['type']),
+            isNew: map['isNew'] ?? true,
+          );
+        }).toList();
+      });
+    }
+  }
+
+  void _saveNotifications() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> notificationJsonList = notifications.map((notification) {
+      return json.encode({
+        'title': notification.title,
+        'message': notification.message,
+        'time': notification.time.toIso8601String(),
+        'type': notification.type.toString().split('.').last,
+        'isNew': notification.isNew,
+      });
+    }).toList();
+
+    await prefs.setStringList('notifications', notificationJsonList);
   }
 
   void _loadNotificationPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
+      _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
     });
   }
 
   void removeNotification(int index) {
     setState(() {
       notifications.removeAt(index);
+      _saveNotifications();
     });
+  }
+
+  void _clearAllNotifications() {
+    setState(() {
+      notifications.clear();
+      _saveNotifications();
+    });
+    // Gunakan method dari NotificationService untuk menghapus notifikasi sistem
+    NotificationService.cancelAll();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -65,6 +172,13 @@ class _NotificationPageState extends State<NotificationPage> {
             color: UIColor.typoBlack,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_sweep, color: Colors.red),
+            onPressed: _clearAllNotifications,
+            tooltip: 'Hapus Semua Notifikasi',
+          ),
+        ],
       ),
       body: !_notificationsEnabled
           ? const Center(
@@ -79,7 +193,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   itemCount: notifications.length,
                   itemBuilder: (context, index) {
                     return Dismissible(
-                      key: Key(notifications[index].title),
+                      key: Key(notifications[index].title + index.toString()),
                       onDismissed: (direction) {
                         removeNotification(index);
                       },
@@ -103,6 +217,7 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 }
 
+// Sisanya tetap sama seperti implementasi sebelumnya
 class EmptyNotification extends StatelessWidget {
   const EmptyNotification({super.key});
 
@@ -142,6 +257,8 @@ class EmptyNotification extends StatelessWidget {
     );
   }
 }
+
+// NotificationCard dan NotificationItem tetap sama seperti sebelumnya
 
 class NotificationCard extends StatelessWidget {
   final String title;

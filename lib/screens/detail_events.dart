@@ -6,12 +6,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:photo_view/photo_view.dart';
 import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/screens/notification.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:polivent_app/models/share.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/screens/success_join.dart';
+import 'package:polivent_app/services/notification_services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
@@ -112,12 +114,19 @@ class _DetailEventsState extends State<DetailEvents> {
 
   Future<void> _registerEvent(int eventId) async {
     try {
+      // Tampilkan loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
       final authService = AuthService();
       final userData = await authService.getUserData();
-
-      // Tambahkan logging untuk debugging
-      print('Event ID: $eventId');
-      print('User ID: ${userData.userId}');
 
       final response = await http.post(
         Uri.parse('$prodApiBaseUrl/registration'),
@@ -131,15 +140,30 @@ class _DetailEventsState extends State<DetailEvents> {
         }),
       );
 
-      // Tambahkan logging response
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      // Tutup loading indicator
+      Navigator.of(context).pop();
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
 
         if (jsonResponse['status'] == 'success') {
-          // Sukses mendaftar
+          // Ambil detail event untuk mendapatkan tanggal
+          final event = await fetchEventById();
+
+          // Tampilkan notifikasi setelah pendaftaran berhasil
+          await NotificationService.showEventNotification(
+            eventId: eventId,
+            eventTitle: event.title,
+            eventDate: DateTime.parse(event.dateStart),
+          );
+
+          // Tambahkan notifikasi lokal
+          _addLocalNotification(
+            title: 'Pendaftaran Berhasil',
+            message: 'Anda berhasil mendaftar event ${event.title}',
+          );
+
+          // Tampilkan popup sukses
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -147,17 +171,72 @@ class _DetailEventsState extends State<DetailEvents> {
             },
           );
         } else {
-          // Tangani pesan error dari server
           _showErrorDialog(jsonResponse['message'] ?? 'Gagal mendaftar event');
         }
       } else {
-        // Tangani error berdasarkan status code
         _handleRegistrationError(response);
       }
     } catch (e) {
-      // Tangani error jaringan atau parsing
+      // Tutup loading indicator jika terjadi error
+      Navigator.of(context).pop();
       _showErrorDialog('Terjadi kesalahan: $e');
     }
+  }
+
+  // Method untuk menambahkan notifikasi lokal
+  void _addLocalNotification({
+    required String title,
+    required String message,
+  }) async {
+    // Buat notifikasi lokal yang akan disimpan di SharedPreferences
+    final notificationItem = NotificationItem(
+      title: title,
+      message: message,
+      time: DateTime.now(),
+      type: NotificationType.success,
+      isNew: true,
+    );
+
+    // Simpan ke SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Ambil daftar notifikasi yang sudah ada
+    List<String>? savedNotifications =
+        prefs.getStringList('notifications') ?? [];
+
+    // Konversi notifikasi ke JSON
+    String notificationJson = json.encode({
+      'title': notificationItem.title,
+      'message': notificationItem.message,
+      'time': notificationItem.time.toIso8601String(),
+      'type': notificationItem.type.toString().split('.').last,
+      'isNew': notificationItem.isNew,
+    });
+
+    // Tambahkan notifikasi baru di awal list
+    savedNotifications.insert(0, notificationJson);
+
+    // Simpan kembali ke SharedPreferences
+    await prefs.setStringList('notifications', savedNotifications);
+  }
+
+// Method untuk menampilkan dialog error yang sudah ada
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Pendaftaran Gagal'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<String> _getAccessToken() async {
@@ -190,23 +269,23 @@ class _DetailEventsState extends State<DetailEvents> {
     }
   }
 
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Pendaftaran Gagal'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _showErrorDialog(String message) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Pendaftaran Gagal'),
+  //         content: Text(message),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.of(context).pop(),
+  //             child: const Text('OK'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   String formatDate(String dateString) {
     try {
