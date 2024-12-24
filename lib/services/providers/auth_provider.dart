@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:polivent_app/models/data/user_model.dart';
+import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/services/auth_services.dart';
 
 class AuthProvider extends ChangeNotifier {

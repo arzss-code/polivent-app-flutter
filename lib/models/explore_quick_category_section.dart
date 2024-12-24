@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/models/data/category_model.dart';
+import 'package:polivent_app/services/data/category_model.dart';
 import 'package:shimmer/shimmer.dart';
 
 class QuickCategorySection extends StatefulWidget {

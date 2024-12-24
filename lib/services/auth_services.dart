@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/models/data/user_model.dart';
+import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/login.dart';
 import 'package:polivent_app/services/token_util.dart';
@@ -93,6 +93,55 @@ class AuthService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', accessToken);
     await prefs.setString('refresh_token', refreshToken);
+  }
+
+  Future<User> getUserData() async {
+    try {
+      // Ambil access token dari SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
+
+      if (accessToken == null) {
+        // Jika tidak ada access token, coba refresh token
+        await refreshToken();
+
+        // Ambil ulang access token setelah refresh
+        accessToken = prefs.getString('access_token');
+      }
+
+      // Lakukan request get user data
+      final response = await http.get(
+        Uri.parse('$devApiBaseUrl/auth'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      // Cek status code dari response
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+
+        if (jsonData['status'] == 'success') {
+          return User.fromJson(jsonData['data']);
+        } else {
+          throw Exception(jsonData['message'] ?? 'Failed to fetch user data');
+        }
+      } else if (response.statusCode == 401) {
+        // Token expired, coba refresh token
+        await refreshToken();
+
+        // Ulangi request setelah refresh token
+        return getUserData();
+      } else {
+        // Tangani kesalahan berdasarkan status code
+        throw Exception(
+            'Failed to fetch user data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Tangani kesalahan jaringan atau parsing
+      throw Exception('Failed to fetch user data: $e');
+    }
   }
 
   // Check Login (GET)

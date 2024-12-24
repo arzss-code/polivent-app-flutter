@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/screens/settings.dart'; // Pastikan untuk mengimpor SettingsScreen
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:polivent_app/screens/settings.dart';
 import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/services/data/user_model.dart';
 import 'package:uicons_pro/uicons_pro.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+// Import User model dan AuthService
+import 'package:polivent_app/services/auth_services.dart';
 
 class HomeProfile extends StatefulWidget {
   const HomeProfile({super.key});
@@ -12,34 +16,31 @@ class HomeProfile extends StatefulWidget {
 }
 
 class _HomeProfileState extends State<HomeProfile> {
-  String name = 'Atsila Arya';
-  String aboutMe =
-      'I am a student with a strong interest in mobile app development, '
-      'UI/UX design, and gaming. I also enjoy competing in the fields '
-      'of technology and design, constantly striving to improve my skills.';
-  List<String> interests = [
-    'Music',
-    'Workshop',
-    'Art',
-    'Sport',
-    'Food',
-    'Seminar',
-    'E-Sport'
-  ];
+  User? _currentUser;
+  bool _isLoading = true;
+  String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _fetchUserData();
   }
 
-  Future<void> _loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      name = prefs.getString('name') ?? name;
-      aboutMe = prefs.getString('about_me') ?? aboutMe;
-      interests = prefs.getStringList('interests') ?? interests;
-    });
+  Future<void> _fetchUserData() async {
+    try {
+      final authService = AuthService();
+      final userData = await authService.getUserData();
+
+      setState(() {
+        _currentUser = userData;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
   void _navigateToSettings() {
@@ -47,7 +48,7 @@ class _HomeProfileState extends State<HomeProfile> {
       context,
       MaterialPageRoute(builder: (context) => const SettingsScreen()),
     ).then((_) {
-      _loadData(); // Memuat data setelah kembali dari SettingsScreen
+      _fetchUserData(); // Memuat ulang data setelah kembali dari SettingsScreen
     });
   }
 
@@ -57,10 +58,11 @@ class _HomeProfileState extends State<HomeProfile> {
       children: [
         _buildAppBar(),
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: _buildProfileContent(),
-          ),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _errorMessage.isNotEmpty
+                  ? Center(child: Text('Error: $_errorMessage'))
+                  : _buildProfileContent(),
         ),
       ],
     );
@@ -86,42 +88,52 @@ class _HomeProfileState extends State<HomeProfile> {
             UIconsPro.regularRounded.settings,
             size: 20,
           ),
-          onPressed: _navigateToSettings, // Navigasi ke SettingsScreen
+          onPressed: _navigateToSettings,
         ),
       ],
     );
   }
 
-  Column _buildProfileContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 20),
-        _buildProfileImage(),
-        const SizedBox(height: 16),
-        _buildProfileName(),
-        const SizedBox(height: 50),
-        _buildAboutMe(),
-        const SizedBox(height: 24),
-        _buildInterests(),
-      ],
+  Widget _buildProfileContent() {
+    if (_currentUser == null) {
+      return const Center(child: Text('No user data available'));
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20),
+          _buildProfileImage(),
+          const SizedBox(height: 16),
+          _buildProfileName(),
+          const SizedBox(height: 50),
+          _buildAboutMe(),
+          const SizedBox(height: 24),
+          _buildInterests(),
+          // Tambahkan bagian interests jika diperlukan
+        ],
+      ),
     );
   }
 
-  CircleAvatar _buildProfileImage() {
+  Widget _buildProfileImage() {
     return CircleAvatar(
       radius: 60,
       backgroundColor: Colors.grey[300],
-      backgroundImage: const AssetImage("assets/images/150.png"),
+      backgroundImage: _currentUser?.avatar != null
+          ? CachedNetworkImageProvider(_currentUser!.avatar)
+          : const AssetImage("assets/images/150.png") as ImageProvider,
     );
   }
 
-  Row _buildProfileName() {
+  Widget _buildProfileName() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          name.isNotEmpty ? name : 'Tambahkan Nama',
+          _currentUser?.username ?? 'Nama Pengguna',
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
         ),
         const SizedBox(width: 4),
@@ -129,7 +141,7 @@ class _HomeProfileState extends State<HomeProfile> {
     );
   }
 
-  Align _buildAboutMe() {
+  Widget _buildAboutMe() {
     return Align(
       alignment: Alignment.centerLeft,
       child: Column(
@@ -141,7 +153,7 @@ class _HomeProfileState extends State<HomeProfile> {
           ),
           const SizedBox(height: 8),
           Text(
-            aboutMe.isNotEmpty ? aboutMe : 'Tambahkan About Me',
+            _currentUser?.about ?? 'Tambahkan About Me',
             style: const TextStyle(fontSize: 16, color: UIColor.typoGray),
             textAlign: TextAlign.left,
           ),
@@ -150,7 +162,19 @@ class _HomeProfileState extends State<HomeProfile> {
     );
   }
 
-  Align _buildInterests() {
+  // Tambahkan method baru untuk _buildInterests()
+  Widget _buildInterests() {
+    // Contoh list interests, sesuaikan dengan struktur data di User model
+    List<String> interests = [
+      'Music',
+      'Workshop',
+      'Art',
+      'Sport',
+      'Food',
+      'Seminar',
+      'E-Sport'
+    ];
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Column(
@@ -166,7 +190,7 @@ class _HomeProfileState extends State<HomeProfile> {
                   spacing: 12.0,
                   runSpacing: 8.0,
                   children: interests
-                      .map((interest) => InterestChip(label: interest))
+                      .map((interest) => _buildInterestChip(interest))
                       .toList(),
                 )
               : const Text(
@@ -177,17 +201,12 @@ class _HomeProfileState extends State<HomeProfile> {
       ),
     );
   }
-}
 
-class InterestChip extends StatelessWidget {
-  final String label;
-
-  const InterestChip({super.key, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
+// Tambahkan method untuk membuat interest chip
+  Widget _buildInterestChip(String label) {
     return Chip(
-      label: Text(label, style: const TextStyle(color: Colors.white)),
+      label: Text(label,
+          style: const TextStyle(color: Colors.white, fontSize: 12)),
       backgroundColor: Colors.blue,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
     );

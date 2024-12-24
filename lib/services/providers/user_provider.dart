@@ -2,7 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../models/data/user_model.dart';
+import '../data/user_model.dart';
 
 final userProvider = FutureProvider<List<User>>((ref) async {
   final response =
