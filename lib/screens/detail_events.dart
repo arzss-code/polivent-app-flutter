@@ -648,56 +648,85 @@ class _DetailEventsState extends State<DetailEvents> {
             return Stack(
               children: [
                 SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildEventImage(event.poster),
-                      const SizedBox(height: 4),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0,
-                          vertical: 8.0,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                        minHeight: MediaQuery.of(context)
+                            .size
+                            .height // Sesuaikan tinggi minimal
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    event.title,
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Inter',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildEventImage(event.poster),
+                        const SizedBox(height: 4),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20.0,
+                            vertical: 8.0,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      event.title,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Inter',
+                                      ),
                                     ),
                                   ),
-                                ),
-                                // Dalam method build, ubah IconButton like
-                                IconButton(
-                                  icon: Icon(
-                                    isLoved
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color: isLoved ? Colors.red : Colors.grey,
+                                  // Dalam method build, ubah IconButton like
+                                  IconButton(
+                                    icon: Icon(
+                                      isLoved
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: isLoved ? Colors.red : Colors.grey,
+                                    ),
+                                    onPressed: _toggleLike,
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              // Location
+                              Row(
+                                children: [
+                                  Icon(
+                                    UIconsPro.regularRounded.house_building,
+                                    size: 20,
+                                    color: UIColor.primaryColor,
                                   ),
-                                  onPressed: _toggleLike,
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            // Location
-                            Row(
-                              children: [
-                                Icon(
-                                  UIconsPro.regularRounded.house_building,
-                                  size: 20,
-                                  color: UIColor.primaryColor,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    event.location,
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      event.location,
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              // Date
+                              Row(
+                                children: [
+                                  Icon(
+                                    UIconsPro.regularRounded.calendar_clock,
+                                    size: 20,
+                                    color: UIColor.primaryColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    formatDate(event.dateStart),
                                     style: TextStyle(
                                       fontFamily: 'Inter',
                                       fontSize: 16,
@@ -705,117 +734,96 @@ class _DetailEventsState extends State<DetailEvents> {
                                       color: Colors.grey[700],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            // Date
-                            Row(
-                              children: [
-                                Icon(
-                                  UIconsPro.regularRounded.calendar_clock,
-                                  size: 20,
-                                  color: UIColor.primaryColor,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  formatDate(event.dateStart),
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            // Quota
-                            Row(
-                              children: [
-                                Icon(
-                                  UIconsPro.regularRounded.ticket_alt,
-                                  size: 20,
-                                  color: UIColor.primaryColor,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '${event.quota} Ticket',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Divider(color: Colors.grey[300], thickness: 1),
-                            // Description section
-                            const Text(
-                              'Description',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Inter',
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _showFullDescription
-                                      ? event.description
-                                      : (event.description.length > 200
-                                          ? '${event.description.substring(0, 200)}...'
-                                          : event.description),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[700],
+                              const SizedBox(height: 4),
+                              // Quota
+                              Row(
+                                children: [
+                                  Icon(
+                                    UIconsPro.regularRounded.ticket_alt,
+                                    size: 20,
+                                    color: UIColor.primaryColor,
                                   ),
-                                ),
-                                if (event.description.length > 200)
-                                  TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _showFullDescription =
-                                            !_showFullDescription;
-                                      });
-                                    },
-                                    style: TextButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      foregroundColor: UIColor.primaryColor,
-                                      alignment: Alignment.centerLeft,
-                                    ),
-                                    child: Text(
-                                      _showFullDescription
-                                          ? 'Read Less'
-                                          : 'Read More',
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${event.quota} Ticket',
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
                                     ),
                                   ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            // Comments section
-                            const Text(
-                              'Comments',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Inter',
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            const BagianKomentar(),
-                            const SizedBox(height: 100),
-                          ],
+                              const SizedBox(height: 12),
+                              Divider(color: Colors.grey[300], thickness: 1),
+                              // Description section
+                              const Text(
+                                'Deskripsi',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Inter',
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _showFullDescription
+                                        ? event.description
+                                        : (event.description.length > 200
+                                            ? '${event.description.substring(0, 200)}...'
+                                            : event.description),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontFamily: 'Inter',
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  if (event.description.length > 200)
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _showFullDescription =
+                                              !_showFullDescription;
+                                        });
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                        foregroundColor: UIColor.primaryColor,
+                                        alignment: Alignment.centerLeft,
+                                      ),
+                                      child: Text(
+                                        _showFullDescription
+                                            ? 'Read Less'
+                                            : 'Read More',
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              // Comments section
+                              const Text(
+                                'Komentar',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Inter',
+                                ),
+                              ),
+                              // const SizedBox(height: 8),
+                              CommentsSection(eventId: event.eventId),
+                              const SizedBox(height: 100),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 // Custom AppBar
@@ -972,29 +980,6 @@ class _DetailEventsState extends State<DetailEvents> {
                                 ),
                               ),
                             ),
-                            // ElevatedButton(
-                            //   onPressed: () {
-                            //     showDialog(
-                            //       context: context,
-                            //       builder: (BuildContext context) {
-                            //         return const SuccessJoinPopup();
-                            //       },
-                            //     );
-                            //   },
-                            //   style: ElevatedButton.styleFrom(
-                            //     backgroundColor: UIColor.primaryColor,
-                            //     minimumSize: const Size(200, 50),
-                            //   ),
-                            //   child: const Text(
-                            //     'Join',
-                            //     style: TextStyle(
-                            //       color: Colors.white,
-                            //       fontSize: 16,
-                            //       fontWeight: FontWeight.bold,
-                            //       fontFamily: 'Inter',
-                            //     ),
-                            //   ),
-                            // ),
                           ],
                         ),
                       ],
