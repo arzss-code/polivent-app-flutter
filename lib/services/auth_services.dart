@@ -274,6 +274,124 @@ class AuthService {
     }
   }
 
+  Future<void> updateUserProfile({
+    String? username,
+    String? about,
+  }) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
+
+      if (accessToken == null) {
+        throw Exception('No access token available');
+      }
+
+      final response = await http.put(
+        Uri.parse('$devApiBaseUrl/auth/profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({
+          if (username != null) 'username': username,
+          if (about != null) 'about': about,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (jsonData['status'] == 'success') {
+          return;
+        } else {
+          throw Exception(jsonData['message'] ?? 'Failed to update profile');
+        }
+      } else {
+        throw Exception(
+            'Failed to update profile. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error updating profile: $e');
+    }
+  }
+
+  Future<void> updateUserInterests(List<String> interests) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
+
+      if (accessToken == null) {
+        throw Exception('No access token available');
+      }
+
+      final response = await http.put(
+        Uri.parse('$devApiBaseUrl/auth/interests'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({
+          'interests': interests,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (jsonData['status'] == 'success') {
+          return;
+        } else {
+          throw Exception(jsonData['message'] ?? 'Failed to update interests');
+        }
+      } else {
+        throw Exception(
+            'Failed to update interests. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error updating interests: $e');
+    }
+  }
+
+  Future<void> updateUserAvatar(File avatarFile) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
+
+      if (accessToken == null) {
+        throw Exception('No access token available');
+      }
+
+      // Gunakan multipart request untuk upload file
+      var request = http.MultipartRequest(
+          'POST', Uri.parse('$devApiBaseUrl/auth/avatar'));
+
+      // Tambahkan headers
+      request.headers['Authorization'] = 'Bearer $accessToken';
+
+      // Tambahkan file
+      request.files
+          .add(await http.MultipartFile.fromPath('avatar', avatarFile.path));
+
+      // Kirim request
+      var response = await request.send();
+
+      // Baca response
+      var responseBody = await response.stream.bytesToString();
+      var jsonData = jsonDecode(responseBody);
+
+      if (response.statusCode == 200) {
+        if (jsonData['status'] == 'success') {
+          return;
+        } else {
+          throw Exception(jsonData['message'] ?? 'Failed to update avatar');
+        }
+      } else {
+        throw Exception(
+            'Failed to update avatar. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error updating avatar: $e');
+    }
+  }
+
 // Metode untuk menampilkan error dan pop dialog
   void _showErrorAndPop(BuildContext context, String message) {
     // Tutup loading dialog jika masih terbuka

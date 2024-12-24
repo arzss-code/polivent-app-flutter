@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:photo_view/photo_view.dart';
+import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:polivent_app/models/share.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/screens/success_join.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
@@ -105,6 +108,104 @@ class _DetailEventsState extends State<DetailEvents> {
       // Tangani error yang tidak terduga
       throw Exception('An unexpected error occurred: $e');
     }
+  }
+
+  Future<void> _registerEvent(int eventId) async {
+    try {
+      final authService = AuthService();
+      final userData = await authService.getUserData();
+
+      // Tambahkan logging untuk debugging
+      print('Event ID: $eventId');
+      print('User ID: ${userData.userId}');
+
+      final response = await http.post(
+        Uri.parse('$prodApiBaseUrl/registration'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${await _getAccessToken()}',
+        },
+        body: jsonEncode({
+          'event_id': eventId,
+          'user_id': userData.userId,
+        }),
+      );
+
+      // Tambahkan logging response
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+
+        if (jsonResponse['status'] == 'success') {
+          // Sukses mendaftar
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const SuccessJoinPopup();
+            },
+          );
+        } else {
+          // Tangani pesan error dari server
+          _showErrorDialog(jsonResponse['message'] ?? 'Gagal mendaftar event');
+        }
+      } else {
+        // Tangani error berdasarkan status code
+        _handleRegistrationError(response);
+      }
+    } catch (e) {
+      // Tangani error jaringan atau parsing
+      _showErrorDialog('Terjadi kesalahan: $e');
+    }
+  }
+
+  Future<String> _getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('refresh_token') ?? '';
+  }
+
+  void _handleRegistrationError(http.Response response) {
+    switch (response.statusCode) {
+      case 400:
+        _showErrorDialog('Permintaan tidak valid');
+        break;
+      case 401:
+        _showErrorDialog('Anda perlu login ulang');
+        break;
+      case 403:
+        _showErrorDialog('Anda tidak memiliki izin');
+        break;
+      case 404:
+        _showErrorDialog('Event tidak ditemukan');
+        break;
+      case 409:
+        _showErrorDialog('Anda sudah terdaftar di event ini');
+        break;
+      case 500:
+        _showErrorDialog('Kesalahan server');
+        break;
+      default:
+        _showErrorDialog('Gagal mendaftar event. Silakan coba lagi');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Pendaftaran Gagal'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   String formatDate(String dateString) {
@@ -676,14 +777,11 @@ class _DetailEventsState extends State<DetailEvents> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
+                            // Ubah tombol Join dalam widget build
                             ElevatedButton(
                               onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return const SuccessJoinPopup();
-                                  },
-                                );
+                                _registerEvent(
+                                    event.eventId); // Gunakan method baru ini
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: UIColor.primaryColor,
@@ -699,6 +797,29 @@ class _DetailEventsState extends State<DetailEvents> {
                                 ),
                               ),
                             ),
+                            // ElevatedButton(
+                            //   onPressed: () {
+                            //     showDialog(
+                            //       context: context,
+                            //       builder: (BuildContext context) {
+                            //         return const SuccessJoinPopup();
+                            //       },
+                            //     );
+                            //   },
+                            //   style: ElevatedButton.styleFrom(
+                            //     backgroundColor: UIColor.primaryColor,
+                            //     minimumSize: const Size(200, 50),
+                            //   ),
+                            //   child: const Text(
+                            //     'Join',
+                            //     style: TextStyle(
+                            //       color: Colors.white,
+                            //       fontSize: 16,
+                            //       fontWeight: FontWeight.bold,
+                            //       fontFamily: 'Inter',
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         ),
                       ],
