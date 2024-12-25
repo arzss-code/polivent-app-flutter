@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/screens/home.dart';
-import 'package:polivent_app/screens/login.dart';
+import 'package:polivent_app/screens/home/home.dart';
+import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:dio/dio.dart';
@@ -19,13 +19,13 @@ class TokenService {
 
     try {
       // Periksa apakah access token sudah expired
-      if (JwtDecoder.isExpired(accessToken)) {
+      if (JwtDecoder.isExpired(refreshToken)) {
         // Coba refresh token
-        final newAccessToken = await _refreshToken(refreshToken);
+        final newRefreshToken = await _refreshToken(refreshToken);
 
-        if (newAccessToken != null) {
+        if (newRefreshToken != null) {
           // Simpan access token baru
-          await prefs.setString('access_token', newAccessToken);
+          await prefs.setString('refresh_token', newRefreshToken);
           return true;
         }
 

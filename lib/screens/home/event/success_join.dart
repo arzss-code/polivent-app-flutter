@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'ticket_screen.dart';
+// import 'ticket_screen.dart';
 
 class SuccessJoinPopup extends StatelessWidget {
   const SuccessJoinPopup({super.key});

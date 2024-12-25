@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/screens/edit_profile.dart';
+// import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/screens/home/profile/settings/edit_profile.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/screens/help.dart';
-import 'package:polivent_app/screens/login.dart';
-import 'package:polivent_app/services/like_services.dart';
+import 'package:polivent_app/screens/home/profile/settings/help.dart';
+// import 'package:polivent_app/screens/login.dart';
+// import 'package:polivent_app/services/like_services.dart';
 import 'package:polivent_app/services/auth_services.dart';
-import 'package:polivent_app/services/token_util.dart';
+// import 'package:polivent_app/services/token_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

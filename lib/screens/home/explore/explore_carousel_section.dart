@@ -5,7 +5,7 @@ import 'package:polivent_app/config/app_config.dart';
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:uicons_pro/uicons_pro.dart';
-import 'package:polivent_app/screens/detail_events.dart';
+import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';

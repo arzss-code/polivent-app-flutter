@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/event_filter.dart';
-import 'package:polivent_app/screens/search_event_result.dart';
+import 'package:polivent_app/models/search_event_result.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';

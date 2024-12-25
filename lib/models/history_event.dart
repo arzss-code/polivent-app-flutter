@@ -7,7 +7,7 @@ import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:uicons_pro/uicons_pro.dart';
+// import 'package:uicons_pro/uicons_pro.dart';
 
 class HomeTicket extends StatefulWidget {
   const HomeTicket({super.key});
@@ -83,7 +83,7 @@ class _HomeTicketState extends State<HomeTicket> {
         _errorMessage = e.toString();
         _isLoading = false;
       });
-      print('Error fetching events: $e');
+      debugPrint('Error fetching events: $e');
     }
   }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/screens/settings.dart';
+import 'package:polivent_app/screens/home/profile/settings/settings_screen.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:uicons_pro/uicons_pro.dart';

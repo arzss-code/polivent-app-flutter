@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:polivent_app/models/explore_more_events.dart';
-import 'package:polivent_app/models/explore_quick_category_section.dart';
-import 'package:polivent_app/models/explore_carousel_section.dart';
+import 'package:polivent_app/screens/home/explore/explore_more_events.dart';
+import 'package:polivent_app/screens/home/explore/explore_quick_category_section.dart';
+import 'package:polivent_app/screens/home/explore/explore_carousel_section.dart';
 import 'package:polivent_app/models/search_events.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/screens/notification.dart';
+import 'package:polivent_app/screens/home/explore/notification.dart';
 import 'package:polivent_app/services/auth_services.dart'; // Import AuthService
 import 'package:polivent_app/services/data/user_model.dart'; // Import User model
 

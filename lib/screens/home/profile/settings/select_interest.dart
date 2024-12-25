@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/screens/home.dart';
-import '../models/ui_colors.dart';
+import 'package:polivent_app/screens/home/home.dart';
+import '../../../../models/ui_colors.dart';
 
 void main() {
   runApp(const MyApp());

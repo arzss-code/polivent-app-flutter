@@ -1,14 +1,10 @@
-// comment_model.dart
-import 'package:flutter/foundation.dart';
+// ignore_for_file: unused_field
 
-// comments_section.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:polivent_app/services/auth_services.dart';
-// import 'comment_model.dart';
-// import 'comment_service.dart';
-// comment_service.dart
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:polivent_app/config/app_config.dart';
@@ -164,7 +160,6 @@ class CommentsSection extends StatefulWidget {
 class _CommentsSectionState extends State<CommentsSection> {
   final CommentService _commentService = CommentService();
   final TextEditingController _commentController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
   final AuthService _authService = AuthService();
 
   List<CommentModel> _comments = [];
@@ -200,7 +195,7 @@ class _CommentsSectionState extends State<CommentsSection> {
     final comments = await _commentService.getCommentsByEventId(widget.eventId);
 
     setState(() {
-      _comments = comments;
+      _comments = comments.reversed.toList();
       _isLoading = false;
     });
   }
@@ -231,17 +226,6 @@ class _CommentsSectionState extends State<CommentsSection> {
   Widget _buildCommentInput() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
-      // decoration: BoxDecoration(
-      //   color: Colors.white,
-      //   boxShadow: [
-      //     BoxShadow(
-      //       color: Colors.grey.withOpacity(0.2),
-      //       spreadRadius: 1,
-      //       blurRadius: 5,
-      //       offset: const Offset(0, -1),
-      //     ),
-      //   ],
-      // ),
       child: Row(
         children: [
           CircleAvatar(
@@ -259,6 +243,10 @@ class _CommentsSectionState extends State<CommentsSection> {
                     : 'Tulis komentar...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: const BorderSide(color: Colors.blue),
                 ),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -283,7 +271,7 @@ class _CommentsSectionState extends State<CommentsSection> {
         children: [
           CircleAvatar(
             backgroundImage: NetworkImage(comment.avatar),
-            radius: isReply ? 15 : 20,
+            radius: isReply ? 17 : 20,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -340,7 +328,12 @@ class _CommentsSectionState extends State<CommentsSection> {
   }
 
   Widget _buildReplyList(List<CommentModel> replies) {
+    // Jika tidak ada balasan, kembalikan widget kosong
     if (replies.isEmpty) return const SizedBox.shrink();
+
+    // Urutkan balasan dari yang terlama ke terbaru
+    // Sehingga balasan terbaru akan muncul di bagian bawah
+    replies.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
     return Column(
       children: replies
@@ -355,42 +348,54 @@ class _CommentsSectionState extends State<CommentsSection> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Comments List
-        _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _comments.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      'Jadilah yang pertama memberikan komentar!',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _comments.length,
-                    itemBuilder: (context, index) {
-                      final comment = _comments[index];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildCommentTile(comment),
-                          _buildReplyList(comment.replies ?? []),
-                        ],
-                      );
-                    },
-                  ),
-
         // Comment Input
         _buildCommentInput(),
+
+        // Comments Section
+        _buildCommentsSection(),
       ],
+    );
+  }
+
+  Widget _buildCommentsSection() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_comments.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            'Jadilah yang pertama memberikan komentar!',
+            style: TextStyle(
+              fontSize: 14,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _comments.length,
+      itemBuilder: (context, index) {
+        final comment = _comments[index];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildCommentTile(comment),
+            _buildReplyList(comment.replies ?? []),
+          ],
+        );
+      },
     );
   }
 }

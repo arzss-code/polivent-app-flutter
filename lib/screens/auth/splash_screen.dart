@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/screens/home.dart';
-import 'package:polivent_app/screens/login.dart';
-import 'package:polivent_app/screens/welcome_screen.dart';
+import 'package:polivent_app/screens/home/home.dart';
+import 'package:polivent_app/screens/auth/login_screen.dart';
+import 'package:polivent_app/screens/auth/welcome_screen.dart';
 import 'package:polivent_app/services/token.dart'; // Pastikan path benar
 
 void main() {

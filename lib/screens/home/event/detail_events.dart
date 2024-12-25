@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:async';
 import 'dart:io';
 
@@ -6,15 +8,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:photo_view/photo_view.dart';
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/screens/notification.dart';
+import 'package:polivent_app/screens/home/explore/notification.dart';
 import 'package:polivent_app/services/like_services.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:polivent_app/models/share.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
-import 'package:polivent_app/screens/success_join.dart';
-import 'package:polivent_app/services/data/user_model.dart';
+import 'package:polivent_app/screens/home/event/success_join.dart';
+// import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/services/notification_services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -816,7 +818,7 @@ class _DetailEventsState extends State<DetailEvents> {
                                   fontFamily: 'Inter',
                                 ),
                               ),
-                              // const SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               CommentsSection(eventId: event.eventId),
                               const SizedBox(height: 100),
                             ],

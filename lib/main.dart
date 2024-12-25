@@ -4,9 +4,9 @@ import 'package:app_links/app_links.dart';
 
 // Import service dan screen yang diperlukan
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/screens/detail_events.dart';
-import 'package:polivent_app/screens/home.dart';
-import 'package:polivent_app/screens/splash_screen.dart';
+import 'package:polivent_app/screens/home/event/detail_events.dart';
+// import 'package:polivent_app/screens/home.dart';
+import 'package:polivent_app/screens/auth/splash_screen.dart';
 import 'package:polivent_app/services/token_util.dart';
 import 'package:polivent_app/services/notification_services.dart';
 
@@ -90,6 +90,11 @@ class _PoliventAppState extends State<PoliventApp> {
           selectionHandleColor: UIColor.primaryColor),
       scaffoldBackgroundColor: UIColor.white,
       primaryColor: UIColor.primaryColor,
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: UIColor.primaryColor, // Warna utama progress indicator
+        circularTrackColor:
+            UIColor.primaryColor.withOpacity(0.3), // Warna track
+      ),
     );
   }
 
@@ -113,13 +118,8 @@ class _PoliventAppState extends State<PoliventApp> {
       home: FutureBuilder<String?>(
         future: getToken(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SplashScreen();
-          } else if (snapshot.hasError || snapshot.data == null) {
-            return const SplashScreen(); // Handle error // or show an error screen
-          } else {
-            return const Home();
-          }
+          // Tampilkan SplashScreen sebagai tampilan awal
+          return const SplashScreen();
         },
       ),
     );

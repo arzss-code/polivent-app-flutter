@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
+// import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/screens/login.dart';
+import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:polivent_app/services/token_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -25,18 +25,28 @@ class AuthService {
 
   Future<void> login(String email, String password) async {
     try {
+      debugPrint('Attempting to log in with email: $email');
+
       final response = await http.post(
         Uri.parse('$devApiBaseUrl/auth'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
 
+      debugPrint('Response status code: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
       // Cek status code dari response
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
+        debugPrint('Response JSON: $jsonData');
+
         if (jsonData['status'] == 'success') {
           final accessToken = jsonData['data']['access_token'];
           final refreshToken = jsonData['data']['refresh_token'];
+
+          debugPrint('Access Token: $accessToken');
+          debugPrint('Refresh Token: $refreshToken');
 
           await _saveToken(accessToken, refreshToken);
         } else {
@@ -61,6 +71,7 @@ class AuthService {
       }
     } catch (e) {
       // Tangani kesalahan jaringan
+      debugPrint('Error occurred: $e');
       throw Exception(
           'Login failed. Please check your internet connection and try again.');
     }
@@ -76,14 +87,14 @@ class AuthService {
     try {
       // Ambil access token dari SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('access_token');
+      String? refreshToken = prefs.getString('refresh_token');
 
-      if (accessToken == null) {
+      if (refreshToken == null) {
         // Jika tidak ada access token, coba refresh token
-        await refreshToken();
+        // await newRefreshToken();
 
         // Ambil ulang access token setelah refresh
-        accessToken = prefs.getString('access_token');
+        refreshToken = prefs.getString('refresh_token');
       }
 
       // Lakukan request get user data
@@ -91,7 +102,7 @@ class AuthService {
         Uri.parse('$devApiBaseUrl/auth'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
+          'Authorization': 'Bearer $refreshToken',
         },
       );
 
@@ -106,7 +117,7 @@ class AuthService {
         }
       } else if (response.statusCode == 401) {
         // Token expired, coba refresh token
-        await refreshToken();
+        await newRefreshToken();
 
         // Ulangi request setelah refresh token
         return getUserData();
@@ -384,28 +395,28 @@ class AuthService {
     );
   }
 
-  // Dio Interceptor untuk Token Management
-  Dio getDioWithInterceptors() {
-    _dio.interceptors.clear();
+  // // Dio Interceptor untuk Token Management
+  // Dio getDioWithInterceptors() {
+  //   _dio.interceptors.clear();
 
-    _dio.interceptors
-        .add(InterceptorsWrapper(onRequest: (options, handler) async {
-      final token = await _storage.read(key: _accessTokenKey);
-      if (token != null) {
-        options.headers['Authorization'] = 'Bearer $token';
-      }
-      return handler.next(options);
-    }, onError: (DioException e, handler) async {
-      if (e.response?.statusCode == 401) {
-        final newToken = await refreshToken();
-        if (newToken != null) {
-          e.requestOptions.headers['Authorization'] = 'Bearer $newToken';
-          return handler.resolve(await _dio.fetch(e.requestOptions));
-        }
-      }
-      return handler.next(e);
-    }));
+  //   _dio.interceptors
+  //       .add(InterceptorsWrapper(onRequest: (options, handler) async {
+  //     final token = await _storage.read(key: _accessTokenKey);
+  //     if (token != null) {
+  //       options.headers['Authorization'] = 'Bearer $token';
+  //     }
+  //     return handler.next(options);
+  //   }, onError: (DioException e, handler) async {
+  //     if (e.response?.statusCode == 401) {
+  //       final newToken = await newRefreshToken();
+  //       if (newToken != null) {
+  //         e.requestOptions.headers['Authorization'] = 'Bearer $newToken';
+  //         return handler.resolve(await _dio.fetch(e.requestOptions));
+  //       }
+  //     }
+  //     return handler.next(e);
+  //   }));
 
-    return _dio;
-  }
+  //   return _dio;
+  // }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/screens/search_event_result.dart';
+import 'package:polivent_app/models/search_event_result.dart';
 import 'package:polivent_app/services/data/events_model.dart'; // Pastikan Anda memiliki model Event
 import 'package:polivent_app/services/data/category_model.dart';
 import 'package:shimmer/shimmer.dart';
@@ -45,11 +45,11 @@ class _QuickCategorySectionState extends State<QuickCategorySection> {
           _isLoading = false;
         });
       } else {
-        print('Error: ${response.statusCode}');
+        debugPrint('Error: ${response.statusCode}');
         throw Exception('Failed to load categories');
       }
     } catch (e) {
-      print('Error fetching categories: $e');
+      debugPrint('Error fetching categories: $e');
       setState(() {
         _isLoading = false;
       });

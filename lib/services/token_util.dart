@@ -92,7 +92,7 @@ Future<Map<String, dynamic>?> decodeToken() async {
 }
 
 // Refresh token
-Future<String?> refreshToken() async {
+Future<String?> newRefreshToken() async {
   final refreshToken = await getRefreshToken();
 
   if (refreshToken == null) return null;
@@ -141,7 +141,7 @@ Future<bool> isAuthenticated() async {
     // Cek apakah token sudah expired
     if (JwtDecoder.isExpired(token)) {
       // Coba refresh token
-      final newToken = await refreshToken();
+      final newToken = await newRefreshToken();
       return newToken != null;
     }
     return true;

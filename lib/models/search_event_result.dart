@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:polivent_app/models/search_events.dart';
+// import 'package:polivent_app/models/search_events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/event_filter.dart';
-import 'package:polivent_app/services/auth_services.dart';
+// import 'package:polivent_app/services/auth_services.dart';
 import 'package:uicons_pro/uicons_pro.dart';
-import 'package:polivent_app/screens/detail_events.dart';
+import 'package:polivent_app/screens/home/event/detail_events.dart';
 
 class SearchEventsResultScreen extends StatefulWidget {
   final String searchQuery;
