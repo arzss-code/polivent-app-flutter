@@ -1,5 +1,6 @@
 // ignore_for_file: unused_field
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:polivent_app/services/data/user_model.dart';
@@ -229,9 +230,32 @@ class _CommentsSectionState extends State<CommentsSection> {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundImage: NetworkImage(
-                _currentUser?.avatar ?? "https://via.placeholder.com/150"),
             radius: 20,
+            backgroundColor: Colors.transparent,
+            child: ClipOval(
+              child: _currentUser?.avatar != null
+                  ? CachedNetworkImage(
+                      imageUrl: _currentUser!.avatar,
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) {
+                        print('Image load error: $error');
+                        return Image.asset(
+                          "assets/images/default-avatar.jpg",
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      "assets/images/default-avatar.jpg",
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    ),
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -270,8 +294,31 @@ class _CommentsSectionState extends State<CommentsSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            backgroundImage: NetworkImage(comment.avatar),
             radius: isReply ? 17 : 20,
+            backgroundColor: Colors.transparent,
+            child: ClipOval(
+              child: comment.avatar != null && comment.avatar.isNotEmpty
+                  ? Image.network(
+                      comment.avatar,
+                      width: isReply ? 34 : 40,
+                      height: isReply ? 34 : 40,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          "assets/images/default-avatar.jpg",
+                          width: isReply ? 34 : 40,
+                          height: isReply ? 34 : 40,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      "assets/images/default-avatar.jpg",
+                      width: isReply ? 34 : 40,
+                      height: isReply ? 34 : 40,
+                      fit: BoxFit.cover,
+                    ),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -289,7 +336,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                       ),
                     ),
                     Text(
-                      timeago.format(comment.createdAt),
+                      timeago.format(comment.createdAt, locale: 'id'),
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 12,
@@ -310,7 +357,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                         });
                       },
                       child: Text(
-                        'Reply',
+                        'Balas',
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,

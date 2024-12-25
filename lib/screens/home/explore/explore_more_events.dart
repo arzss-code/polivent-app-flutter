@@ -155,15 +155,43 @@ class _EventListWidgetState extends State<EventList> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(6),
-                              child: Image.network(
-                                event.poster,
-                                height:
-                                    (MediaQuery.of(context).size.width - 44) /
-                                        3,
-                                width: double.infinity,
-                                alignment: Alignment.topCenter,
-                                fit: BoxFit.cover,
-                              ),
+                              child: event.poster != null &&
+                                      event.poster.isNotEmpty
+                                  ? Image.network(
+                                      event.poster,
+                                      height:
+                                          (MediaQuery.of(context).size.width -
+                                                  44) /
+                                              3,
+                                      width: double.infinity,
+                                      alignment: Alignment.topCenter,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        print('Image load error: $error');
+                                        return Image.asset(
+                                          'assets/images/no_image_found.png',
+                                          height: (MediaQuery.of(context)
+                                                      .size
+                                                      .width -
+                                                  44) /
+                                              3,
+                                          width: double.infinity,
+                                          alignment: Alignment.topCenter,
+                                          fit: BoxFit.cover,
+                                        );
+                                      },
+                                    )
+                                  : Image.asset(
+                                      'assets/images/no_image_found.png',
+                                      height:
+                                          (MediaQuery.of(context).size.width -
+                                                  44) /
+                                              3,
+                                      width: double.infinity,
+                                      alignment: Alignment.topCenter,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
                         ),

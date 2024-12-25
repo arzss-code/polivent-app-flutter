@@ -121,10 +121,33 @@ class _HomeProfileState extends State<HomeProfile> {
   Widget _buildProfileImage() {
     return CircleAvatar(
       radius: 60,
-      backgroundColor: Colors.grey[300],
-      backgroundImage: _currentUser?.avatar != null
-          ? CachedNetworkImageProvider(_currentUser!.avatar)
-          : const AssetImage("assets/images/150.png") as ImageProvider,
+      backgroundColor: Colors.transparent,
+      child: ClipOval(
+        child: _currentUser?.avatar != null
+            ? CachedNetworkImage(
+                imageUrl: _currentUser!.avatar,
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+                // placeholder: (context, url) =>
+                //     const CircularProgressIndicator(),
+                errorWidget: (context, url, error) {
+                  debugPrint('Image load error: $error');
+                  return Image.asset(
+                    "assets/images/default-avatar.jpg",
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  );
+                },
+              )
+            : Image.asset(
+                "assets/images/default-avatar.jpg",
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+              ),
+      ),
     );
   }
 

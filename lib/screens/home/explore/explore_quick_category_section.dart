@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:polivent_app/config/app_config.dart';
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/search_event_result.dart';
@@ -27,8 +28,7 @@ class _QuickCategorySectionState extends State<QuickCategorySection> {
 
   Future<void> fetchCategories() async {
     try {
-      final response =
-          await http.get(Uri.parse('https://polivent.my.id/api/categories'));
+      final response = await http.get(Uri.parse('$prodApiBaseUrl/categories'));
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);

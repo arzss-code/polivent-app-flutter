@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:app_links/app_links.dart';
+import 'package:polivent_app/models/timeago_id.dart';
 
 // Import service dan screen yang diperlukan
 import 'package:polivent_app/models/ui_colors.dart';
@@ -9,10 +10,12 @@ import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/screens/auth/splash_screen.dart';
 import 'package:polivent_app/services/token_util.dart';
 import 'package:polivent_app/services/notification_services.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _initializeApp();
+  timeago.setLocaleMessages('id', IdLocaleMessages());
   runApp(const PoliventApp());
 }
 

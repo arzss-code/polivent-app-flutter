@@ -254,12 +254,28 @@ class _HomeEventsState extends State<HomeEvents> {
             padding: const EdgeInsets.all(12),
             child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(8)),
-              child: Image.network(
-                event.poster,
-                height: 120,
-                width: 90,
-                fit: BoxFit.cover,
-              ),
+              child: event.poster != null && event.poster.isNotEmpty
+                  ? Image.network(
+                      event.poster,
+                      height: 120,
+                      width: 90,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        print('Image load error: $error');
+                        return Image.asset(
+                          'assets/images/no_image_found.png',
+                          height: 120,
+                          width: 90,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      'assets/images/no_image_found.png',
+                      height: 120,
+                      width: 90,
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
           Expanded(

@@ -94,21 +94,6 @@ class _CarouselEventsState extends State<CarouselSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Padding(
-        //   padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-        //   child: Shimmer.fromColors(
-        //     baseColor: Colors.grey[300]!,
-        //     highlightColor: Colors.grey[100]!,
-        //     child: Container(
-        //       width: 150,
-        //       height: 24,
-        //       decoration: BoxDecoration(
-        //         color: Colors.white,
-        //         borderRadius: BorderRadius.circular(4),
-        //       ),
-        //     ),
-        //   ),
-        // ),
         SizedBox(
           height: (MediaQuery.of(context).size.width - 40) / 1.66,
           child: ListView.separated(
@@ -260,18 +245,6 @@ class _CarouselEventsState extends State<CarouselSection> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const Padding(
-              //   padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-              //   child: Text(
-              //     'Trending Events',
-              //     textAlign: TextAlign.right,
-              //     style: TextStyle(
-              //       color: UIColor.typoBlack,
-              //       fontSize: 18,
-              //       fontWeight: FontWeight.w800,
-              //     ),
-              //   ),
-              // ),
               SizedBox(
                 height: (MediaQuery.of(context).size.width - 40) / 1.66,
                 child: ListView.separated(
@@ -301,8 +274,14 @@ class _CarouselEventsState extends State<CarouselSection> {
                             image: NetworkImage(event.poster),
                             fit: BoxFit.cover,
                             alignment: Alignment.topCenter,
+                            onError: (context, error) {
+                              const DecorationImage(
+                                image: AssetImage(
+                                    'assets/images/no_image_found.png'),
+                                fit: BoxFit.cover,
+                              );
+                            },
                           ),
-                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
