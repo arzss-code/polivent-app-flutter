@@ -18,6 +18,24 @@ class SearchEventsWidget extends StatefulWidget {
 
 class SearchEventsWidgetState extends State<SearchEventsWidget> {
   final TextEditingController _searchController = TextEditingController();
+  EventFilter?
+      _currentFilter; // Tambahkan variabel untuk menyimpan filter saat ini
+
+  // Method untuk mereset search
+  void resetSearch() {
+    setState(() {
+      _searchController.clear();
+      _currentFilter = null;
+    });
+  }
+
+  // Method untuk update search
+  void updateSearch() {
+    setState(() {
+      // Implementasi refresh atau update search
+      _searchController.clear();
+    });
+  }
 
   Future<void> _searchEvents(String searchQuery,
       {String? category, String? location, String? date}) async {
@@ -47,8 +65,8 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
         },
       );
 
-      print('Search Response Status: ${response.statusCode}');
-      print('Search Response Body: ${response.body}');
+      debugPrint('Search Response Status: ${response.statusCode}');
+      debugPrint('Search Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -78,14 +96,14 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
         _showErrorDialog('Gagal mencari event. Status: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error searching events: $e');
+      debugPrint('Error searching events: $e');
       _showErrorDialog('Terjadi kesalahan: $e');
     }
   }
 
   Future<String> _getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('access_token') ?? '';
+    return prefs.getString('token') ?? '';
   }
 
   void _showErrorDialog(String message) {
@@ -136,6 +154,9 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
             onTap: () async {
               final filter = await EventFilter.showFilterBottomSheet(context);
               if (filter != null) {
+                setState(() {
+                  _currentFilter = filter; // Simpan filter saat ini
+                });
                 _applyFilter(filter);
               }
             },
@@ -148,7 +169,11 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
         ),
         onSubmitted: (searchQuery) {
           if (searchQuery.isNotEmpty) {
-            _searchEvents(searchQuery);
+            _searchEvents(
+              searchQuery,
+              category: _currentFilter?.category,
+              date: _currentFilter?.date?.toIso8601String(),
+            );
           }
         },
       ),

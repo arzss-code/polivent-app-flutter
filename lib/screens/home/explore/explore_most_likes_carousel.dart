@@ -15,10 +15,10 @@ class CarouselSection extends StatefulWidget {
   const CarouselSection({super.key});
 
   @override
-  State<CarouselSection> createState() => _CarouselEventsState();
+  State<CarouselSection> createState() => CarouselEventsState();
 }
 
-class _CarouselEventsState extends State<CarouselSection> {
+class CarouselEventsState extends State<CarouselSection> {
   List<Event> _eventsCarousel = [];
   bool _isLoading = true;
   String _error = '';
@@ -26,13 +26,14 @@ class _CarouselEventsState extends State<CarouselSection> {
   @override
   void initState() {
     super.initState();
-    initializeDateFormatting('id_ID', null).then((_) => fetchEvents());
+    initializeDateFormatting('id_ID', null).then((_) => fetchMostLikedEvents());
   }
 
   void updateCarousel() {
     setState(() {
-      // Memperbarui data carousel jika diperlukan
+      _isLoading = true;
     });
+    fetchMostLikedEvents();
   }
 
   String formatDate(String dateString) {
@@ -45,15 +46,15 @@ class _CarouselEventsState extends State<CarouselSection> {
     }
   }
 
-  Future<void> fetchEvents() async {
+  Future<void> fetchMostLikedEvents() async {
     try {
       setState(() {
         _isLoading = true;
         _error = '';
       });
 
-      final response =
-          await http.get(Uri.parse('$prodApiBaseUrl/available_events'));
+      final response = await http
+          .get(Uri.parse('$prodApiBaseUrl/available_events?most_likes=true'));
 
       if (response.statusCode == 200) {
         final dynamic jsonResponse = json.decode(response.body);
@@ -88,6 +89,59 @@ class _CarouselEventsState extends State<CarouselSection> {
         SnackBar(content: Text(_error)),
       );
     }
+  }
+
+  // Tambahkan method baru di dalam class _CarouselEventsState
+  Widget _buildEmptyEventView() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/no-events.png', // Pastikan asset tersedia
+            width: 100,
+            height: 100,
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Belum Ada Event Tersedia',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: UIColor.primaryColor,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Saat ini tidak ada event yang sedang berlangsung. Silakan periksa kembali nanti.',
+            style: TextStyle(
+              fontSize: 14,
+              color: UIColor.typoGray,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: fetchMostLikedEvents, // Refresh events
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UIColor.primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: const Text(
+              'Refresh',
+              style: TextStyle(
+                color: UIColor.solidWhite,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildShimmerCarousel() {
@@ -241,6 +295,8 @@ class _CarouselEventsState extends State<CarouselSection> {
           _buildShimmerCarousel()
         else if (_error.isNotEmpty)
           Center(child: Text(_error))
+        else if (_eventsCarousel.isEmpty)
+          _buildEmptyEventView() // Tambahkan kondisi untuk event kosong
         else
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,17 +327,18 @@ class _CarouselEventsState extends State<CarouselSection> {
                         decoration: BoxDecoration(
                           color: UIColor.solidWhite,
                           image: DecorationImage(
-                            image: NetworkImage(event.poster),
+                            image: Image.network(
+                              event.poster,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                    'assets/images/no_image_found.png');
+                              },
+                              fit: BoxFit.cover,
+                            ).image,
                             fit: BoxFit.cover,
                             alignment: Alignment.topCenter,
-                            onError: (context, error) {
-                              const DecorationImage(
-                                image: AssetImage(
-                                    'assets/images/no_image_found.png'),
-                                fit: BoxFit.cover,
-                              );
-                            },
                           ),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,

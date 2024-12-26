@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 // import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/screens/home/profile/settings/edit_profile.dart';
+import 'package:polivent_app/screens/home/profile/edit_profile.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/screens/home/profile/settings/help.dart';
+import 'package:polivent_app/screens/home/profile/help.dart';
 // import 'package:polivent_app/screens/login.dart';
 // import 'package:polivent_app/services/like_services.dart';
 import 'package:polivent_app/services/auth_services.dart';
@@ -47,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       name = prefs.getString('name') ?? name;
       aboutMe = prefs.getString('about_me') ?? aboutMe;
-      interests = prefs.getStringList('interests') ?? [];
+      interests = prefs.getStringList('user_interests') ?? [];
     });
   }
 
@@ -113,6 +113,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
+                      // Tambahkan indikator loading
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
                       // Panggil fungsi logout menggunakan instance
                       _authService.logout(context);
                     },
@@ -156,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: UIColor.solidWhite,
         scrolledUnderElevation: 0,
         title: const Text(
-          "Settings",
+          "Pengaturan",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -168,7 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         children: [
           const SizedBox(height: 20.0),
-          _buildSectionTitle(title: 'Account Settings'),
+          _buildSectionTitle(title: 'Pengaturan Akun'),
           _buildListTile(
             leadingIcon: UIconsPro.solidRounded.user_pen,
             title: 'Edit Profile',
@@ -184,9 +192,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           const SizedBox(height: 20.0),
-          _buildSectionTitle(title: 'Preferences'),
+          _buildSectionTitle(title: 'Preferensi'),
           SwitchListTile(
-            title: const Text('Enable Notifications'),
+            title: const Text('Aktifkan Notifikasi'),
             value: _notificationsEnabled,
             onChanged: _toggleNotifications,
             secondary: const Icon(
@@ -202,7 +210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 10.0),
           _buildListTile(
             leadingIcon: UIconsPro.solidRounded.interrogation,
-            title: 'Help',
+            title: 'Bantuan',
             trailingIcon: Icons.arrow_forward_ios,
             onTap: () {
               Navigator.push(

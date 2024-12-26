@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/screens/home/profile/settings/settings_screen.dart';
+import 'package:polivent_app/screens/home/profile/settings_screen.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/services/data/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -43,6 +44,23 @@ class _HomeProfileState extends State<HomeProfile> {
     }
   }
 
+  Future<List<String>> _getCurrentUserInterests() async {
+    // Prioritaskan interests dari model User
+    if (_currentUser?.interests != null &&
+        _currentUser!.interests!.isNotEmpty) {
+      return _currentUser!.interests!;
+    }
+
+    // Jika tidak ada, coba ambil dari SharedPreferences
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getStringList('user_interests') ?? [];
+    } catch (e) {
+      print('Error retrieving interests: $e');
+      return [];
+    }
+  }
+
   void _navigateToSettings() {
     Navigator.push(
       context,
@@ -74,7 +92,7 @@ class _HomeProfileState extends State<HomeProfile> {
       centerTitle: true,
       backgroundColor: UIColor.solidWhite,
       title: const Text(
-        "My Profile",
+        "Profile Saya",
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -96,7 +114,9 @@ class _HomeProfileState extends State<HomeProfile> {
 
   Widget _buildProfileContent() {
     if (_currentUser == null) {
-      return const Center(child: Text('No user data available'));
+      return const Center(
+          child: Text(
+              'Data user tidak ditemukan, silahkan login ulang dan coba kembali.'));
     }
 
     return SingleChildScrollView(
@@ -185,43 +205,40 @@ class _HomeProfileState extends State<HomeProfile> {
     );
   }
 
-  // Tambahkan method baru untuk _buildInterests()
+  // Modifikasi _buildInterests untuk menggunakan FutureBuilder
   Widget _buildInterests() {
-    // Contoh list interests, sesuaikan dengan struktur data di User model
-    List<String> interests = [
-      'Music',
-      'Workshop',
-      'Art',
-      'Sport',
-      'Food',
-      'Seminar',
-      'E-Sport'
-    ];
+    return FutureBuilder<List<String>>(
+      future: _getCurrentUserInterests(),
+      builder: (context, snapshot) {
+        // Gunakan data dari snapshot atau list kosong jika tidak ada data
+        List<String> interests = snapshot.data ?? [];
 
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Interests',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Interests',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              interests.isNotEmpty
+                  ? Wrap(
+                      spacing: 12.0,
+                      runSpacing: 8.0,
+                      children: interests
+                          .map((interest) => _buildInterestChip(interest))
+                          .toList(),
+                    )
+                  : const Text(
+                      'Tambahkan Interest',
+                      style: TextStyle(fontSize: 16, color: UIColor.typoGray),
+                    ),
+            ],
           ),
-          const SizedBox(height: 8),
-          interests.isNotEmpty
-              ? Wrap(
-                  spacing: 12.0,
-                  runSpacing: 8.0,
-                  children: interests
-                      .map((interest) => _buildInterestChip(interest))
-                      .toList(),
-                )
-              : const Text(
-                  'Tambahkan Interest',
-                  style: TextStyle(fontSize: 16, color: UIColor.typoGray),
-                ),
-        ],
-      ),
+        );
+      },
     );
   }
 

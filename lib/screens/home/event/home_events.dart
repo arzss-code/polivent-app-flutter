@@ -18,15 +18,44 @@ class HomeEvents extends StatefulWidget {
   State<HomeEvents> createState() => _HomeEventsState();
 }
 
-class _HomeEventsState extends State<HomeEvents> {
+class _HomeEventsState extends State<HomeEvents>
+    with AutomaticKeepAliveClientMixin {
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+  // Tambahkan ScrollController
+  final ScrollController _scrollController = ScrollController();
+
   List<Event> events = [];
   bool _isLoading = true;
   String _error = '';
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
     initializeDateFormatting('id_ID', null).then((_) => fetchEvents());
+  }
+
+  // Method refresh yang komprehensif
+  Future<void> refreshEvents() async {
+    debugPrint('Refreshing events...');
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = '';
+      });
+
+      await fetchEvents();
+
+      debugPrint('Events refresh completed');
+    } catch (e) {
+      debugPrint('Error during events refresh: $e');
+      setState(() {
+        _error = 'Gagal memuat ulang events: $e';
+      });
+    }
   }
 
   String formatDate(String dateString) {
@@ -149,96 +178,158 @@ class _HomeEventsState extends State<HomeEvents> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        AppBar(
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-          backgroundColor: UIColor.solidWhite,
-          scrolledUnderElevation: 0,
-          title: const Text(
-            "Events",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: UIColor.typoBlack,
-            ),
+    super.build(context);
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        backgroundColor: UIColor.solidWhite,
+        elevation: 0,
+        title: const Text(
+          "Events",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: UIColor.typoBlack,
           ),
         ),
-        Expanded(
-          child: Column(
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-                child: SearchEventsWidget(),
+      ),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: SearchEventsWidget(),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: refreshEvents,
+              color: UIColor.primaryColor,
+              child: _buildEventContent(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventContent() {
+    if (_isLoading) {
+      return Center(
+        child: _buildShimmerLoading(),
+      );
+    } else if (_error.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: UIColor.primaryColor,
+              size: 80,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              _error,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: UIColor.typoBlack,
+                fontSize: 16,
               ),
-              Expanded(
-                child: _isLoading
-                    ? _buildShimmerLoading()
-                    : _error.isNotEmpty
-                        ? Center(child: Text(_error))
-                        : events.isEmpty
-                            ? const Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image(
-                                      image: AssetImage(
-                                          'assets/images/no-events.png'),
-                                      height: 150,
-                                      width: 150,
-                                    ),
-                                    SizedBox(height: 20),
-                                    Text(
-                                      'No Upcoming Events',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: UIColor.primaryColor,
-                                      ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 30),
-                                      child: Text(
-                                        'There are no upcoming events at the moment. Please check back later.',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.black45),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : ListView.builder(
-                                padding: EdgeInsets.zero,
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                itemCount: events.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => DetailEvents(
-                                                eventId: events[index].eventId),
-                                          ),
-                                        );
-                                      },
-                                      child: _buildEventCard(events[index]),
-                                    ),
-                                  );
-                                },
-                              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: refreshEvents,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: UIColor.primaryColor,
+              ),
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
+      );
+    } else if (events.isEmpty) {
+      return Center(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              const Image(
+                image: AssetImage('assets/images/no-events.png'),
+                height: 250,
+                width: 250,
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Belum Ada Event Tersedia',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: UIColor.primaryColor,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                child: Text(
+                  'Saat ini tidak ada event yang tersedia. Silakan periksa kembali nanti.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: UIColor.typoGray,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: refreshEvents,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: UIColor.primaryColor,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 12,
+                  ),
+                ),
+                child: const Text(
+                  'Refresh',
+                  style: TextStyle(
+                    color: UIColor.solidWhite,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ],
           ),
         ),
-      ],
-    );
+      );
+    } else {
+      return ListView.builder(
+        padding: EdgeInsets.zero,
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: events.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        DetailEvents(eventId: events[index].eventId),
+                  ),
+                );
+              },
+              child: _buildEventCard(events[index]),
+            ),
+          );
+        },
+      );
+    }
   }
 
   Widget _buildEventCard(Event event) {
@@ -261,7 +352,7 @@ class _HomeEventsState extends State<HomeEvents> {
                       width: 90,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        print('Image load error: $error');
+                        debugPrint('Image load error: $error');
                         return Image.asset(
                           'assets/images/no_image_found.png',
                           height: 120,

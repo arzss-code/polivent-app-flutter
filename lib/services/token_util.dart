@@ -7,7 +7,7 @@ import 'package:polivent_app/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _storage = FlutterSecureStorage();
-const _accessTokenKey = 'access_token';
+const _accessTokenKey = 'token';
 const _refreshTokenKey = 'refresh_token';
 
 // Decode payload token

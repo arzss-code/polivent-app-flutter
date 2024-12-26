@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/screens/home/home.dart';
 import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,8 +10,9 @@ class TokenService {
   // Method untuk memeriksa dan memvalidasi token
   static Future<bool> checkTokenValidity() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-    final refreshToken = prefs.getString('refresh_token');
+    // Deklarasikan accessToken dan refreshToken sebagai variabel global
+    String? accessToken = prefs.getString('token');
+    String? refreshToken = prefs.getString('refresh_token');
 
     // Cek apakah token tersedia
     if (accessToken == null || refreshToken == null) {
@@ -44,7 +46,7 @@ class TokenService {
     try {
       final dio = Dio();
       final response = await dio.post(
-        'https://your-api-url.com/refresh-token', // Ganti dengan URL refresh token Anda
+        '$prodApiBaseUrl/auth', // Ganti dengan URL refresh token Anda
         data: {
           'refresh_token': refreshToken,
         },
@@ -52,12 +54,12 @@ class TokenService {
 
       if (response.statusCode == 200) {
         // Sesuaikan dengan struktur response API Anda
-        final newAccessToken = response.data['access_token'];
+        final newAccessToken = response.data['token'];
         final newRefreshToken = response.data['refresh_token'] ?? refreshToken;
 
         // Simpan token baru
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('access_token', newAccessToken);
+        await prefs.setString('token', newAccessToken);
         await prefs.setString('refresh_token', newRefreshToken);
 
         return newAccessToken;
@@ -72,7 +74,7 @@ class TokenService {
   // Method untuk logout
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('access_token');
+    await prefs.remove('token');
     await prefs.remove('refresh_token');
   }
 }

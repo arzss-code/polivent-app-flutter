@@ -136,12 +136,14 @@ class _DetailEventsState extends State<DetailEvents> {
   Future<Event> fetchEventById() async {
     try {
       // Tambahkan timeout untuk mencegah hanging request
-      final response = await http
-          .get(
+      final response = await http.get(
         Uri.parse(
             'https://polivent.my.id/api/available_events?event_id=${widget.eventId}'),
-      )
-          .timeout(
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${await _getRefreshToken()}',
+        },
+      ).timeout(
         const Duration(seconds: 10),
         onTimeout: () {
           throw TimeoutException('Request timeout');
@@ -340,7 +342,12 @@ class _DetailEventsState extends State<DetailEvents> {
 
   Future<String> _getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('access_token') ?? '';
+    return prefs.getString('token') ?? '';
+  }
+
+  Future<String> _getRefreshToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('refresh_token') ?? '';
   }
 
   void _handleRegistrationError(http.Response response) {
@@ -389,9 +396,10 @@ class _DetailEventsState extends State<DetailEvents> {
   String formatDate(String dateString) {
     try {
       final date = DateTime.parse(dateString);
-      return DateFormat('dd MMMM yyyy').format(date);
+      final formatter = DateFormat('EEEE, d MMMM yyyy', 'id_ID');
+      return formatter.format(date);
     } catch (e) {
-      return dateString;
+      return dateString; // Return original string if parsing fails
     }
   }
 
@@ -682,6 +690,7 @@ class _DetailEventsState extends State<DetailEvents> {
                                       ),
                                     ),
                                   ),
+                                  const SizedBox(height: 4),
                                   // Dalam method build, ubah IconButton like
                                   IconButton(
                                     icon: Icon(
@@ -689,12 +698,33 @@ class _DetailEventsState extends State<DetailEvents> {
                                           ? Icons.favorite
                                           : Icons.favorite_border,
                                       color: isLoved ? Colors.red : Colors.grey,
+                                      size: 30,
                                     ),
                                     onPressed: _toggleLike,
                                   )
                                 ],
                               ),
                               const SizedBox(height: 4),
+                              // Quota
+                              Row(
+                                children: [
+                                  Icon(
+                                    UIconsPro.regularRounded.ticket_alt,
+                                    size: 20,
+                                    color: UIColor.primaryColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${event.quota} Ticket',
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ],
+                              ),
                               // Location
                               Row(
                                 children: [
@@ -738,27 +768,7 @@ class _DetailEventsState extends State<DetailEvents> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                              // Quota
-                              Row(
-                                children: [
-                                  Icon(
-                                    UIconsPro.regularRounded.ticket_alt,
-                                    size: 20,
-                                    color: UIColor.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${event.quota} Ticket',
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey[700],
-                                    ),
-                                  ),
-                                ],
-                              ),
+
                               const SizedBox(height: 12),
                               Divider(color: Colors.grey[300], thickness: 1),
                               // Description section
@@ -995,14 +1005,23 @@ class _DetailEventsState extends State<DetailEvents> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Error: ${snapshot.error}'),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text('Error: ${snapshot.error}'),
+                  ),
                   ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(UIColor.primaryColor)),
                     onPressed: () {
                       setState(() {
                         futureEvent = fetchEventById();
                       });
                     },
-                    child: const Text('Retry'),
+                    child: const Text(
+                      'Retry',
+                      style: TextStyle(color: UIColor.solidWhite),
+                    ),
                   ),
                 ],
               ),

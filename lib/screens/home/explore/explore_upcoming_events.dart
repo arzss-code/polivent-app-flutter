@@ -14,10 +14,10 @@ class EventList extends StatefulWidget {
   const EventList({super.key});
 
   @override
-  State<EventList> createState() => _EventListWidgetState();
+  State<EventList> createState() => EventListWidgetState();
 }
 
-class _EventListWidgetState extends State<EventList> {
+class EventListWidgetState extends State<EventList> {
   List<Event> _eventsMore = [];
   bool _isLoading = true;
   String _error = '';
@@ -25,7 +25,7 @@ class _EventListWidgetState extends State<EventList> {
   @override
   void initState() {
     super.initState();
-    initializeDateFormatting('id_ID', null).then((_) => fetchEvents());
+    initializeDateFormatting('id_ID', null).then((_) => fetchUpcomingEvents());
   }
 
   String formatDate(String dateString) {
@@ -38,21 +38,23 @@ class _EventListWidgetState extends State<EventList> {
     }
   }
 
+  // Dalam class _EventListWidgetState
   void updateEventList() {
     setState(() {
-      // Memperbarui data event list jika diperlukan
+      _isLoading = true;
     });
+    fetchUpcomingEvents();
   }
 
-  Future<void> fetchEvents() async {
+  Future<void> fetchUpcomingEvents() async {
     try {
       setState(() {
         _isLoading = true;
         _error = '';
       });
 
-      final response =
-          await http.get(Uri.parse('$prodApiBaseUrl/available_events'));
+      final response = await http
+          .get(Uri.parse('$prodApiBaseUrl/available_events?upcoming=true'));
 
       if (response.statusCode == 200) {
         final dynamic jsonResponse = json.decode(response.body);
@@ -80,6 +82,59 @@ class _EventListWidgetState extends State<EventList> {
         SnackBar(content: Text(_error)),
       );
     }
+  }
+
+  // Tambahkan method baru di dalam class _EventListWidgetState
+  Widget _buildEmptyEventView() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/no-events.png', // Pastikan asset tersedia
+            width: 100,
+            height: 100,
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Belum Ada Event Tersedia',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: UIColor.primaryColor,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Saat ini tidak ada event yang akan datang. Silakan periksa kembali nanti.',
+            style: TextStyle(
+              fontSize: 14,
+              color: UIColor.typoGray,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: fetchUpcomingEvents, // Refresh events
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UIColor.primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: const Text(
+              'Refresh',
+              style: TextStyle(
+                color: UIColor.solidWhite,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildShimmerEventList() {
@@ -116,6 +171,8 @@ class _EventListWidgetState extends State<EventList> {
           _buildShimmerEventList()
         else if (_error.isNotEmpty)
           Center(child: Text(_error))
+        else if (_eventsMore.isEmpty)
+          _buildEmptyEventView() // Tambahkan kondisi untuk event kosong
         else
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -168,7 +225,7 @@ class _EventListWidgetState extends State<EventList> {
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) {
-                                        print('Image load error: $error');
+                                        debugPrint('Image load error: $error');
                                         return Image.asset(
                                           'assets/images/no_image_found.png',
                                           height: (MediaQuery.of(context)
@@ -177,7 +234,7 @@ class _EventListWidgetState extends State<EventList> {
                                                   44) /
                                               3,
                                           width: double.infinity,
-                                          alignment: Alignment.topCenter,
+                                          alignment: Alignment.center,
                                           fit: BoxFit.cover,
                                         );
                                       },
@@ -189,7 +246,7 @@ class _EventListWidgetState extends State<EventList> {
                                                   44) /
                                               3,
                                       width: double.infinity,
-                                      alignment: Alignment.topCenter,
+                                      alignment: Alignment.center,
                                       fit: BoxFit.cover,
                                     ),
                             ),

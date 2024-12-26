@@ -19,6 +19,7 @@ class Event {
   final String? adminUser;
   final String? note;
   final List<InvitedUser>? invitedUsers;
+  final int totalLikes;
 
   const Event({
     required this.eventId,
@@ -41,6 +42,7 @@ class Event {
     this.adminUser,
     this.note,
     this.invitedUsers,
+    required this.totalLikes,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -70,6 +72,7 @@ class Event {
               .map((userJson) => InvitedUser.fromJson(userJson))
               .toList()
           : null,
+      totalLikes: _parseIntSafely(json['total_likes']),
     );
   }
 

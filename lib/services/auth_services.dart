@@ -20,7 +20,7 @@ class AuthService {
 
   bool rememberMe = false;
 
-  static const _accessTokenKey = 'access_token';
+  static const _TokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
 
   Future<void> login(String email, String password) async {
@@ -89,13 +89,7 @@ class AuthService {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? refreshToken = prefs.getString('refresh_token');
 
-      if (refreshToken == null) {
-        // Jika tidak ada access token, coba refresh token
-        // await newRefreshToken();
-
-        // Ambil ulang access token setelah refresh
-        refreshToken = prefs.getString('refresh_token');
-      }
+      refreshToken ??= prefs.getString('refresh_token');
 
       // Lakukan request get user data
       final response = await http.get(
@@ -265,8 +259,12 @@ class AuthService {
   Future<void> updateUserProfile({
     String? username,
     String? about,
+    File? avatarFile,
   }) async {
     try {
+      // Ambil user data untuk mendapatkan user_id
+      User currentUser = await getUserData();
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? accessToken = prefs.getString('access_token');
 
@@ -274,36 +272,61 @@ class AuthService {
         throw Exception('No access token available');
       }
 
-      final response = await http.put(
-        Uri.parse('$devApiBaseUrl/auth/profile'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode({
-          if (username != null) 'username': username,
-          if (about != null) 'about': about,
-        }),
-      );
+      // Buat multipart request
+      var request = http.MultipartRequest('POST',
+          Uri.parse('$prodApiBaseUrl/users?user_id=${currentUser.userId}'));
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        if (jsonData['status'] == 'success') {
-          return;
-        } else {
-          throw Exception(jsonData['message'] ?? 'Failed to update profile');
-        }
+      // Tambahkan headers
+      request.headers['Authorization'] = 'Bearer $accessToken';
+
+      // Tambahkan field-field yang diperlukan
+      request.fields['username'] = username ?? currentUser.username;
+      request.fields['about'] = about ?? currentUser.about;
+      request.fields['email'] = currentUser.email;
+      request.fields['role_name'] = currentUser.roleName;
+      request.fields['user_id'] = currentUser.userId.toString();
+
+      // Tambahkan avatar jika ada
+      if (avatarFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+            'avatar', avatarFile.path,
+            filename: 'avatar.jpg'));
+      }
+
+      // Tambahkan interests jika ada
+      if (currentUser.interests != null && currentUser.interests!.isNotEmpty) {
+        request.fields['interests'] = jsonEncode(currentUser.interests);
+      }
+
+      // Kirim request
+      var response = await request.send();
+
+      // Baca response
+      var responseBody = await response.stream.bytesToString();
+
+      // Debug print
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: $responseBody');
+
+      // Periksa response
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Anda bisa menambahkan pengecekan status di sini jika diperlukan
+        return;
       } else {
         throw Exception(
             'Failed to update profile. Status code: ${response.statusCode}');
       }
     } catch (e) {
+      print('Error updating profile: $e');
       throw Exception('Error updating profile: $e');
     }
   }
 
   Future<void> updateUserInterests(List<String> interests) async {
     try {
+      // Ambil user data untuk mendapatkan user_id
+      User currentUser = await getUserData();
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? accessToken = prefs.getString('access_token');
 
@@ -311,35 +334,40 @@ class AuthService {
         throw Exception('No access token available');
       }
 
-      final response = await http.put(
-        Uri.parse('$devApiBaseUrl/auth/interests'),
+      // Simpan ke SharedPreferences sebagai fallback
+      await prefs.setStringList('user_interests', interests);
+
+      // Lakukan request update jika memungkinkan
+      final response = await http.post(
+        Uri.parse('$prodApiBaseUrl/users?user_id=${currentUser.userId}'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',
         },
         body: jsonEncode({
           'interests': interests,
+          'user_id': currentUser.userId,
         }),
       );
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        if (jsonData['status'] == 'success') {
-          return;
-        } else {
-          throw Exception(jsonData['message'] ?? 'Failed to update interests');
-        }
-      } else {
-        throw Exception(
-            'Failed to update interests. Status code: ${response.statusCode}');
-      }
+      // Cetak response untuk debugging
+      print('Interests Update Response: ${response.body}');
+
+      // Tidak perlu throw error jika update interests gagal
+      return;
     } catch (e) {
-      throw Exception('Error updating interests: $e');
+      print('Error updating interests: $e');
+      // Tetap simpan di lokal storage
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('user_interests', interests);
     }
   }
 
   Future<void> updateUserAvatar(File avatarFile) async {
     try {
+      // Ambil user data untuk mendapatkan user_id
+      User currentUser = await getUserData();
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? accessToken = prefs.getString('access_token');
 
@@ -349,33 +377,57 @@ class AuthService {
 
       // Gunakan multipart request untuk upload file
       var request = http.MultipartRequest(
-          'POST', Uri.parse('$devApiBaseUrl/auth/avatar'));
+          'POST', // Sesuaikan dengan metode yang digunakan di backend
+          Uri.parse('$prodApiBaseUrl/users?user_id=${currentUser.userId}'));
 
       // Tambahkan headers
       request.headers['Authorization'] = 'Bearer $accessToken';
 
+      // Debug: Cetak informasi file
+      print('Avatar File Path: ${avatarFile.path}');
+      print('Avatar File Size: ${await avatarFile.length()} bytes');
+
       // Tambahkan file
-      request.files
-          .add(await http.MultipartFile.fromPath('avatar', avatarFile.path));
+      request.files.add(await http.MultipartFile.fromPath(
+          'avatar', avatarFile.path,
+          filename: 'avatar_${currentUser.userId}.jpg'));
+
+      // Tambahkan field tambahan yang mungkin diperlukan
+      request.fields['user_id'] = currentUser.userId.toString();
+      request.fields['username'] = currentUser.username;
+      request.fields['email'] = currentUser.email;
+      request.fields['role_name'] = currentUser.roleName;
 
       // Kirim request
       var response = await request.send();
 
       // Baca response
       var responseBody = await response.stream.bytesToString();
+
+      // Debug: Cetak response
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: $responseBody');
+
+      // Parsing response
       var jsonData = jsonDecode(responseBody);
 
-      if (response.statusCode == 200) {
+      // Periksa response
+      if (response.statusCode == 200 || response.statusCode == 201) {
         if (jsonData['status'] == 'success') {
+          print('Avatar updated successfully');
           return;
         } else {
           throw Exception(jsonData['message'] ?? 'Failed to update avatar');
         }
       } else {
         throw Exception(
-            'Failed to update avatar. Status code: ${response.statusCode}');
+            'Failed to update avatar. Status code: ${response.statusCode}. Body: $responseBody');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      // Debug: Cetak error lengkap
+      print('Error updating avatar: $e');
+      print('Stacktrace: $stackTrace');
+
       throw Exception('Error updating avatar: $e');
     }
   }
