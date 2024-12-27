@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/services/token.dart';
+import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:http/http.dart' as http;
-// import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/bottom_navbar.dart';
 import 'package:polivent_app/screens/home/ticket/home_ticket.dart';
 import 'package:polivent_app/screens/home/event/home_events.dart';
@@ -20,94 +18,63 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  bool _isTokenValid = true;
+  bool _isTokenValid = false; // Ubah default menjadi false
 
   final List<Widget> _widgetOptions = <Widget>[
     const HomeExplore(),
     const HomeEvents(),
     const QRScanScreen(eventId: ''),
-    const HomeTicket(),
+    const EventHistoryPage(),
     const HomeProfile(),
   ];
 
   @override
   void initState() {
     super.initState();
-    // _checkTokenStatus();
     _checkTokenAndNavigate();
   }
 
   Future<void> _checkTokenAndNavigate() async {
-    final isTokenValid = await TokenService.checkTokenValidity();
+    try {
+      final isTokenValid = await TokenService.checkTokenValidity();
 
-    if (!isTokenValid) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
+      if (mounted) {
+        setState(() {
+          _isTokenValid = isTokenValid;
+        });
+
+        if (!isTokenValid) {
+          // Hapus token yang tidak valid
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove('access_token');
+          await prefs.remove('refresh_token');
+
+          // Navigate ke login
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
+      }
+    } catch (e) {
+      // Handle error saat pengecekan token
+      if (mounted) {
+        setState(() {
+          _isTokenValid = false;
+        });
+
+        // Optional: Tampilkan pesan error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error checking token: $e')),
+        );
+
+        // Navigate ke login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
     }
-  }
-
-  // Future<void> _checkTokenStatus() async {
-  //   try {
-  //     // Ambil refresh token dari SharedPreferences
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final refreshToken = prefs.getString('refresh_token');
-
-  //     if (refreshToken == null) {
-  //       navigateToLogin();
-  //       return;
-  //     }
-
-  //     // Lakukan request sederhana untuk mengecek token
-  //     final response = await http.get(
-  //       Uri.parse(
-  //           '$devApiBaseUrl/auth'), // Ganti dengan endpoint profil atau endpoint aman lainnya
-  //       headers: {
-  //         'Authorization': 'Bearer $refreshToken',
-  //         'Content-Type': 'application/json',
-  //       },
-  //     ).timeout(
-  //       const Duration(seconds: 10),
-  //       onTimeout: () {
-  //         // Tangani timeout
-  //         navigateToLogin();
-  //         throw Exception('Token check timeout');
-  //       },
-  //     );
-
-  //     if (response.statusCode != 200) {
-  //       // Token tidak valid
-  //       navigateToLogin();
-  //     }
-  //   } catch (e) {
-  //     // Error dalam proses pengecekan token
-  //     print('Token check error: $e');
-  //     navigateToLogin();
-  //   }
-  // }
-
-  // void navigateToLogin() {
-  //   setState(() {
-  //     _isTokenValid = false;
-  //   });
-
-  //   // Hapus token yang tersimpan
-  //   _clearTokens();
-
-  //   // Navigasi ke halaman login
-  //   Navigator.pushReplacement(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => const LoginScreen()),
-  //   );
-  // }
-
-  Future<void> _clearTokens() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('access_token');
-    await prefs.remove('refresh_token');
-    await prefs.remove('email');
-    await prefs.remove('password');
   }
 
   void _onItemTapped(int index) {
@@ -124,7 +91,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // Jika token tidak valid, tampilkan layar loading
+    // Jika token sedang dicek, tampilkan loading
     if (!_isTokenValid) {
       return const Scaffold(
         body: Center(

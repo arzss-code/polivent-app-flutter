@@ -6,8 +6,9 @@ import 'package:polivent_app/screens/home/explore/explore_most_likes_carousel.da
 import 'package:polivent_app/models/search_events.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/home/explore/notification.dart';
-import 'package:polivent_app/services/auth_services.dart'; // Import AuthService
-import 'package:polivent_app/services/data/user_model.dart'; // Import User model
+import 'package:polivent_app/services/auth_services.dart';
+import 'package:polivent_app/services/data/user_model.dart';
+import 'package:polivent_app/services/notification_services.dart';
 
 class HomeExplore extends StatefulWidget {
   const HomeExplore({super.key});
@@ -16,14 +17,12 @@ class HomeExplore extends StatefulWidget {
   State<HomeExplore> createState() => _HomeExploreState();
 }
 
-class _HomeExploreState extends State<HomeExplore> {
-  // Key untuk refresh
+class _HomeExploreState extends State<HomeExplore>
+    with AutomaticKeepAliveClientMixin {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
-  // Key untuk refresh
   final GlobalKey<CarouselEventsState> _carouselKey =
       GlobalKey<CarouselEventsState>();
-  // Key untuk refresh
   final GlobalKey<EventListWidgetState> _eventListKey =
       GlobalKey<EventListWidgetState>();
   final GlobalKey<SearchEventsWidgetState> _searchKey =
@@ -33,19 +32,40 @@ class _HomeExploreState extends State<HomeExplore> {
   bool _isLoading = true;
   String _errorMessage = '';
 
+  // Cache untuk mengurangi request berulang
+  static User? _cachedUser;
+  static DateTime? _lastFetchTime;
+  static const Duration _cacheDuration = Duration(minutes: 15);
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
+    _initializeData();
   }
 
-  Future<void> _fetchUserData() async {
+  Future<void> _initializeData() async {
     try {
+      // Gunakan cache jika masih valid
+      if (_cachedUser != null &&
+          _lastFetchTime != null &&
+          DateTime.now().difference(_lastFetchTime!) < _cacheDuration) {
+        setState(() {
+          _currentUser = _cachedUser;
+          _isLoading = false;
+        });
+        return;
+      }
+
       final authService = AuthService();
       final userData = await authService.getUserData();
 
       setState(() {
         _currentUser = userData;
+        _cachedUser = userData;
+        _lastFetchTime = DateTime.now();
         _isLoading = false;
       });
     } catch (e) {
@@ -56,7 +76,6 @@ class _HomeExploreState extends State<HomeExplore> {
     }
   }
 
-  // Metode refresh yang mencakup semua data
   Future<void> _refreshAllData() async {
     setState(() {
       _isLoading = true;
@@ -64,15 +83,15 @@ class _HomeExploreState extends State<HomeExplore> {
     });
 
     try {
-      // Fetch user data
       final authService = AuthService();
       final userData = await authService.getUserData();
 
-      // Refresh global keys untuk komponen yang membutuhkan refresh
-      _searchKey.currentState?.updateSearch();
+      // Reset cache
+      _cachedUser = userData;
+      _lastFetchTime = DateTime.now();
 
-      // Jika komponen-komponen lain memiliki method refresh, panggil di sini
-      // Contoh:
+      // Refresh komponen-komponen
+      _searchKey.currentState?.updateSearch();
       _carouselKey.currentState?.fetchMostLikedEvents();
       _eventListKey.currentState?.fetchUpcomingEvents();
 
@@ -90,6 +109,8 @@ class _HomeExploreState extends State<HomeExplore> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }

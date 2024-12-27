@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/services/auth_services.dart';
-import 'package:polivent_app/services/token.dart';
+import 'package:polivent_app/services/token_service.dart';
 
 class LikeService {
   Future<Map<String, dynamic>> checkLikeStatus(int eventId) async {

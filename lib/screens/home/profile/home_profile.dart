@@ -5,6 +5,7 @@ import 'package:polivent_app/services/data/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:developer' as developer;
 
 // Import User model dan AuthService
 import 'package:polivent_app/services/auth_services.dart';
@@ -20,6 +21,8 @@ class _HomeProfileState extends State<HomeProfile> {
   User? _currentUser;
   bool _isLoading = true;
   String _errorMessage = '';
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -28,35 +31,85 @@ class _HomeProfileState extends State<HomeProfile> {
   }
 
   Future<void> _fetchUserData() async {
+    developer.log(
+      'Fetching user data...',
+      name: 'HomeProfile',
+      level: 0, // Info level
+    );
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
     try {
       final authService = AuthService();
       final userData = await authService.getUserData();
+
+      developer.log(
+        'User data fetched successfully',
+        name: 'HomeProfile',
+        level: 0, // Info level
+      );
 
       setState(() {
         _currentUser = userData;
         _isLoading = false;
       });
     } catch (e) {
+      developer.log(
+        'Error fetching user data',
+        name: 'HomeProfile',
+        error: e,
+        level: 2, // Error level
+      );
+
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = 'Gagal memuat data. Silakan coba lagi.';
         _isLoading = false;
       });
     }
   }
 
-  Future<List<String>> _getCurrentUserInterests() async {
-    // Prioritaskan interests dari model User
-    if (_currentUser?.interests != null &&
-        _currentUser!.interests!.isNotEmpty) {
-      return _currentUser!.interests!;
-    }
+  Future<void> _handleRefresh() async {
+    developer.log(
+      'Refreshing profile data...',
+      name: 'HomeProfile',
+      level: 0, // Info level
+    );
+    await _fetchUserData();
+  }
 
-    // Jika tidak ada, coba ambil dari SharedPreferences
+  Future<List<String>> _getCurrentUserInterests() async {
     try {
+      // Prioritaskan interests dari model User
+      if (_currentUser?.interests != null &&
+          _currentUser!.interests!.isNotEmpty) {
+        developer.log(
+          'Returning interests from user model',
+          name: 'HomeProfile',
+          level: 0, // Info level
+        );
+        return _currentUser!.interests!;
+      }
+
+      // Jika tidak ada, coba ambil dari SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getStringList('user_interests') ?? [];
+      List<String>? interests = prefs.getStringList('user_interests');
+
+      developer.log(
+        'Returning interests from SharedPreferences: $interests',
+        name: 'HomeProfile',
+        level: 0, // Info level
+      );
+      return interests ?? [];
     } catch (e) {
-      print('Error retrieving interests: $e');
+      developer.log(
+        'Error retrieving interests',
+        name: 'HomeProfile',
+        error: e,
+        level: 2, // Error level
+      );
       return [];
     }
   }
@@ -72,18 +125,45 @@ class _HomeProfileState extends State<HomeProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildAppBar(),
-        Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _errorMessage.isNotEmpty
-                  ? Center(child: Text('Error: $_errorMessage'))
-                  : _buildProfileContent(),
-        ),
-      ],
+    return RefreshIndicator(
+      key: _refreshIndicatorKey,
+      onRefresh: _handleRefresh,
+      child: Column(
+        children: [
+          _buildAppBar(),
+          Expanded(
+            child: _buildContent(),
+          ),
+        ],
+      ),
     );
+  }
+
+  Widget _buildContent() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              _errorMessage,
+              style: const TextStyle(color: Colors.red),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _fetchUserData,
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return _buildProfileContent();
   }
 
   AppBar _buildAppBar() {
@@ -115,8 +195,11 @@ class _HomeProfileState extends State<HomeProfile> {
   Widget _buildProfileContent() {
     if (_currentUser == null) {
       return const Center(
-          child: Text(
-              'Data user tidak ditemukan, silahkan login ulang dan coba kembali.'));
+        child: Text(
+          'Data user tidak ditemukan, silahkan login ulang dan coba kembali.',
+          textAlign: TextAlign.center,
+        ),
+      );
     }
 
     return SingleChildScrollView(
@@ -132,7 +215,6 @@ class _HomeProfileState extends State<HomeProfile> {
           _buildAboutMe(),
           const SizedBox(height: 24),
           _buildInterests(),
-          // Tambahkan bagian interests jika diperlukan
         ],
       ),
     );
@@ -149,10 +231,13 @@ class _HomeProfileState extends State<HomeProfile> {
                 width: 120,
                 height: 120,
                 fit: BoxFit.cover,
-                // placeholder: (context, url) =>
-                //     const CircularProgressIndicator(),
                 errorWidget: (context, url, error) {
-                  debugPrint('Image load error: $error');
+                  developer.log(
+                    'Image load error',
+                    name: 'HomeProfile',
+                    error: error,
+                    level: 2, // Error level
+                  );
                   return Image.asset(
                     "assets/images/default-avatar.jpg",
                     width: 120,
@@ -205,12 +290,10 @@ class _HomeProfileState extends State<HomeProfile> {
     );
   }
 
-  // Modifikasi _buildInterests untuk menggunakan FutureBuilder
   Widget _buildInterests() {
     return FutureBuilder<List<String>>(
       future: _getCurrentUserInterests(),
       builder: (context, snapshot) {
-        // Gunakan data dari snapshot atau list kosong jika tidak ada data
         List<String> interests = snapshot.data ?? [];
 
         return Align(
@@ -242,7 +325,6 @@ class _HomeProfileState extends State<HomeProfile> {
     );
   }
 
-// Tambahkan method untuk membuat interest chip
   Widget _buildInterestChip(String label) {
     return Chip(
       label: Text(label,

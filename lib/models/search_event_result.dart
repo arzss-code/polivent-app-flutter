@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:polivent_app/services/token_service.dart';
 // import 'package:polivent_app/models/search_events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:polivent_app/config/app_config.dart';
@@ -57,7 +58,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
   Future<void> _fetchEvents() async {
     try {
       // Hapus variabel yang tidak digunakan
-      final accessToken = await _getAccessToken();
+      final accessToken = await TokenService.getAccessToken();
 
       // Konstruksi URL dengan parameter pencarian
       String url =
@@ -385,7 +386,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
               child: Row(
                 children: [
                   const Text(
-                    'Filter: ',
+                    'Filter:  ',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: UIColor.typoBlack,
@@ -453,11 +454,14 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: Chip(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+            side: const BorderSide(color: UIColor.primaryColor, width: 1)),
         label: Text(
           label,
           style: const TextStyle(color: UIColor.primaryColor),
         ),
-        backgroundColor: UIColor.primaryColor.withOpacity(0.2),
+        backgroundColor: UIColor.primaryColor.withOpacity(0.1),
         deleteIcon:
             const Icon(Icons.close, size: 16, color: UIColor.primaryColor),
         onDeleted: onDeleted,

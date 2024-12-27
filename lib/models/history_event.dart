@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/services/auth_services.dart';
@@ -32,7 +33,7 @@ class _HomeTicketState extends State<HomeTicket> {
     try {
       final authService = AuthService();
       final userData = await authService.getUserData();
-      final accessToken = await _getAccessToken();
+      final accessToken = await TokenService.getAccessToken();
 
       final response = await http.get(
         Uri.parse('$prodApiBaseUrl/registration/user/${userData.userId}'),

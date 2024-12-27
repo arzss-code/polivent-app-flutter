@@ -6,6 +6,7 @@ import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/event_filter.dart';
 import 'package:polivent_app/models/search_event_result.dart';
 import 'package:polivent_app/services/auth_services.dart';
+import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 
@@ -40,8 +41,7 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
   Future<void> _searchEvents(String searchQuery,
       {String? category, String? location, String? date}) async {
     try {
-      final authService = AuthService();
-      final accessToken = await _getAccessToken();
+      final accessToken = await TokenService.getAccessToken();
 
       // Konstruksi URL dengan parameter pencarian
       String url = '$prodApiBaseUrl/available_events?search=$searchQuery';
@@ -103,7 +103,7 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
 
   Future<String> _getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token') ?? '';
+    return prefs.getString('access_token') ?? '';
   }
 
   void _showErrorDialog(String message) {

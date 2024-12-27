@@ -57,6 +57,10 @@ dependencies:
   dio: ^5.7.0
   cached_network_image: ^3.4.1
   awesome_notifications: ^0.10.0
+  connectivity_plus: ^6.1.1
+  package_info_plus: ^8.1.2
+  qr_flutter: ^4.1.0
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:

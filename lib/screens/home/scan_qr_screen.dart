@@ -1,19 +1,24 @@
-// ignore_for_file: use_build_context_synchronously
+import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:polivent_app/models/ui_colors.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
+import 'package:http/http.dart' as http;
+import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/services/auth_services.dart';
+import 'package:polivent_app/services/token_service.dart';
 
 class QRScanScreen extends StatefulWidget {
-  final String eventId;
+  final String? eventId;
+  final bool isStrictMode;
 
-  const QRScanScreen({super.key, required this.eventId});
+  const QRScanScreen({Key? key, this.eventId, this.isStrictMode = false})
+      : super(key: key);
 
   @override
-  State<QRScanScreen> createState() => _QRScanScreenState();
+  _QRScanScreenState createState() => _QRScanScreenState();
 }
 
 class _QRScanScreenState extends State<QRScanScreen> {
@@ -21,90 +26,14 @@ class _QRScanScreenState extends State<QRScanScreen> {
   bool isFlashOn = false;
   final MobileScannerController cameraController = MobileScannerController();
 
-  // Tambahkan URL API untuk absensi
-  final String apiUrl = "https://polivent.my.id/api/attendance";
-
-  void _onQRViewCreated(BarcodeCapture barcodeCapture) {
-    if (!isScanned && barcodeCapture.barcodes.isNotEmpty) {
-      final String? qrCode = barcodeCapture.barcodes.first.rawValue;
-
-      if (qrCode != null) {
-        setState(() => isScanned = true);
-
-        // Aksi setelah QR berhasil discan
-        if (qrCode == widget.eventId) {
-          // Mengirim data ke API
-          markAttendance(widget.eventId,
-              'user123'); // Ganti 'user123' dengan user ID yang valid
-        } else {
-          setState(() => isScanned = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid QR Code for this event.')),
-          );
-        }
-      }
-    }
-  }
-
-  // Fungsi untuk mengirim data ke API untuk mencatat kehadiran
-  Future<void> markAttendance(String eventId, String userId) async {
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"event_id": eventId, "user_id": userId}),
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      if (responseData['status'] == 'success') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  "Attendance marked successfully for event ID: $eventId")),
-        );
-        Navigator.pop(
-            context); // Pindah dari tampilan pemindaian setelah sukses
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-                  Text("You have already marked attendance for this event.")),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Failed to mark attendance. Please try again.")),
-      );
-    }
-  }
-
-  void _toggleFlash() {
-    setState(() {
-      isFlashOn = !isFlashOn;
-      cameraController.toggleTorch();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Scan QR Code for Attendance'),
+        title: const Text('Scan QR Code Kehadiran'),
         backgroundColor: UIColor.solidWhite,
         centerTitle: true,
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back),
-        //   onPressed: () {
-        //     // Navigate to the home screen
-        //     Navigator.pushAndRemoveUntil(
-        //       context,
-        //       MaterialPageRoute(builder: (context) => const Home()),
-        //       (Route<dynamic> route) => false,
-        //     );
-        //   },
-        // ),
       ),
       body: Stack(
         children: [
@@ -198,7 +127,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Align the QR code\nwithin the frame to scan',
+                    'Posisikan QR code\npada frame scanner',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -248,4 +177,148 @@ class _QRScanScreenState extends State<QRScanScreen> {
       ),
     );
   }
-}
+
+  void _onQRViewCreated(BarcodeCapture barcodeCapture) async {
+    if (!isScanned && barcodeCapture.barcodes.isNotEmpty) {
+      final String? qrCode = barcodeCapture.barcodes.first.rawValue;
+
+      if (qrCode != null) {
+        setState(() => isScanned = true);
+
+        try {
+          // Proses dekode QR Base64
+          final decodedQRCode = _decodeBase64QR(qrCode);
+
+          if (decodedQRCode == null) {
+            _showErrorSnackbar('Kode QR tidak valid');
+            return;
+          }
+
+          // Ambil data pengguna
+          final userData = await AuthService().getUserData();
+          if (userData == null) {
+            _showErrorSnackbar('Gagal mendapatkan data pengguna');
+            return;
+          }
+
+          // Validasi QR Code
+          if (_validateQRCode(decodedQRCode)) {
+            // Mengirim data ke API
+            await _markAttendance(decodedQRCode, userData.userId.toString());
+          } else {
+            _showErrorSnackbar('Kode QR tidak sesuai');
+          }
+        } catch (e) {
+          _showErrorSnackbar('Kesalahan: ${e.toString()}');
+        } finally {
+          setState(() => isScanned = false);
+        }
+      }
+    }
+  }
+
+  // Fungsi untuk dekode QR Base64
+  String? _decodeBase64QR(String qrCode) {
+    try {
+      // Coba dekode Base64
+      final decodedBytes = base64Decode(qrCode);
+      final decodedString = utf8.decode(decodedBytes);
+
+      debugPrint('Dekode QR Base64: $decodedString');
+      return decodedString;
+    } catch (e) {
+      debugPrint('Kesalahan dekode Base64: $e');
+
+      // Jika bukan Base64, kembalikan raw value
+      return qrCode;
+    }
+  }
+
+  bool _validateQRCode(String qrCode) {
+    // Mode ketat: cocokkan dengan event ID yang diberikan
+    if (widget.isStrictMode && widget.eventId != null) {
+      bool isValid = qrCode == widget.eventId;
+      debugPrint('Validasi Mode Ketat: $isValid');
+      return isValid;
+    }
+
+    // Validasi format atau panjang QR Code
+    bool isValid = qrCode.isNotEmpty && qrCode.length >= 5;
+    debugPrint('Validasi Umum: $isValid');
+    return isValid;
+  }
+
+  Future<void> _markAttendance(String eventId, String userId) async {
+    try {
+      // Ambil access token
+      final accessToken = await TokenService.getAccessToken();
+
+      if (accessToken == null) {
+        _showErrorSnackbar('Token akses tidak ditemukan');
+        return;
+      }
+
+      // Siapkan header
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      };
+
+      // Kirim request absensi
+      final response = await http.post(
+        Uri.parse('$prodApiBaseUrl/attendance'),
+        headers: headers,
+        body: jsonEncode({
+          'event_id': eventId,
+          'user_id': userId,
+        }),
+      );
+
+      // Debug print response
+      debugPrint('Kode Status Respons: ${response.statusCode}');
+      debugPrint('Isi Respons: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+        _showSuccessSnackbar('Absensi berhasil: ${responseBody['message']}');
+      } else {
+        final responseBody = jsonDecode(response.body);
+        _showErrorSnackbar(
+            'Gagal absensi: ${responseBody['error'] ?? 'Kesalahan tidak diketahui'}');
+      }
+    } catch (e) {
+      debugPrint('Kesalahan lengkap: $e');
+      _showErrorSnackbar('Kesalahan: ${e.toString()}');
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _showSuccessSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _toggleFlash() {
+    setState(() {
+      isFlashOn = !isFlashOn;
+      cameraController.toggleTorch();
+    });
+  }
+} 
+
+// Tambahkan di pubspec.yaml
+// dependencies:
+//   mobile_scanner: ^3.2.0
+//   http: ^0.13.3

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EventFilter {
@@ -60,7 +61,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
 
   Future<void> _fetchCategories() async {
     try {
-      final accessToken = await _getAccessToken();
+      final accessToken = await TokenService.getAccessToken();
       final response = await http.get(
         Uri.parse('$prodApiBaseUrl/categories'),
         headers: {

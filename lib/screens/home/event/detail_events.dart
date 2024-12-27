@@ -18,6 +18,7 @@ import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/screens/home/event/success_join.dart';
 // import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/services/notification_services.dart';
+import 'package:polivent_app/services/token_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
@@ -141,7 +142,7 @@ class _DetailEventsState extends State<DetailEvents> {
             'https://polivent.my.id/api/available_events?event_id=${widget.eventId}'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${await _getRefreshToken()}',
+          'Authorization': 'Bearer ${await TokenService.getAccessToken()}',
         },
       ).timeout(
         const Duration(seconds: 10),
@@ -214,7 +215,7 @@ class _DetailEventsState extends State<DetailEvents> {
         Uri.parse('$prodApiBaseUrl/registration'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${await _getAccessToken()}',
+          'Authorization': 'Bearer ${await TokenService.getAccessToken()}',
         },
         body: jsonEncode({
           'event_id': eventId,
@@ -342,7 +343,7 @@ class _DetailEventsState extends State<DetailEvents> {
 
   Future<String> _getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token') ?? '';
+    return prefs.getString('access_token') ?? '';
   }
 
   Future<String> _getRefreshToken() async {

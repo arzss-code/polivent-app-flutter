@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-// import 'package:polivent_app/config/app_config.dart';
+import 'dart:developer' as developer;
+
 import 'package:polivent_app/screens/home/profile/edit_profile.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/home/profile/help.dart';
-// import 'package:polivent_app/screens/login.dart';
-// import 'package:polivent_app/services/like_services.dart';
 import 'package:polivent_app/services/auth_services.dart';
-// import 'package:polivent_app/services/token_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
-// import 'package:http/http.dart' as http;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -19,132 +16,172 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Buat instance AuthService
   final AuthService _authService = AuthService();
   bool _notificationsEnabled = true;
-  String name = 'Atsila Arya';
-  String aboutMe =
-      'I am a student with a strong interest in mobile app development, UI/UX design, and gaming.';
-  List<String> interests = [];
 
   @override
   void initState() {
     super.initState();
     _loadNotificationPreference();
-    _loadProfileData();
-    // _authService = AuthService();
   }
 
   void _loadNotificationPreference() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
-    });
-  }
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
+      });
 
-  void _loadProfileData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      name = prefs.getString('name') ?? name;
-      aboutMe = prefs.getString('about_me') ?? aboutMe;
-      interests = prefs.getStringList('user_interests') ?? [];
-    });
+      developer.log(
+        'Notification preference loaded: $_notificationsEnabled',
+        name: 'SettingsScreen',
+        level: 0, // Info level
+      );
+    } catch (e) {
+      developer.log(
+        'Error loading notification preferences',
+        name: 'SettingsScreen',
+        error: e,
+        level: 2, // Error level
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Gagal memuat pengaturan notifikasi: $e'),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 
   void _toggleNotifications(bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _notificationsEnabled = value;
-      prefs.setBool('notificationsEnabled', value);
-    });
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _notificationsEnabled = value;
+        prefs.setBool('notificationsEnabled', value);
+      });
+
+      developer.log(
+        'Notifications toggled: $value',
+        name: 'SettingsScreen',
+        level: 0, // Info level
+      );
+    } catch (e) {
+      developer.log(
+        'Error toggling notifications',
+        name: 'SettingsScreen',
+        error: e,
+        level: 2, // Error level
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Gagal mengubah notifikasi: $e'),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
+  void _handleLogout() {
+    showLogoutBottomSheet(context);
   }
 
   void showLogoutBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      backgroundColor: UIColor.solidWhite,
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Sign out',
-                style: TextStyle(color: Colors.red, fontSize: 24),
-              ),
-              Divider(
-                height: 48,
-                color: Colors.grey[300],
-                thickness: 1,
-                indent: 16,
-                endIndent: 16,
-              ),
-              // const SizedBox(height: 16),
-              const Text(
-                'Are you sure you want to sign out?\n'
-                'You can always sign back to explore more\n'
-                'events and stay updated!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
+    try {
+      showModalBottomSheet(
+        backgroundColor: UIColor.solidWhite,
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Sign out',
+                  style: TextStyle(color: Colors.red, fontSize: 24),
                 ),
-              ),
-              const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the bottom sheet
-                    },
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(150, 50),
-                      backgroundColor: Colors.grey[
-                          200], // Set Cancel button background to grey 200
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: UIColor.primaryColor),
-                    ),
+                Divider(
+                  height: 48,
+                  color: Colors.grey[300],
+                  thickness: 1,
+                  indent: 16,
+                  endIndent: 16,
+                ),
+                const Text(
+                  'Are you sure you want to sign out?\n'
+                  'You can always sign back to explore more\n'
+                  'events and stay updated!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Tambahkan indikator loading
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) => const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                      // Panggil fungsi logout menggunakan instance
-                      _authService.logout(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(150, 50),
-                      // padding: const EdgeInsets.symmetric(
-                      //     horizontal: 50, vertical: 20),
-                      backgroundColor: Colors
-                          .blue, // Set Yes, Sign out button background to blue
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(150, 50),
+                        backgroundColor: Colors.grey[200],
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: UIColor.primaryColor),
+                      ),
                     ),
-                    child: const Text(
-                      'Yes, Sign out',
-                      style: TextStyle(
-                          color: Colors
-                              .white), // You might want to change text color to white for better contrast
+                    ElevatedButton(
+                      onPressed: () {
+                        developer.log(
+                          'Logout initiated',
+                          name: 'SettingsScreen',
+                          level: 0, // Info level
+                        );
+
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+
+                        _authService.logout(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(150, 50),
+                        backgroundColor: Colors.blue,
+                      ),
+                      child: const Text(
+                        'Yes, Sign out',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      developer.log(
+        'Error showing logout bottom sheet',
+        name: 'SettingsScreen',
+        error: e,
+        level: 2, // Error level
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Gagal menampilkan logout: $e'),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 
   @override
@@ -187,7 +224,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 MaterialPageRoute(
                     builder: (context) => const EditProfileScreen()),
               ).then((_) {
-                _loadProfileData();
+                setState(() {});
               });
             },
           ),
@@ -226,12 +263,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leadingIcon: UIconsPro.solidRounded.sign_out_alt,
             title: 'Sign Out',
             trailingIcon: null,
-            onTap: () {
-              showLogoutBottomSheet(context);
-            },
+            onTap: _handleLogout,
             titleColor: Colors.red,
             leadingIconColor: Colors.red,
           ),
+          const SizedBox(height: 20.0),
         ],
       ),
     );
@@ -262,12 +298,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Size? trailingSize,
   }) {
     return ListTile(
-      // Buat background berwarna putih
       tileColor: UIColor.solidWhite,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
-
       leading: Icon(
         leadingIcon,
         color: leadingIconColor ?? UIColor.primaryColor,

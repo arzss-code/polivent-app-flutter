@@ -9,7 +9,7 @@ import 'package:polivent_app/services/auth_services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/services/token.dart';
+import 'package:polivent_app/services/token_service.dart';
 
 class CommentModel {
   final int commentId;

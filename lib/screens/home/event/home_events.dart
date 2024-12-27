@@ -182,6 +182,7 @@ class _HomeEventsState extends State<HomeEvents>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        scrolledUnderElevation: 0,
         centerTitle: true,
         backgroundColor: UIColor.solidWhite,
         elevation: 0,

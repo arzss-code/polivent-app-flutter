@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/user_model.dart';
+import 'package:polivent_app/services/user_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final AuthService _authService = AuthService();
+  final UserService _userService = UserService();
   User? _currentUser;
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
@@ -97,7 +99,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
 
       try {
-        await _authService.updateUserAvatar(_profileImage!);
+        await _userService.updateUserAvatar(_profileImage!);
         await _fetchUserData();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,12 +121,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       String about = _aboutController.text.trim();
       File? avatarFile = _profileImage;
 
-      await _authService.updateUserProfile(
+      await _userService.updateUserProfile(
           username: username, about: about, avatarFile: avatarFile);
 
       // Simpan dan update interests
       await _saveInterests();
-      await _authService.updateUserInterests(_selectedInterests);
+      await _userService.updateUserInterests(_selectedInterests);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully')),
@@ -433,9 +435,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hintText,
-            border: const OutlineInputBorder(),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: UIColor.primaryColor),
+            ),
             contentPadding:
-                const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           ),
         ),
         const SizedBox(height: 16),
