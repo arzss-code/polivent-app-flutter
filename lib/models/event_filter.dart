@@ -105,9 +105,9 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.5,
-      minChildSize: 0.5,
-      maxChildSize: 0.7,
+      initialChildSize: 0.4,
+      minChildSize: 0.4,
+      maxChildSize: 0.5,
       expand: false,
       builder: (context, scrollController) {
         return Container(
@@ -163,25 +163,25 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                             ),
                           ),
 
-                          // Date Filter
-                          _buildFilterSection(
-                            title: 'Tanggal',
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: UIColor.primaryColor,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                              ),
-                              onPressed: _selectDate,
-                              child: Text(
-                                _selectedDate == null
-                                    ? 'Pilih Tanggal'
-                                    : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ),
+                          // // Date Filter
+                          // _buildFilterSection(
+                          //   title: 'Tanggal',
+                          //   child: ElevatedButton(
+                          //     style: ElevatedButton.styleFrom(
+                          //       backgroundColor: UIColor.primaryColor,
+                          //       shape: RoundedRectangleBorder(
+                          //         borderRadius: BorderRadius.circular(24),
+                          //       ),
+                          //     ),
+                          //     onPressed: _selectDate,
+                          //     child: Text(
+                          //       _selectedDate == null
+                          //           ? 'Pilih Tanggal'
+                          //           : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                          //       style: const TextStyle(color: Colors.white),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
               ),

@@ -72,10 +72,10 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
         queryParams['category'] = _currentFilter.category;
       }
 
-      if (_currentFilter.date != null) {
-        queryParams['date'] =
-            DateFormat('yyyy-MM-dd').format(_currentFilter.date!);
-      }
+      // if (_currentFilter.date != null) {
+      //   queryParams['date'] =
+      //       DateFormat('yyyy-MM-dd').format(_currentFilter.date!);
+      // }
 
       final uri = Uri.parse('$prodApiBaseUrl/available_events').replace(
         queryParameters: queryParams,
@@ -423,17 +423,17 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
                       });
                       _fetchEvents();
                     }),
-                  if (_currentFilter.date != null)
-                    _buildFilterChip(
-                      '${_currentFilter.date!.day}/${_currentFilter.date!.month}/${_currentFilter.date!.year}',
-                      () {
-                        setState(() {
-                          _currentFilter.date = null;
-                          _isLoading = true;
-                        });
-                        _fetchEvents();
-                      },
-                    ),
+                  // if (_currentFilter.date != null)
+                  //   _buildFilterChip(
+                  //     '${_currentFilter.date!.day}/${_currentFilter.date!.month}/${_currentFilter.date!.year}',
+                  //     () {
+                  //       setState(() {
+                  //         _currentFilter.date = null;
+                  //         _isLoading = true;
+                  //       });
+                  //       _fetchEvents();
+                  //     },
+                  //   ),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.clear_all, color: Colors.red),
