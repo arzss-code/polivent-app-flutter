@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/screens/home/profile/settings_screen.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/services/data/user_model.dart';
@@ -367,73 +368,87 @@ class _HomeProfileState extends State<HomeProfile> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        Card(
-          color: Colors.white,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Poster Event
-              ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(8)),
-                child: Image.network(
-                  _lastRegisteredEvent!['poster'],
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: double.infinity,
-                      height: 200,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
-                    );
-                  },
+        GestureDetector(
+          onTap: () {
+            // Navigasi ke halaman detail event
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailEvents(
+                  eventId: _lastRegisteredEvent!['event_id'],
                 ),
               ),
+            );
+          },
+          child: Card(
+            color: Colors.white,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Poster Event
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(8)),
+                  child: Image.network(
+                    _lastRegisteredEvent!['poster'],
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: double.infinity,
+                        height: 200,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported),
+                      );
+                    },
+                  ),
+                ),
 
-              // Informasi Event
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _lastRegisteredEvent!['title'],
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                // Informasi Event
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _lastRegisteredEvent!['title'],
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(UIconsPro.regularRounded.calendar,
-                            size: 16, color: UIColor.primaryColor),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Didaftarkan: ${_formatRegistrationTime(_lastRegisteredEvent!['registration_time'])}',
-                          style: const TextStyle(color: UIColor.typoGray),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(UIconsPro.regularRounded.category,
-                            size: 16, color: UIColor.primaryColor),
-                        const SizedBox(width: 8),
-                        Text(
-                          _lastRegisteredEvent!['category_name'],
-                          style: const TextStyle(color: UIColor.typoGray),
-                        ),
-                      ],
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(UIconsPro.regularRounded.calendar,
+                              size: 16, color: UIColor.primaryColor),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Didaftarkan: ${_formatRegistrationTime(_lastRegisteredEvent!['registration_time'])}',
+                            style: const TextStyle(color: UIColor.typoGray),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(UIconsPro.regularRounded.category,
+                              size: 16, color: UIColor.primaryColor),
+                          const SizedBox(width: 8),
+                          Text(
+                            _lastRegisteredEvent!['category_name'],
+                            style: const TextStyle(color: UIColor.typoGray),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

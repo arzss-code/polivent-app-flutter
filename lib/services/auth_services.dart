@@ -229,6 +229,8 @@ class AuthService {
         debugPrint('Error Response: ${e.response?.data}');
       } finally {
         // Selalu lakukan logout lokal
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('notification');
         await TokenService.logout();
         _navigateToLogin(context);
       }

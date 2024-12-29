@@ -162,8 +162,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'Sign out',
-                  style: TextStyle(color: Colors.red, fontSize: 24),
+                  'Logout',
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold),
                 ),
                 Divider(
                   height: 48,
@@ -173,9 +176,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   endIndent: 16,
                 ),
                 const Text(
-                  'Are you sure you want to sign out?\n'
-                  'You can always sign back to explore more\n'
-                  'events and stay updated!',
+                  'Apakah Anda yakin ingin keluar?\n'
+                  'Anda selalu dapat masuk kembali untuk menjelajahi lebih banyak acara dan tetap terupdate!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.black,
@@ -197,7 +199,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         backgroundColor: Colors.grey[200],
                       ),
                       child: const Text(
-                        'Cancel',
+                        'Batal',
                         style: TextStyle(color: UIColor.primaryColor),
                       ),
                     ),
@@ -224,7 +226,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         backgroundColor: Colors.blue,
                       ),
                       child: const Text(
-                        'Yes, Sign out',
+                        'Ya, Keluar',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -327,7 +329,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 30.0),
           _buildListTile(
             leadingIcon: UIconsPro.solidRounded.sign_out_alt,
-            title: 'Sign Out',
+            title: 'Logout',
             trailingIcon: null,
             onTap: _handleLogout,
             titleColor: Colors.red,

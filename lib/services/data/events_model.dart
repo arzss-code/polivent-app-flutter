@@ -94,16 +94,19 @@ class Event {
 }
 
 class InvitedUser {
+  final String userId; // Tambahkan user_id
   final String username;
-  final String? avatar;
+  String? avatar;
 
-  const InvitedUser({
+  InvitedUser({
+    required this.userId, // Tambahkan required parameter
     required this.username,
     this.avatar,
   });
 
   factory InvitedUser.fromJson(Map<String, dynamic> json) {
     return InvitedUser(
+      userId: json['user_id']?.toString() ?? '', // Parsing user_id
       username: json['username']?.toString() ?? '',
       avatar: json['avatar']?.toString(),
     );
@@ -111,8 +114,15 @@ class InvitedUser {
 
   Map<String, dynamic> toJson() {
     return {
+      'user_id': userId,
       'username': username,
       'avatar': avatar,
     };
+  }
+
+  // Optional: Tambahkan method toString untuk debugging
+  @override
+  String toString() {
+    return 'InvitedUser(userId: $userId, username: $username, avatar: $avatar)';
   }
 }

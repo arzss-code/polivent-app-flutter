@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'package:photo_view/photo_view.dart';
 import 'package:polivent_app/config/app_config.dart';
@@ -50,6 +51,8 @@ class _DetailEventsState extends State<DetailEvents>
   bool _isAppBarTransparent = true;
   bool _isEventRegistrationDisabled = false;
   String _joinButtonText = 'Daftar Event';
+  List<dynamic> invitedUsers = [];
+  bool _showAllInvitedUsers = false;
 
   @override
   void initState() {
@@ -212,17 +215,65 @@ class _DetailEventsState extends State<DetailEvents>
     }
   }
 
-  void shareEvent(Event event) {
+  Future<void> shareEvent(Event event) async {
+    // Buat deep link dengan domain yang sudah dikonfigurasi
     final String shareLink =
-        'https://polivent.my.id/event-detail?id=${event.eventId}';
-    final String shareContent = 'Ayo segera gabung event ini!\n\n'
-        'Title: ${event.title}\n'
-        'Date: ${formatDate(event.dateStart)}\n'
-        'Location: ${event.location}\n'
-        '${event.description}\n\n'
-        '$shareLink';
+        'https://polivent.my.id/event-detail/${event.eventId}';
 
-    Share.share(shareContent);
+    // Buat konten share yang informatif
+    final String shareContent = 'Yuk ikuti event menarik ini!\n\n'
+        '*${event.title}*\n\n'
+        'Tanggal: ${formatDate(event.dateStart)}\n'
+        'Lokasi: ${event.location}\n'
+        '${event.description}\n\n'
+        'Selengkapnya: $shareLink';
+
+    try {
+      // Cek apakah ada poster/gambar untuk dibagikan
+      File? imageFile;
+      if (event.poster != null) {
+        imageFile = await _downloadImage(event.poster!);
+      }
+
+      // Share dengan atau tanpa gambar
+      if (imageFile != null) {
+        await Share.shareXFiles(
+          [XFile(imageFile.path)],
+          text: shareContent,
+          subject: 'Bagikan Event: ${event.title}',
+        );
+      } else {
+        await Share.share(
+          shareContent,
+          subject: 'Bagikan Event: ${event.title}',
+        );
+      }
+    } catch (e) {
+      print('Gagal membagikan event: $e');
+      // Tampilkan pesan error jika diperlukan
+    }
+  }
+
+// Fungsi download gambar opsional
+  Future<File?> _downloadImage(String imageUrl) async {
+    try {
+      // Gunakan package http atau dio untuk download
+      final response = await http.get(Uri.parse(imageUrl));
+
+      if (response.statusCode == 200) {
+        // Simpan gambar sementara
+        final directory = await getTemporaryDirectory();
+        final imagePath = '${directory.path}/event_poster.png';
+
+        final File imageFile = File(imagePath);
+        await imageFile.writeAsBytes(response.bodyBytes);
+
+        return imageFile;
+      }
+    } catch (e) {
+      print('Gagal download gambar: $e');
+    }
+    return null;
   }
 
   Future<Event> fetchEventById() async {
@@ -258,6 +309,12 @@ class _DetailEventsState extends State<DetailEvents>
                 (jsonResponse['data'] as List).isNotEmpty) {
               return Event.fromJson((jsonResponse['data'] as List).first);
             }
+          }
+
+          // Pastikan parsing invited_users
+          if (jsonResponse['invited_users'] != null) {
+            print(
+                'Invited Users Count: ${jsonResponse['invited_users'].length}');
           }
 
           // Jika tidak ada 'data' key, gunakan response langsung
@@ -723,6 +780,151 @@ class _DetailEventsState extends State<DetailEvents>
   //   );
   // }
 
+  Widget _buildInfoPropose(Event event) {
+    return Card(
+      elevation: 0,
+      color: Colors.grey[50],
+      margin: const EdgeInsets.fromLTRB(0, 4, 0, 24),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: event.proposeUserAvatar != null
+                  ? NetworkImage(event.proposeUserAvatar!)
+                  : const AssetImage('assets/images/default-avatar.jpg')
+                      as ImageProvider,
+              radius: 20,
+              onBackgroundImageError: (exception, stackTrace) {
+                debugPrint('Error loading propose user avatar: $exception');
+              },
+              backgroundColor: Colors.grey[300],
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.proposeUser ?? 'Unknown User',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  // const SizedBox(height: 4),
+                  const Text(
+                    'Propose',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInvitedUsers(Event event) {
+    debugPrint('Invited Users: ${event.invitedUsers}');
+
+    if (event.invitedUsers == null || event.invitedUsers!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Tentukan berapa banyak user yang akan ditampilkan
+    final usersToShow = _showAllInvitedUsers
+        ? event.invitedUsers!
+        : event.invitedUsers!.take(5).toList();
+
+    return Card(
+      elevation: 0,
+      color: Colors.grey[50],
+      margin: const EdgeInsets.fromLTRB(0, 4, 0, 24),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Undangan',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (event.invitedUsers!.length > 5)
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _showAllInvitedUsers = !_showAllInvitedUsers;
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(50, 30),
+                    ),
+                    child: Text(
+                      _showAllInvitedUsers
+                          ? 'Tampilkan sedikit'
+                          : 'Lihat semua (${event.invitedUsers!.length})',
+                      style: const TextStyle(
+                        color: UIColor.primaryColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            // const SizedBox(height: 12),
+            Column(
+              children: usersToShow.map((user) {
+                debugPrint('User: ${user.username}, Avatar: ${user.avatar}');
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundImage: user.avatar != null
+                            ? NetworkImage(user.avatar!.startsWith('/')
+                                ? 'https://polivent.my.id${user.avatar}'
+                                : user.avatar!)
+                            : const AssetImage(
+                                    'assets/images/default-avatar.jpg')
+                                as ImageProvider,
+                        onBackgroundImageError: (exception, stackTrace) {
+                          debugPrint('Error loading avatar image: $exception');
+                        },
+                        backgroundColor: Colors.grey[300],
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        user.username,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildLoadingShimmer() {
     return SingleChildScrollView(
       child: Column(
@@ -903,6 +1105,7 @@ class _DetailEventsState extends State<DetailEvents>
               Image.network(
                 event.poster,
                 fit: BoxFit.cover,
+                alignment: Alignment.topCenter,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return Center(
@@ -968,6 +1171,8 @@ class _DetailEventsState extends State<DetailEvents>
         children: [
           _buildEventHeader(event),
           _buildEventInfo(event),
+          _buildInfoPropose(event),
+          _buildInvitedUsers(event),
           _buildDescriptionSection(event),
           _buildCommentsSection(event),
           const SizedBox(height: 100), // Space for bottom button
@@ -1048,13 +1253,23 @@ class _DetailEventsState extends State<DetailEvents>
             ),
             const Divider(height: 24),
             _buildInfoRow(
-              UIconsPro.regularRounded.house_building,
+              UIconsPro.regularRounded.map_marker,
               event.location,
             ),
             const Divider(height: 24),
             _buildInfoRow(
-              UIconsPro.regularRounded.calendar_clock,
-              formatDate(event.dateStart),
+              UIconsPro.regularRounded.house_building,
+              event.place,
+            ),
+            const Divider(height: 24),
+            _buildInfoRow(
+              UIconsPro.regularRounded.calendar,
+              '${formatDate(event.dateStart)}\n- ${formatDate(event.dateEnd)}',
+            ),
+            const Divider(height: 24),
+            _buildInfoRow(
+              UIconsPro.regularRounded.clock,
+              '${DateFormat('HH:mm').format(DateTime.parse(event.dateStart).toLocal())} - ${DateFormat('HH:mm').format(DateTime.parse(event.dateEnd).toLocal())} WIB',
             ),
           ],
         ),
@@ -1109,7 +1324,7 @@ class _DetailEventsState extends State<DetailEvents>
               children: [
                 Text(
                   _showFullDescription ? 'Show Less' : 'Read More',
-                  style: TextStyle(color: UIColor.primaryColor),
+                  style: const TextStyle(color: UIColor.primaryColor),
                 ),
                 Icon(
                   _showFullDescription
@@ -1349,7 +1564,7 @@ class _DetailEventsState extends State<DetailEvents>
           child: Text(
             text,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
             ),
           ),

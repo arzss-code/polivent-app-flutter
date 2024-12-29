@@ -805,7 +805,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
       style: IconButton.styleFrom(
         fixedSize: const Size(40, 40),
         foregroundColor: Colors.white,
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: UIColor.primaryColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),

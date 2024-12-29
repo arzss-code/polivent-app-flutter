@@ -68,7 +68,7 @@ class PoliventApp extends StatefulWidget {
 class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
   final AppLinks _appLinks = AppLinks();
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  // final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -84,32 +84,67 @@ class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
   }
 
   Future<void> _initAppLinks() async {
-    _appLinks.uriLinkStream.listen((Uri? uri) {
-      if (uri != null) {
-        _handleDeepLink(uri);
-      }
-    }, onError: (error) {
-      debugPrint('Deep link error: $error');
-    });
+    // Tangkap initial link saat aplikasi pertama kali dibuka
+    final initialLink = await _appLinks.getInitialLink();
+    if (initialLink != null) {
+      _handleDeepLink(initialLink);
+    }
+
+    // Listen untuk link yang masuk selama aplikasi berjalan
+    _appLinks.uriLinkStream.listen(
+      (Uri? uri) {
+        if (uri != null) {
+          debugPrint('🔗 Deep Link Detected: $uri');
+          _handleDeepLink(uri);
+        }
+      },
+      onError: (error) {
+        debugPrint('🚨 Deep Link Error: $error');
+      },
+    );
   }
 
+  // Dalam fungsi _handleDeepLink di main.dart
   void _handleDeepLink(Uri uri) {
     try {
-      if (uri.pathSegments.isNotEmpty &&
-          uri.pathSegments.first == 'event-detail') {
-        final String? eventIdString = uri.queryParameters['id'];
-        final int eventId = int.tryParse(eventIdString ?? '') ?? -1;
+      debugPrint('🔍 Processing Deep Link: $uri');
 
-        if (eventId != -1) {
-          _navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              builder: (context) => DetailEvents(eventId: eventId),
-            ),
-          );
+      // Validasi host dan path
+      if (uri.host == 'polivent.my.id' || uri.host == 'www.polivent.my.id') {
+        // Ekstrak event ID dengan berbagai metode
+        String? eventId;
+
+        // Coba ambil dari path segments
+        if (uri.pathSegments.length > 1 &&
+            uri.pathSegments[0] == 'event-detail') {
+          eventId = uri.pathSegments[1];
+        }
+
+        // Coba ambil dari query parameter
+        if (eventId == null) {
+          eventId = uri.queryParameters['id'];
+        }
+
+        // Konversi dan validasi event ID
+        final parsedEventId = int.tryParse(eventId ?? '');
+
+        if (parsedEventId != null) {
+          debugPrint('✅ Valid Event ID: $parsedEventId');
+
+          // Navigasi dengan safety
+          Future.delayed(Duration.zero, () {
+            Navigator.of(_navigatorKey.currentContext!).push(
+              MaterialPageRoute(
+                builder: (context) => DetailEvents(eventId: parsedEventId),
+              ),
+            );
+          });
+        } else {
+          debugPrint('❌ Invalid Event ID');
         }
       }
     } catch (e) {
-      debugPrint('Deep link handling error: $e');
+      debugPrint('🚨 Deep Link Handling Error: $e');
     }
   }
 
@@ -160,13 +195,25 @@ class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
         Locale('en', 'US'), // Bahasa Inggris
       ],
       initialRoute: '/',
+      // Tambahkan dalam onGenerateRoute untuk mendukung deep linking
       onGenerateRoute: (RouteSettings settings) {
+        // Existing route untuk event
         if (settings.name!.startsWith('/event/')) {
           final eventId = settings.name!.replaceFirst('/event/', '');
           return MaterialPageRoute(
             builder: (context) => DetailEvents(eventId: int.parse(eventId)),
           );
         }
+
+        // Tambahkan route untuk deep link
+        if (settings.name!.startsWith('https://polivent.my.id/event/')) {
+          final eventId =
+              settings.name!.replaceFirst('https://polivent.my.id/event/', '');
+          return MaterialPageRoute(
+            builder: (context) => DetailEvents(eventId: int.parse(eventId)),
+          );
+        }
+
         return null;
       },
 

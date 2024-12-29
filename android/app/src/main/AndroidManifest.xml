@@ -51,11 +51,24 @@
             
 
             <!-- Deep Link -->
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="polivent.my.id" />
+                <data android:scheme="https" android:host="polivent.my.id" android:pathPrefix="/event/" /><!-- Definisi data dengan berbagai variasi -->
+                <data 
+                    android:scheme="https"
+                    android:host="polivent.my.id"
+                    android:pathPrefix="/event/" />
+                
+                <data 
+                    android:scheme="https"
+                    android:host="www.polivent.my.id"
+                    android:pathPrefix="/event/" />
+                
+                <data 
+                    android:scheme="polivent"
+                    android:host="event" />
             </intent-filter>
             
             <!-- Launcher Intent -->

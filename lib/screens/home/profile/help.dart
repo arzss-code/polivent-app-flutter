@@ -296,36 +296,182 @@ class _HelpScreenState extends State<HelpScreen> {
         icon: Icons.app_registration_rounded,
         title: 'Cara Mendaftar Event',
         content: 'Panduan lengkap mendaftar event:\n'
-            '1. Pilih event yang diminati\n'
-            '2. Klik tombol "Daftar"\n'
-            '3. Lengkapi formulir pendaftaran\n'
-            '4. Konfirmasi data pribadi\n'
-            '5. Lakukan pembayaran jika diperlukan\n'
-            '6. Tunggu konfirmasi panitia',
+            '1. Pastikan sudah login dengan data yang benar\n'
+            '2. Cari event yang diminati\n'
+            '3. Pilih dan masuk ke detail event\n'
+            '4. Klik tombol "Daftar Event"\n'
+            '5. Event akan masuk ke tiket Anda\n',
       ),
       const HelpItem(
-        category: 'Tiket',
-        icon: Icons.confirmation_number_rounded,
-        title: 'Cara Melihat Tiket',
-        content: 'Akses tiket dengan mudah:\n'
-            '1. Buka menu "Tiket Saya"\n'
-            '2. Pilih event yang diinginkan\n'
-            '3. Lihat detail tiket\n'
-            '4. Gunakan opsi unduh/cetak\n'
-            '5. Tunjukkan QR Code saat check-in',
-      ),
+          category: 'Tiket',
+          icon: Icons.confirmation_number_rounded,
+          title: 'Cara Melihat Tiket',
+          content: 'Akses tiket dengan mudah:\n'
+              '1. Buka menu "Tiket Saya"\n'
+              '2. Pilih event yang diinginkan\n'
+              '3. Lihat detail tiket\n'
+              '4. Berikan ulasan atau komentar\n'),
       const HelpItem(
         category: 'Event',
         icon: Icons.event_available_rounded,
         title: 'Cara Mencari Event',
         content: 'Temukan event tepat:\n'
             '1. Gunakan bilah pencarian\n'
+            '1. Ketik event yang ingin dicari\n'
             '2. Filter berdasarkan kategori\n'
-            '3. Pilih rentang waktu\n'
-            '4. Urutkan berdasarkan preferensi\n'
-            '5. Jelajahi event rekomendasi',
+            '3. Pilih tanggal\n'
+            // '4. Urutkan berdasarkan preferensi\n'
+            '4. Jelajahi event rekomendasi',
       ),
       // Tambahkan item help lainnya
+      const HelpItem(
+        category: 'Event',
+        icon: Icons.filter_list_rounded,
+        title: 'Filter Event',
+        content: 'Cara memfilter event:\n'
+            '1. Klik tombol filter\n'
+            '2. Pilih kategori\n'
+            '3. Tentukan rentang waktu\n'
+            // '4. Pilih lokasi\n'
+            '4. Terapkan filter',
+      ),
+      const HelpItem(
+        category: 'Event',
+        icon: Icons.qr_code_scanner_rounded,
+        title: 'Cara Absensi dengan Scan QR',
+        content: 'Panduan Absensi Event:\n'
+            '1. Pastikan terdaftar di event\n'
+            '2. Buka halaman home\n'
+            '3. Pilih menu "Scan Absensi"\n'
+            '4. Arahkan kamera ke QR Code\n'
+            '5. Tekan Tombol Scan\n'
+            '6. Akan ditampilkan berhasil atau gagal\n'
+            'Catatan:\n'
+            '• Pastikan koneksi internet stabil',
+      ),
+      // Item Help untuk Like dan Komentar Event
+      const HelpItem(
+        category: 'Event',
+        icon: Icons.favorite_rounded,
+        title: 'Cara Like Event',
+        content: 'Panduan Menyukai Event:\n'
+            '1. Buka halaman detail event\n'
+            '2. Temukan ikon hati di pojok kanan atas\n'
+            '3. Klik ikon hati untuk like\n'
+            '4. Ikon akan berubah warna merah\n'
+            '5. Jumlah like akan bertambah\n'
+            'Tips:\n'
+            '• Like menunjukkan minat Anda\n'
+            '• Dapat membagikan event yang disukai',
+      ),
+      const HelpItem(
+        category: 'Event',
+        icon: Icons.share_rounded,
+        title: 'Cara Berbagi Event',
+        content: 'Panduan Membagikan Event:\n'
+            '1. Buka halaman detail event\n'
+            '2. Klik ikon share di pojok kanan atas\n'
+            '3. Pilih platform berbagi:\n'
+            '   • WhatsApp\n'
+            '   • Instagram\n'
+            '   • Facebook\n'
+            '   • Salin tautan\n'
+            '4. Tambahkan pesan pribadi (opsional)\n'
+            '5. Kirim atau bagikan\n'
+            'Manfaat Berbagi Event:\n'
+            '• Ajak teman bergabung\n'
+            '• Sebarkan informasi event\n'
+            '• Tingkatkan partisipasi',
+      ),
+      const HelpItem(
+        category: 'Event',
+        icon: Icons.comment_rounded,
+        title: 'Cara Memberikan Komentar',
+        content: 'Panduan Menulis Komentar:\n'
+            '1. Buka halaman detail event\n'
+            '2. Gulir ke bagian komentar\n'
+            '3. Ketik komentar di kolom input\n'
+            '4. Tekan tombol kirim\n'
+            '5. Komentar akan tampil segera\n'
+            'Etika Berkomentar:\n'
+            '• Gunakan bahasa sopan\n'
+            '• Berikan komentar konstruktif\n'
+            '• Hindari komentar negatif',
+      ),
+
+      // Kategori Akun
+      const HelpItem(
+        category: 'Akun',
+        icon: Icons.person_add_rounded,
+        title: 'Membuat Akun Baru',
+        content: 'Langkah pendaftaran akun:\n'
+            '1. Hubungi administrator\n'
+            '2. Kirimkan data diri lengkap\n'
+            '3. Tunggu verifikasi\n'
+            '4. Administrator akan membuatkan akun\n'
+            '5. Akun siap digunakan',
+      ),
+      const HelpItem(
+        category: 'Akun',
+        icon: Icons.manage_accounts_rounded,
+        title: 'Mengubah Profil',
+        content: 'Perbarui informasi profil:\n'
+            '1. Buka pengaturan\n'
+            '2. Pilih "Edit Profil"\n'
+            '3. Ubah informasi\n'
+            '4. Simpan perubahan\n'
+            '5. Konfirmasi perubahan',
+      ),
+      const HelpItem(
+        category: 'Akun',
+        icon: Icons.logout_rounded,
+        title: 'Cara Logout dari Akun',
+        content: 'Panduan Keluar dari Akun:\n'
+            '1. Buka halaman Pengaturan\n'
+            '2. Gulir ke bagian bawah layar\n'
+            '3. Temukan tombol "Keluar" atau "Logout"\n'
+            '4. Klik tombol logout\n'
+            '5. Konfirmasi proses logout\n'
+            '\nHal yang Perlu Diperhatikan:\n'
+            '• Data tersimpan otomatis\n'
+            '• Akun dapat diakses kembali\n'
+            '• Keamanan data terjamin\n'
+            '\nTips Keamanan:\n'
+            '• Selalu logout di perangkat umum\n'
+            '• Gunakan logout di akhir sesi\n'
+            '• Hindari logout di tempat tidak aman',
+      ),
+
+      // Kategori Lainnya
+      const HelpItem(
+        category: 'Lainnya',
+        icon: Icons.support_agent_rounded,
+        title: 'Kontak Dukungan',
+        content: 'Hubungi tim dukungan:\n'
+            '• Email: poliventapp@gmail.com\n'
+            '• Telepon: +62 858-7622-1718\n'
+            '• Jam layanan: 09.00-17.00 WIB',
+      ),
+      const HelpItem(
+        category: 'Lainnya',
+        icon: Icons.privacy_tip_rounded,
+        title: 'Kebijakan Privasi',
+        content: 'Informasi privasi:\n'
+            '• Data pribadi dilindungi\n'
+            '• Tidak menjual data\n'
+            '• Enkripsi keamanan tinggi\n'
+            '• Transparansi penggunaan data',
+      ),
+      const HelpItem(
+        category: 'Lainnya',
+        icon: Icons.info_rounded,
+        title: 'Tentang Aplikasi',
+        content: 'Informasi aplikasi:\n'
+            '• Versi aplikasi: 1.0.0\n'
+            '• Fitur terbaru: Scan absensi QR\n'
+            '• Tim pengembang: Kelompok 2 PBL TI-2B\n'
+            '• Sumber daya aplikasi',
+      ),
     ];
   }
 
@@ -349,6 +495,7 @@ class _HelpScreenState extends State<HelpScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
+        scrolledUnderElevation: 0,
         backgroundColor: UIColor.solidWhite,
         elevation: 0,
         leading: IconButton(
