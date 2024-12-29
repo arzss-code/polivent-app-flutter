@@ -264,7 +264,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Edit Profile',
+          'Edit Profil',
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
@@ -275,7 +275,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           TextButton(
             onPressed: _isLoading ? null : _updateProfile,
             child: Text(
-              'Save',
+              'Simpan',
               style: TextStyle(
                 color: _isLoading ? Colors.grey : UIColor.primaryColor,
                 fontSize: 16,

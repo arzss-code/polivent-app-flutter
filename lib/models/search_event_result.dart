@@ -16,7 +16,7 @@ class SearchEventsResultScreen extends StatefulWidget {
   final String searchQuery;
   final String? category;
   final String? location;
-  final String? date; // Ubah dari DateTime ke String
+  final DateTime? date; // Ubah dari DateTime ke String
 
   const SearchEventsResultScreen({
     super.key,
@@ -49,40 +49,49 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
     // Inisialisasi filter dari parameter konstruktor
     _currentFilter = EventFilter(
       category: widget.category ?? '',
-      date: widget.date != null ? DateTime.tryParse(widget.date!) : null,
+      date: widget.date,
     );
 
     _fetchEvents();
   }
 
   Future<void> _fetchEvents() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = ''; // Reset error message
+    });
+
     try {
-      // Hapus variabel yang tidak digunakan
       final accessToken = await TokenService.getAccessToken();
 
-      // Konstruksi URL dengan parameter pencarian
-      String url =
-          '$prodApiBaseUrl/available_events?search=${widget.searchQuery}';
+      // Konstruksi parameter query dari filter
+      final queryParams = <String, String>{};
+      queryParams['search'] = widget.searchQuery;
 
-      // Tambahkan parameter filter jika ada
       if (_currentFilter.category.isNotEmpty) {
-        url += '&category=${_currentFilter.category}';
+        queryParams['category'] = _currentFilter.category;
       }
 
       if (_currentFilter.date != null) {
-        url += '&date=${DateFormat('yyyy-MM-dd').format(_currentFilter.date!)}';
+        queryParams['date'] =
+            DateFormat('yyyy-MM-dd').format(_currentFilter.date!);
       }
 
+      final uri = Uri.parse('$prodApiBaseUrl/available_events').replace(
+        queryParameters: queryParams,
+      );
+
       final response = await http.get(
-        Uri.parse(url),
+        uri,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken',
         },
       );
 
-      print('Search Response Status: ${response.statusCode}');
-      print('Search Response Body: ${response.body}');
+      debugPrint('Search URL: $uri');
+      debugPrint('Search Response Status: ${response.statusCode}');
+      debugPrint('Search Response Body: ${response.body}');
 
       setState(() {
         _isLoading = false;
@@ -97,12 +106,12 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
           setState(() {
             _events = eventsData
                 .map((event) => {
-                      'event_id': event['event_id'], // Tambahkan event_id
-                      'title': event['title'],
-                      'date': _formatDate(event['date_start']),
-                      'location': event['location'],
-                      'image': event['poster'],
-                      'category': event['category_name'],
+                      'event_id': event['event_id'] ?? '',
+                      'title': event['title'] ?? 'Judul Tidak Tersedia',
+                      'date': _formatDate(event['date_start'] ?? ''),
+                      'location': event['location'] ?? 'Lokasi Tidak Tersedia',
+                      'image': event['poster'] ?? '',
+                      'category': event['category'] ?? 'Umum',
                     })
                 .toList();
           });
@@ -117,7 +126,14 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
         _isLoading = false;
         _errorMessage = e.toString();
       });
-      print('Error searching events: $e');
+
+      // Tampilkan snackbar untuk error yang lebih informatif
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan: $_errorMessage'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -146,6 +162,15 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
 
       _fetchEvents();
     }
+  }
+
+  void _resetAllFilters() {
+    setState(() {
+      _currentFilter = EventFilter(); // Reset ke kondisi awal
+      _searchController.clear();
+      _isLoading = true;
+    });
+    _fetchEvents();
   }
 
   void _clearFilter() {
@@ -291,9 +316,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
           builder: (context) => SearchEventsResultScreen(
             searchQuery: _searchController.text.trim(),
             category: _currentFilter.category,
-            date: _currentFilter.date != null
-                ? DateFormat('yyyy-MM-dd').format(_currentFilter.date!)
-                : null,
+            date: _currentFilter.date,
           ),
         ),
       );
@@ -492,6 +515,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
       },
       child: Card(
         elevation: 4,
+        color: Colors.white,
         margin: const EdgeInsets.only(bottom: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -535,6 +559,28 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
                         fontWeight: FontWeight.bold,
                         color: UIColor.typoBlack,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: UIColor.primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            event['category'] ?? 'Umum',
+                            style: const TextStyle(
+                              color: UIColor.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Row(

@@ -137,23 +137,26 @@ class SplashScreenState extends State<SplashScreen>
     }
   }
 
-  // Fungsi tambahan untuk cek token dengan debug print
   Future<bool> _checkTokenValidity() async {
     try {
-      final token = await TokenService.getRefreshToken();
-      debugPrint('Stored Token: $token');
+      debugPrint('🔍 Checking Token Validity in Splash Screen');
 
-      if (token == null) {
-        debugPrint('No token found');
+      // Cek keberadaan token terlebih dahulu
+      final accessToken = await TokenService.getAccessToken();
+      final refreshToken = await TokenService.getRefreshToken();
+
+      if (accessToken == null || refreshToken == null) {
+        debugPrint('❌ No tokens found');
         return false;
       }
 
+      // Gunakan metode checkTokenValidity
       final isValid = await TokenService.checkTokenValidity();
-      debugPrint('Token Validation Result: $isValid');
 
+      debugPrint('✅ Token Validity: $isValid');
       return isValid;
     } catch (e) {
-      debugPrint('Error checking token validity: $e');
+      debugPrint('🚨 Token Validation Error: $e');
       return false;
     }
   }
@@ -194,7 +197,7 @@ class SplashScreenState extends State<SplashScreen>
                     height: 150,
                   ),
                   const SizedBox(height: 20),
-                  const CircularProgressIndicator(),
+                  // const CircularProgressIndicator(),
                 ],
               ),
             );

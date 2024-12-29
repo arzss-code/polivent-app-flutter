@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/services/data/registration_model.dart';
@@ -54,41 +55,55 @@ class TicketDetailPage extends StatelessWidget {
                     ),
                   ],
                 ),
+
                 margin: const EdgeInsets.all(
                     20), // Tambahkan margin di sekitar poster
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Image.network(
-                    registration.poster,
-                    width: double.infinity,
-                    height: 250,
-                    fit: BoxFit
-                        .cover, // Gunakan contain untuk mempertahankan aspek rasio
-                    alignment: Alignment.topCenter,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: double.infinity,
-                        height: 250,
-                        color: UIColor.primaryColor.withOpacity(0.5),
-                        child: const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.image_not_supported,
-                                  size: 100, color: Colors.white),
-                              SizedBox(height: 16),
-                              Text(
-                                'Poster Tidak Tersedia',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
+
+                child: GestureDetector(
+                  onTap: () {
+                    // Navigasi ke halaman detail events
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DetailEvents(eventId: registration.eventId),
+                      ),
+                    );
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.network(
+                      registration.poster,
+                      width: double.infinity,
+                      height: 250,
+                      fit: BoxFit
+                          .cover, // Gunakan contain untuk mempertahankan aspek rasio
+                      alignment: Alignment.topCenter,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: double.infinity,
+                          height: 250,
+                          color: UIColor.primaryColor.withOpacity(0.5),
+                          child: const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.image_not_supported,
+                                    size: 100, color: Colors.white),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Poster Tidak Tersedia',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -97,18 +112,18 @@ class TicketDetailPage extends StatelessWidget {
 
           // Konten Detail
           SliverPadding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Informasi Event Card
                 _buildEventInfoCard(),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
 
-                // QR Code Section
-                _buildQRCodeSection(),
+                // // QR Code Section
+                // _buildQRCodeSection(),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
 
                 // Deskripsi Event
                 _buildDescriptionSection(),
@@ -117,20 +132,20 @@ class TicketDetailPage extends StatelessWidget {
           ),
         ],
       ),
-      // Floating Action Button
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: UIColor.primaryColor,
-        onPressed: () {
-          // Aksi tambahan, misalnya download tiket
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tiket sedang diunduh'),
-              backgroundColor: UIColor.primaryColor,
-            ),
-          );
-        },
-        child: const Icon(Icons.download, color: Colors.white),
-      ),
+      // // Floating Action Button
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: UIColor.primaryColor,
+      //   onPressed: () {
+      //     // Aksi tambahan, misalnya download tiket
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       const SnackBar(
+      //         content: Text('Tiket sedang diunduh'),
+      //         backgroundColor: UIColor.primaryColor,
+      //       ),
+      //     );
+      //   },
+      //   child: const Icon(Icons.download, color: Colors.white),
+      // ),
     );
   }
 
@@ -150,25 +165,25 @@ class TicketDetailPage extends StatelessWidget {
               label: 'Kategori',
               value: registration.categoryName,
             ),
-            const Divider(color: UIColor.typoGray, height: 1),
+            const Divider(color: UIColor.typoGray2, height: 1),
             _buildDetailRow(
               icon: UIconsPro.regularRounded.calendar,
               label: 'Tanggal',
               value: _formatEventDate(registration),
             ),
-            const Divider(color: UIColor.typoGray, height: 1),
+            const Divider(color: UIColor.typoGray2, height: 1),
             _buildDetailRow(
               icon: UIconsPro.regularRounded.marker,
               label: 'Lokasi',
               value: '${registration.place}, ${registration.location}',
             ),
-            const Divider(color: UIColor.typoGray, height: 1),
+            const Divider(color: UIColor.typoGray2, height: 1),
             _buildDetailRow(
               icon: UIconsPro.regularRounded.user_time,
               label: 'Kuota',
               value: '${registration.quota} peserta',
             ),
-            const Divider(color: UIColor.typoGray, height: 1),
+            const Divider(color: UIColor.typoGray2, height: 1),
             _buildDetailRow(
               icon: UIconsPro.regularRounded.clock,
               label: 'Waktu Registrasi',

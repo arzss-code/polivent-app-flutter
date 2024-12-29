@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'dart:developer' as developer;
 
 import 'package:polivent_app/screens/home/profile/edit_profile.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/home/profile/help.dart';
 import 'package:polivent_app/services/auth_services.dart';
+import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 
@@ -18,11 +20,75 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final AuthService _authService = AuthService();
   bool _notificationsEnabled = true;
+  bool _isTokenValid = true;
 
   @override
   void initState() {
     super.initState();
     _loadNotificationPreference();
+    _checkTokenValidity();
+  }
+
+  Future<void> _checkTokenValidity() async {
+    try {
+      final isValid = await TokenService.checkTokenValidity();
+
+      developer.log(
+        'Token Validity: $isValid',
+        name: 'SettingsScreen',
+        level: 0, // Info level
+      );
+
+      if (!isValid) {
+        setState(() {
+          _isTokenValid = false;
+        });
+
+        // Tampilkan dialog token expired
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showTokenExpiredDialog();
+        });
+      }
+    } catch (e) {
+      developer.log(
+        'Error checking token validity',
+        name: 'SettingsScreen',
+        error: e,
+        level: 2, // Error level
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Gagal memeriksa token: $e'),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
+  void _showTokenExpiredDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sesi Berakhir'),
+          content:
+              const Text('Sesi Anda telah berakhir. Silakan login kembali.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                // Logout dan arahkan ke halaman login
+                _authService.logout(context);
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (Route<dynamic> route) => false,
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _loadNotificationPreference() async {
@@ -216,7 +282,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionTitle(title: 'Pengaturan Akun'),
           _buildListTile(
             leadingIcon: UIconsPro.solidRounded.user_pen,
-            title: 'Edit Profile',
+            title: 'Edit Profil',
             trailingIcon: Icons.arrow_forward_ios,
             onTap: () {
               Navigator.push(

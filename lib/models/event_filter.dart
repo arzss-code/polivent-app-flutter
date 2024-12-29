@@ -145,7 +145,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
               // Scrollable content
               Expanded(
                 child: _isLoading
-                    ? Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator())
                     : ListView(
                         controller: scrollController,
                         padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -83,7 +83,7 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
                 events: eventsData,
                 category: category,
                 location: location,
-                date: date,
+                date: date != null ? DateTime.parse(date) : null,
               ),
             ),
           );

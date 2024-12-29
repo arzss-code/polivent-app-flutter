@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 // import 'package:http/http.dart' as http;
 import 'package:polivent_app/screens/auth/forgot_password.dart';
 import 'package:polivent_app/services/auth_services.dart';
+import 'package:polivent_app/services/token_service.dart';
 // import 'package:polivent_app/services/token_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
@@ -45,18 +46,19 @@ class LoginScreenState extends State<LoginScreen>
     });
   }
 
-  // Method untuk memeriksa token
   Future<void> _checkForToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-    final refreshToken = prefs.getString('refresh_token');
+    try {
+      // Gunakan TokenService untuk mengecek token
+      final isValid = await TokenService.checkTokenValidity();
 
-    if (accessToken != null && refreshToken != null) {
-      // Jika token ada, arahkan ke Home
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Home()),
-      );
+      if (isValid) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Home()),
+        );
+      }
+    } catch (e) {
+      debugPrint('Token check error: $e');
     }
   }
 
@@ -143,58 +145,52 @@ class LoginScreenState extends State<LoginScreen>
     );
 
     try {
-      await AuthService().login(email, password);
+      // Gunakan AuthService untuk login
+      final loginSuccess = await AuthService().login(email, password);
 
-      // Simpan preferensi pengguna
-      await _saveUserPreferences(
-        email,
-        password,
-      );
+      if (loginSuccess) {
+        // Simpan preferensi pengguna sesuai remember me
+        await _saveUserPreferences(email, password);
 
-      // Tutup loading dialog
-      if (mounted) {
-        Navigator.of(context).pop();
+        // Tutup loading dialog
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+
+        // Tampilkan dialog sukses
+        _showSuccessDialog(() {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const Home(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOutCubic;
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
+                return SlideTransition(position: offsetAnimation, child: child);
+              },
+              transitionDuration: const Duration(milliseconds: 800),
+            ),
+          );
+        });
+      } else {
+        // Tangani login gagal
+        if (mounted) {
+          Navigator.of(context).pop();
+          _showError('Login failed. Please check your credentials.');
+        }
       }
-
-      // Tampilkan dialog sukses
-      _showSuccessDialog(() {
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const Home(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              const begin = Offset(1.0, 0.0);
-              const end = Offset.zero;
-              const curve = Curves.easeInOutCubic;
-              var tween =
-                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-              var offsetAnimation = animation.drive(tween);
-              return SlideTransition(position: offsetAnimation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 800),
-          ),
-        );
-      });
     } catch (error) {
       if (mounted) {
         Navigator.of(context).pop();
-        // _showError(error.toString());
         _showError('Login failed. Please check your connection and try again.');
       }
     }
-  }
-
-  // Tambahkan metode baru untuk menyimpan token
-  Future<void> saveAccessToken(String token) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', token);
-  }
-
-  Future<void> saveRefreshToken(String token) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('refresh_token', token);
   }
 
   void _showError(String message) {

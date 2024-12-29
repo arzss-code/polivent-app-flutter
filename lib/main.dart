@@ -11,8 +11,9 @@ import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/screens/auth/splash_screen.dart';
 import 'package:polivent_app/screens/home/home.dart';
-import 'package:polivent_app/services/token_service.dart';
+// import 'package:polivent_app/services/token_service.dart';z
 import 'package:polivent_app/services/notification_services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,7 @@ Future<void> _initializeApp() async {
       NotificationService.requestNotificationPermissions(),
       _configureSystemUI(),
     ]);
+    await TokenService.initSharedPreferences();
   } catch (e) {
     debugPrint('Initialization error: $e');
   }
@@ -145,6 +147,18 @@ class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
       theme: _buildTheme(Brightness.light),
       title: 'Polivent',
       navigatorKey: _navigatorKey,
+
+      // Tambahkan konfigurasi lokalisasi
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+
+      supportedLocales: const [
+        Locale('id', 'ID'), // Bahasa Indonesia
+        Locale('en', 'US'), // Bahasa Inggris
+      ],
       initialRoute: '/',
       onGenerateRoute: (RouteSettings settings) {
         if (settings.name!.startsWith('/event/')) {
@@ -155,6 +169,45 @@ class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
         }
         return null;
       },
+
+      // Tambahkan builder untuk menangani error global
+      builder: (context, child) {
+        ErrorWidget.builder = (FlutterErrorDetails details) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 50,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Terjadi Kesalahan',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    details.exception.toString(),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+          );
+        };
+
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaleFactor: 1.0, // Nonaktifkan scaling teks
+          ),
+          child: child!,
+        );
+      },
+
       home: FutureBuilder<bool>(
         future: _checkTokenValidity(),
         builder: (context, snapshot) {
@@ -171,19 +224,57 @@ class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
 
   Future<bool> _checkTokenValidity() async {
     try {
-      // Periksa keberadaan dan validitas token
-      final accessToken = await _secureStorage.read(key: 'access_token');
-      final refreshToken = await _secureStorage.read(key: 'refresh_token');
+      // Gunakan metode dari TokenService untuk validasi
+      debugPrint('🔍 Checking Token Validity in Main App');
 
-      if (accessToken == null || refreshToken == null) {
-        return false;
-      }
+      // Langsung gunakan metode checkTokenValidity dari TokenService
+      bool isValid = await TokenService.checkTokenValidity();
 
-      // Gunakan TokenService untuk validasi token
-      return await TokenService.checkTokenValidity();
+      debugPrint('✅ Token Validity Result: $isValid');
+      return isValid;
     } catch (e) {
-      debugPrint('Token validity check error: $e');
+      debugPrint('🚨 Token Validity Check Error in Main App: $e');
       return false;
     }
+  }
+}
+
+// Tambahkan extension untuk handling error global
+extension GlobalErrorHandling on FlutterError {
+  static void setCustomErrorWidget() {
+    ErrorWidget.builder = (FlutterErrorDetails details) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                color: Colors.red,
+                size: 50,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Terjadi Kesalahan Tidak Terduga',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red[700],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                details.exception.toString(),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    };
   }
 }

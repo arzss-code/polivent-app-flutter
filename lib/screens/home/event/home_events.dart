@@ -27,6 +27,8 @@ class _HomeEventsState extends State<HomeEvents>
 
   List<Event> events = [];
   bool _isLoading = true;
+  bool _hasMore = true;
+  int _limit = 8;
   String _error = '';
 
   @override
@@ -36,6 +38,19 @@ class _HomeEventsState extends State<HomeEvents>
   void initState() {
     super.initState();
     initializeDateFormatting('id_ID', null).then((_) => fetchEvents());
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      if (_hasMore && !_isLoading) {
+        setState(() {
+          _limit += 8; // Tambah 8 data lagi
+        });
+        fetchEvents(loadMore: true);
+      }
+    }
   }
 
   // Method refresh yang komprehensif
@@ -43,8 +58,11 @@ class _HomeEventsState extends State<HomeEvents>
     debugPrint('Refreshing events...');
     try {
       setState(() {
-        _isLoading = true;
-        _error = '';
+        // _isLoading = true;
+        // _error = '';
+        _limit = 8;
+        _hasMore = true;
+        events.clear();
       });
 
       await fetchEvents();
@@ -68,26 +86,33 @@ class _HomeEventsState extends State<HomeEvents>
     }
   }
 
-  Future<void> fetchEvents() async {
-    try {
+  Future<void> fetchEvents({bool loadMore = false}) async {
+    if (!loadMore) {
       setState(() {
         _isLoading = true;
         _error = '';
       });
+    }
 
-      final response =
-          await http.get(Uri.parse('$prodApiBaseUrl/available_events'));
+    try {
+      final response = await http
+          .get(Uri.parse('$prodApiBaseUrl/available_events?limit=$_limit'));
 
       if (response.statusCode == 200) {
         final dynamic jsonResponse = json.decode(response.body);
 
         if (jsonResponse is Map && jsonResponse.containsKey('data')) {
           final List<dynamic> eventsList = jsonResponse['data'] as List;
+          final List<Event> newEvents = eventsList
+              .map((event) => Event.fromJson(event as Map<String, dynamic>))
+              .toList();
+
           setState(() {
-            events = eventsList
-                .map((event) => Event.fromJson(event as Map<String, dynamic>))
-                .toList();
+            events = newEvents;
             _isLoading = false;
+
+            // Cek apakah masih ada data lebih lanjut
+            _hasMore = newEvents.length == _limit;
           });
         } else {
           throw Exception('Unexpected JSON format');
@@ -309,25 +334,39 @@ class _HomeEventsState extends State<HomeEvents>
       );
     } else {
       return ListView.builder(
+        controller: _scrollController,
         padding: EdgeInsets.zero,
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: events.length,
+        itemCount: events.length + (_hasMore ? 1 : 0),
         itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        DetailEvents(eventId: events[index].eventId),
-                  ),
-                );
-              },
-              child: _buildEventCard(events[index]),
-            ),
-          );
+          if (index < events.length) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          DetailEvents(eventId: events[index].eventId),
+                    ),
+                  );
+                },
+                child: _buildEventCard(events[index]),
+              ),
+            );
+          } else if (_hasMore) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: CircularProgressIndicator(
+                  color: UIColor.primaryColor,
+                ),
+              ),
+            );
+          } else {
+            return SizedBox.shrink();
+          }
         },
       );
     }

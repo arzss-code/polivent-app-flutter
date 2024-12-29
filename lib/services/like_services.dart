@@ -15,7 +15,7 @@ class LikeService {
         return {'is_liked': false, 'like_id': null};
       }
 
-      final accessToken = await TokenService.checkTokenValidity();
+      final accessToken = await TokenService.getAccessToken();
 
       if (accessToken == null) {
         return {'is_liked': false, 'like_id': null};
@@ -58,7 +58,7 @@ class LikeService {
         return {'success': false, 'is_liked': false, 'like_id': null};
       }
 
-      final accessToken = await TokenService.checkTokenValidity();
+      final accessToken = await TokenService.getAccessToken();
 
       if (accessToken == null) {
         return {'success': false, 'is_liked': false, 'like_id': null};

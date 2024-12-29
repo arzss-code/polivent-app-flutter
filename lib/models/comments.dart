@@ -67,7 +67,7 @@ class CommentService {
 
   Future<List<CommentModel>> getCommentsByEventId(int eventId) async {
     try {
-      final accessToken = await TokenService.checkTokenValidity();
+      final accessToken = await TokenService.getAccessToken();
       final response = await http.get(
         Uri.parse('$prodApiBaseUrl/comments?event_id=$eventId'),
         headers: {
@@ -114,7 +114,7 @@ class CommentService {
   }) async {
     try {
       final userData = await _authService.getUserData();
-      final accessToken = await TokenService.checkTokenValidity();
+      final accessToken = await TokenService.getAccessToken();
 
       if (userData == null || accessToken == null) {
         return null;
@@ -278,6 +278,7 @@ class _CommentsSectionState extends State<CommentsSection> {
             ),
           ),
           IconButton(
+            iconSize: 30,
             icon: const Icon(Icons.send_rounded),
             color: Colors.blue,
             onPressed: _submitComment,

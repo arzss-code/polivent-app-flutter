@@ -361,6 +361,8 @@ class EventListWidgetState extends State<EventList> {
                                       fontWeight: FontWeight.w400,
                                       color: UIColor.typoBlack,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   )
                                 ],
                               ),
@@ -372,12 +374,16 @@ class EventListWidgetState extends State<EventList> {
                                     size: 12,
                                   ),
                                   const SizedBox(width: 6),
-                                  Text(
-                                    event.location,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                      color: UIColor.typoBlack,
+                                  Flexible(
+                                    child: Text(
+                                      event.location,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        color: UIColor.typoBlack,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   )
                                 ],
@@ -397,6 +403,8 @@ class EventListWidgetState extends State<EventList> {
                                       fontWeight: FontWeight.w400,
                                       color: UIColor.typoBlack,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   )
                                 ],
                               ),

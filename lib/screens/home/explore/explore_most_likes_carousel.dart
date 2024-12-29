@@ -73,7 +73,7 @@ class CarouselEventsState extends State<CarouselSection> {
 
       final response = await _dio.get(
         '$prodApiBaseUrl/available_events',
-        queryParameters: {'most_likes': true},
+        queryParameters: {'most_likes': true, 'upcoming': true, 'limit': 5},
         options: Options(
           validateStatus: (status) => status != null && status < 500,
         ),
@@ -412,7 +412,7 @@ class CarouselEventsState extends State<CarouselSection> {
                                 borderRadius: BorderRadius.circular(10),
                                 child: BackdropFilter(
                                   filter:
-                                      ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                                      ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                                   child: Container(
                                     padding:
                                         const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -460,7 +460,7 @@ class CarouselEventsState extends State<CarouselSection> {
                                           ),
                                         ),
                                         const SizedBox(width: 8),
-                                        _buildJoinButton(event),
+                                        // _buildJoinButton(event),
                                       ],
                                     ),
                                   ),
@@ -490,14 +490,14 @@ Widget _buildInfoRow({required IconData icon, required String text}) {
         Icon(
           icon,
           color: UIColor.solidWhite,
-          size: 12,
+          size: 14,
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w400,
               color: UIColor.solidWhite,
             ),
@@ -509,26 +509,26 @@ Widget _buildInfoRow({required IconData icon, required String text}) {
   );
 }
 
-// Helper method to create join button
-Widget _buildJoinButton(Event event) {
-  return Align(
-    alignment: Alignment.bottomCenter,
-    child: Container(
-      width: 100,
-      height: 30,
-      decoration: BoxDecoration(
-        color: event.quota > 0 ? UIColor.secondaryColor : UIColor.rejected,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        event.quota > 0 ? "Join" : "Full",
-        style: const TextStyle(
-          color: UIColor.solidWhite,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
-      ),
-    ),
-  );
-}
+// // Helper method to create join button
+// Widget _buildJoinButton(Event event) {
+//   return Align(
+//     alignment: Alignment.bottomCenter,
+//     child: Container(
+//       width: 100,
+//       height: 30,
+//       decoration: BoxDecoration(
+//         color: event.quota > 0 ? UIColor.secondaryColor : UIColor.rejected,
+//         borderRadius: BorderRadius.circular(30),
+//       ),
+//       alignment: Alignment.center,
+//       child: Text(
+//         event.quota > 0 ? "Join" : "Full",
+//         style: const TextStyle(
+//           color: UIColor.solidWhite,
+//           fontWeight: FontWeight.w600,
+//           fontSize: 12,
+//         ),
+//       ),
+//     ),
+//   );
+// }
