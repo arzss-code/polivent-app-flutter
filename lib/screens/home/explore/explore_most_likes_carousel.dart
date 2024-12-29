@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:polivent_app/config/app_config.dart';
-import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
@@ -10,29 +11,38 @@ import 'package:polivent_app/services/data/events_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'dart:developer' as developer;
 
 class CarouselSection extends StatefulWidget {
   const CarouselSection({super.key});
 
   @override
-  State<CarouselSection> createState() => _CarouselEventsState();
+  State<CarouselSection> createState() => CarouselEventsState();
 }
 
-class _CarouselEventsState extends State<CarouselSection> {
+class CarouselEventsState extends State<CarouselSection> {
+  final Dio _dio = Dio();
   List<Event> _eventsCarousel = [];
   bool _isLoading = true;
   String _error = '';
 
+  // Tambahkan flag untuk mencegah multiple requests
+  bool _isFetching = false;
+
+  // Tambahkan timestamp terakhir fetch
+  DateTime? _lastFetchTime;
+
+  // Durasi minimal antara fetch
+  static const Duration _minFetchInterval = Duration(minutes: 5);
+
   @override
   void initState() {
     super.initState();
-    initializeDateFormatting('id_ID', null).then((_) => fetchEvents());
+    initializeDateFormatting('id_ID', null).then((_) => fetchMostLikedEvents());
   }
 
   void updateCarousel() {
-    setState(() {
-      // Memperbarui data carousel jika diperlukan
-    });
+    fetchMostLikedEvents();
   }
 
   String formatDate(String dateString) {
@@ -41,53 +51,140 @@ class _CarouselEventsState extends State<CarouselSection> {
       final formatter = DateFormat('EEEE, d MMMM yyyy', 'id_ID');
       return formatter.format(date);
     } catch (e) {
-      return dateString; // Return original string if parsing fails
+      return dateString;
     }
   }
 
-  Future<void> fetchEvents() async {
+  Future<void> fetchMostLikedEvents() async {
+    // Cek apakah sedang fetch atau fetch terlalu sering
+    if (_isFetching ||
+        (_lastFetchTime != null &&
+            DateTime.now().difference(_lastFetchTime!) < _minFetchInterval)) {
+      return;
+    }
+
     try {
+      // Set flag fetching
       setState(() {
+        _isFetching = true;
         _isLoading = true;
         _error = '';
       });
 
-      final response =
-          await http.get(Uri.parse('$prodApiBaseUrl/available_events'));
+      final response = await _dio.get(
+        '$prodApiBaseUrl/available_events',
+        queryParameters: {'most_likes': true, 'upcoming': true, 'limit': 5},
+        options: Options(
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
 
       if (response.statusCode == 200) {
-        final dynamic jsonResponse = json.decode(response.body);
+        final dynamic jsonResponse = response.data;
 
-        if (jsonResponse is Map && jsonResponse.containsKey('data')) {
-          final List<dynamic> eventsList = jsonResponse['data'] as List;
-          setState(() {
-            _eventsCarousel = eventsList
-                .map((event) => Event.fromJson(event as Map<String, dynamic>))
-                .toList();
-            _isLoading = false;
-          });
-        } else if (jsonResponse is List) {
-          setState(() {
-            _eventsCarousel = jsonResponse
-                .map((event) => Event.fromJson(event as Map<String, dynamic>))
-                .toList();
-            _isLoading = false;
-          });
-        } else {
-          throw Exception('Unexpected JSON format');
-        }
+        // Pastikan data valid
+        final List<dynamic> eventsList =
+            jsonResponse is Map ? jsonResponse['data'] ?? [] : jsonResponse;
+
+        setState(() {
+          _eventsCarousel =
+              eventsList.map((event) => Event.fromJson(event)).toList();
+          _isLoading = false;
+          _isFetching = false;
+          _lastFetchTime = DateTime.now();
+        });
       } else {
-        throw Exception('Failed to load events: ${response.statusCode}');
+        throw DioException(
+            requestOptions: response.requestOptions,
+            response: response,
+            message: 'Failed to load events: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      setState(() {
+        _error = 'Failed to load events: ${e.message}';
+        _isLoading = false;
+        _isFetching = false;
+      });
+
+      // Tampilkan error sekali
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_error)),
+        );
       }
     } catch (e) {
       setState(() {
-        _error = 'Failed to load events: $e';
+        _error = 'Unexpected error: $e';
         _isLoading = false;
+        _isFetching = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_error)),
-      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_error)),
+        );
+      }
     }
+  }
+
+  // Method refresh manual dengan debounce
+  void _manualRefresh() {
+    // Reset last fetch time untuk memaksa refresh
+    _lastFetchTime = null;
+    fetchMostLikedEvents();
+  }
+
+  // Tambahkan method baru di dalam class _CarouselEventsState
+  Widget _buildEmptyEventView() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/no-events.png', // Pastikan asset tersedia
+            width: 100,
+            height: 100,
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Belum Ada Event Tersedia',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: UIColor.primaryColor,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Saat ini tidak ada event yang sedang berlangsung. Silakan periksa kembali nanti.',
+            style: TextStyle(
+              fontSize: 14,
+              color: UIColor.typoGray,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: fetchMostLikedEvents, // Refresh events
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UIColor.primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: const Text(
+              'Refresh',
+              style: TextStyle(
+                color: UIColor.solidWhite,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildShimmerCarousel() {
@@ -240,7 +337,21 @@ class _CarouselEventsState extends State<CarouselSection> {
         if (_isLoading)
           _buildShimmerCarousel()
         else if (_error.isNotEmpty)
-          Center(child: Text(_error))
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(_error),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _manualRefresh,
+                  child: const Text('Coba Lagi'),
+                ),
+              ],
+            ),
+          )
+        else if (_eventsCarousel.isEmpty)
+          _buildEmptyEventView()
         else
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,17 +382,21 @@ class _CarouselEventsState extends State<CarouselSection> {
                         decoration: BoxDecoration(
                           color: UIColor.solidWhite,
                           image: DecorationImage(
-                            image: NetworkImage(event.poster),
+                            image: CachedNetworkImageProvider(
+                              event.poster,
+                              errorListener: (error) {
+                                developer.log(
+                                  'Image Load Error',
+                                  name: 'CachedNetworkImage',
+                                  error: error,
+                                  stackTrace: StackTrace.current,
+                                );
+                              },
+                            ),
                             fit: BoxFit.cover,
                             alignment: Alignment.topCenter,
-                            onError: (context, error) {
-                              const DecorationImage(
-                                image: AssetImage(
-                                    'assets/images/no_image_found.png'),
-                                fit: BoxFit.cover,
-                              );
-                            },
                           ),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -297,7 +412,7 @@ class _CarouselEventsState extends State<CarouselSection> {
                                 borderRadius: BorderRadius.circular(10),
                                 child: BackdropFilter(
                                   filter:
-                                      ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                                      ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                                   child: Container(
                                     padding:
                                         const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -345,7 +460,7 @@ class _CarouselEventsState extends State<CarouselSection> {
                                           ),
                                         ),
                                         const SizedBox(width: 8),
-                                        _buildJoinButton(event),
+                                        // _buildJoinButton(event),
                                       ],
                                     ),
                                   ),
@@ -375,14 +490,14 @@ Widget _buildInfoRow({required IconData icon, required String text}) {
         Icon(
           icon,
           color: UIColor.solidWhite,
-          size: 12,
+          size: 14,
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w400,
               color: UIColor.solidWhite,
             ),
@@ -394,26 +509,26 @@ Widget _buildInfoRow({required IconData icon, required String text}) {
   );
 }
 
-// Helper method to create join button
-Widget _buildJoinButton(Event event) {
-  return Align(
-    alignment: Alignment.bottomCenter,
-    child: Container(
-      width: 100,
-      height: 30,
-      decoration: BoxDecoration(
-        color: event.quota > 0 ? UIColor.secondaryColor : UIColor.rejected,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        event.quota > 0 ? "Join" : "Full",
-        style: const TextStyle(
-          color: UIColor.solidWhite,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
-      ),
-    ),
-  );
-}
+// // Helper method to create join button
+// Widget _buildJoinButton(Event event) {
+//   return Align(
+//     alignment: Alignment.bottomCenter,
+//     child: Container(
+//       width: 100,
+//       height: 30,
+//       decoration: BoxDecoration(
+//         color: event.quota > 0 ? UIColor.secondaryColor : UIColor.rejected,
+//         borderRadius: BorderRadius.circular(30),
+//       ),
+//       alignment: Alignment.center,
+//       child: Text(
+//         event.quota > 0 ? "Join" : "Full",
+//         style: const TextStyle(
+//           color: UIColor.solidWhite,
+//           fontWeight: FontWeight.w600,
+//           fontSize: 12,
+//         ),
+//       ),
+//     ),
+//   );
+// }

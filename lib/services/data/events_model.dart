@@ -19,6 +19,7 @@ class Event {
   final String? adminUser;
   final String? note;
   final List<InvitedUser>? invitedUsers;
+  final int totalLikes;
 
   const Event({
     required this.eventId,
@@ -41,6 +42,7 @@ class Event {
     this.adminUser,
     this.note,
     this.invitedUsers,
+    required this.totalLikes,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -70,6 +72,7 @@ class Event {
               .map((userJson) => InvitedUser.fromJson(userJson))
               .toList()
           : null,
+      totalLikes: _parseIntSafely(json['total_likes']),
     );
   }
 
@@ -91,16 +94,19 @@ class Event {
 }
 
 class InvitedUser {
+  final String userId; // Tambahkan user_id
   final String username;
-  final String? avatar;
+  String? avatar;
 
-  const InvitedUser({
+  InvitedUser({
+    required this.userId, // Tambahkan required parameter
     required this.username,
     this.avatar,
   });
 
   factory InvitedUser.fromJson(Map<String, dynamic> json) {
     return InvitedUser(
+      userId: json['user_id']?.toString() ?? '', // Parsing user_id
       username: json['username']?.toString() ?? '',
       avatar: json['avatar']?.toString(),
     );
@@ -108,8 +114,15 @@ class InvitedUser {
 
   Map<String, dynamic> toJson() {
     return {
+      'user_id': userId,
       'username': username,
       'avatar': avatar,
     };
+  }
+
+  // Optional: Tambahkan method toString untuk debugging
+  @override
+  String toString() {
+    return 'InvitedUser(userId: $userId, username: $username, avatar: $avatar)';
   }
 }

@@ -9,7 +9,7 @@ import 'package:polivent_app/services/auth_services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/services/token.dart';
+import 'package:polivent_app/services/token_service.dart';
 
 class CommentModel {
   final int commentId;
@@ -65,9 +65,10 @@ class CommentModel {
 class CommentService {
   final AuthService _authService = AuthService();
 
+  // Modifikasi method getCommentsByEventId untuk lebih fleksibel
   Future<List<CommentModel>> getCommentsByEventId(int eventId) async {
     try {
-      final accessToken = await TokenService.checkTokenValidity();
+      final accessToken = await TokenService.getAccessToken();
       final response = await http.get(
         Uri.parse('$prodApiBaseUrl/comments?event_id=$eventId'),
         headers: {
@@ -86,15 +87,13 @@ class CommentService {
               .where((comment) => comment['comment_parent_id'] == null)
               .map<CommentModel>((comment) {
             final commentModel = CommentModel.fromJson(comment);
-
-            commentModel.replies = commentsData
-                .where((reply) =>
-                    reply['comment_parent_id'] == commentModel.commentId)
-                .map((reply) => CommentModel.fromJson(reply))
-                .toList();
-
             return commentModel;
           }).toList();
+
+          // Untuk setiap komentar, dapatkan replies
+          for (var comment in comments) {
+            comment.replies = await getRepliesByCommentId(comment.commentId);
+          }
 
           return comments;
         }
@@ -107,6 +106,48 @@ class CommentService {
     }
   }
 
+  // Modifikasi method untuk mendapatkan replies secara rekursif
+  Future<List<CommentModel>> getRepliesByCommentId(int commentId) async {
+    try {
+      final accessToken = await TokenService.getAccessToken();
+      final response = await http.get(
+        Uri.parse('$prodApiBaseUrl/comments?comment_parent_id=$commentId'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        if (responseData['status'] == 'success') {
+          final List<dynamic> repliesData = responseData['data'];
+
+          // Buat list untuk menyimpan semua replies
+          List<CommentModel> replies = [];
+
+          // Konversi replies menjadi CommentModel
+          for (var replyData in repliesData) {
+            final reply = CommentModel.fromJson(replyData);
+
+            // Dapatkan sub-replies untuk setiap reply
+            reply.replies = await getRepliesByCommentId(reply.commentId);
+
+            replies.add(reply);
+          }
+
+          return replies;
+        }
+        return [];
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching replies: $e');
+      return [];
+    }
+  }
+
   Future<CommentModel?> createComment({
     required int eventId,
     required String content,
@@ -114,7 +155,7 @@ class CommentService {
   }) async {
     try {
       final userData = await _authService.getUserData();
-      final accessToken = await TokenService.checkTokenValidity();
+      final accessToken = await TokenService.getAccessToken();
 
       if (userData == null || accessToken == null) {
         return null;
@@ -168,12 +209,32 @@ class _CommentsSectionState extends State<CommentsSection> {
   bool _isReplying = false;
   CommentModel? _replyingToComment;
   User? _currentUser;
+  // Tambahkan map untuk melacak status expand/collapse replies
+  // Tambahkan di dalam _CommentsSectionState class
+  // int _totalCommentCount = 0;
+  Map<int, bool> _expandedReplies = {};
 
   @override
   void initState() {
     super.initState();
     _fetchUserData();
     _fetchComments();
+  }
+
+  // Method untuk menghitung total komentar (termasuk replies)
+  int _countTotalComments(List<CommentModel> comments) {
+    int total = comments.length;
+    for (var comment in comments) {
+      if (comment.replies != null) {
+        total += comment.replies!.length;
+      }
+    }
+    return total;
+  }
+
+  // Method untuk menghitung total replies untuk sebuah komentar
+  int _countReplies(CommentModel comment) {
+    return comment.replies?.length ?? 0;
   }
 
   Future<void> _fetchUserData() async {
@@ -188,6 +249,7 @@ class _CommentsSectionState extends State<CommentsSection> {
     }
   }
 
+  // Perbarui method _fetchComments
   Future<void> _fetchComments() async {
     setState(() {
       _isLoading = true;
@@ -197,6 +259,7 @@ class _CommentsSectionState extends State<CommentsSection> {
 
     setState(() {
       _comments = comments.reversed.toList();
+      // _totalCommentCount = _countTotalComments(_comments);
       _isLoading = false;
     });
   }
@@ -278,6 +341,7 @@ class _CommentsSectionState extends State<CommentsSection> {
             ),
           ),
           IconButton(
+            iconSize: 30,
             icon: const Icon(Icons.send_rounded),
             color: Colors.blue,
             onPressed: _submitComment,
@@ -379,16 +443,63 @@ class _CommentsSectionState extends State<CommentsSection> {
     if (replies.isEmpty) return const SizedBox.shrink();
 
     // Urutkan balasan dari yang terlama ke terbaru
-    // Sehingga balasan terbaru akan muncul di bagian bawah
     replies.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
     return Column(
-      children: replies
-          .map((reply) => Padding(
-                padding: const EdgeInsets.only(left: 50),
-                child: _buildCommentTile(reply, isReply: true),
-              ))
-          .toList(),
+      children: replies.map((reply) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 50),
+              child: _buildCommentTile(reply, isReply: true),
+            ),
+            // Tambahkan sub-replies jika ada
+            if (reply.replies != null && reply.replies!.isNotEmpty)
+              _buildReplyList(reply.replies!),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  // Tambahkan method baru untuk menampilkan balasan dengan opsi hide/show
+  Widget _buildRepliesSection(CommentModel comment) {
+    // Jika tidak ada balasan, kembalikan widget kosong
+    if (comment.replies == null || comment.replies!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Tentukan status expand/collapse untuk komentar ini
+    bool isExpanded = _expandedReplies[comment.commentId] ?? false;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Tombol untuk menampilkan/menyembunyikan balasan
+        if (comment.replies!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 50, top: 8),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _expandedReplies[comment.commentId] = !isExpanded;
+                });
+              },
+              child: Text(
+                isExpanded ? 'Sembunyikan balasan' : 'Lihat balasan',
+                style: const TextStyle(
+                  color: Colors.blue,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+
+        // Tampilkan balasan jika diperluas
+        if (isExpanded) _buildReplyList(comment.replies!),
+      ],
     );
   }
 
@@ -429,20 +540,26 @@ class _CommentsSectionState extends State<CommentsSection> {
       );
     }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _comments.length,
-      itemBuilder: (context, index) {
-        final comment = _comments[index];
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildCommentTile(comment),
-            _buildReplyList(comment.replies ?? []),
-          ],
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _comments.length,
+          itemBuilder: (context, index) {
+            final comment = _comments[index];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildCommentTile(comment),
+                // _buildReplyList(comment.replies ?? []),
+                _buildRepliesSection(comment),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 }

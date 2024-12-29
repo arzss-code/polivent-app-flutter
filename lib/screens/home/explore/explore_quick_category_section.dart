@@ -4,19 +4,18 @@ import 'package:polivent_app/config/app_config.dart';
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/search_event_result.dart';
-import 'package:polivent_app/services/data/events_model.dart'; // Pastikan Anda memiliki model Event
 import 'package:polivent_app/services/data/category_model.dart';
 import 'package:shimmer/shimmer.dart';
 
 class QuickCategorySection extends StatefulWidget {
-  const QuickCategorySection({super.key});
+  const QuickCategorySection({Key? key}) : super(key: key);
 
   @override
   _QuickCategorySectionState createState() => _QuickCategorySectionState();
 }
 
 class _QuickCategorySectionState extends State<QuickCategorySection> {
-  int? _selectedIndex; // Bisa null untuk menampilkan semua event
+  int? _selectedIndex;
   List<Category> categories = [];
   bool _isLoading = true;
 
@@ -35,95 +34,113 @@ class _QuickCategorySectionState extends State<QuickCategorySection> {
         List<dynamic> data = jsonResponse['data'];
 
         setState(() {
-          // Tambahkan kategori "Semua" di awal
           categories = [Category(categoryId: null, categoryName: 'Semua')];
-
-          // Tambahkan kategori dari API
           categories.addAll(
               data.map((category) => Category.fromJson(category)).toList());
-
           _isLoading = false;
         });
       } else {
-        debugPrint('Error: ${response.statusCode}');
-        throw Exception('Failed to load categories');
+        _handleError('Failed to load categories');
       }
     } catch (e) {
-      debugPrint('Error fetching categories: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      _handleError(e.toString());
     }
+  }
+
+  void _handleError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: _isLoading
-          ? _buildShimmerLoading()
-          : ListView.separated(
-              itemCount: categories.length,
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only(left: 20, right: 20),
-              separatorBuilder: (context, index) => const SizedBox(width: 10),
-              itemBuilder: (context, index) {
-                bool isSelected = _selectedIndex == index;
-
-                return GestureDetector(
-                  onTap: () {
-                    // Navigasi ke SearchEventsResultScreen dengan kategori
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SearchEventsResultScreen(
-                          searchQuery: '', // Kosongkan query
-                          category: categories[index].categoryName != 'Semua'
-                              ? categories[index].categoryName
-                              : null,
-                        ),
-                      ),
-                    );
-
-                    setState(() {
-                      // Update selected index untuk visual feedback
-                      _selectedIndex = index;
-                    });
-                  },
-                  child: Container(
-                    width: 90,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? UIColor.primaryColor
-                          : UIColor.solidWhite,
-                      border: Border.all(
-                        color: UIColor.primaryColor,
-                      ),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Text(
-                      categories[index].categoryName,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: isSelected
-                            ? UIColor.solidWhite
-                            : UIColor.primaryColor,
-                        height: 2.5,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          height: 35,
+          child: _isLoading
+              ? _buildShimmerLoading()
+              : _buildCategoryList(constraints),
+        );
+      },
     );
+  }
+
+  Widget _buildCategoryList(BoxConstraints constraints) {
+    return ListView.separated(
+      itemCount: categories.length,
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      separatorBuilder: (context, index) => const SizedBox(width: 10),
+      itemBuilder: (context, index) {
+        return _buildCategoryChip(index, constraints);
+      },
+    );
+  }
+
+  Widget _buildCategoryChip(int index, BoxConstraints constraints) {
+    bool isSelected = _selectedIndex == index;
+    String categoryName = categories[index].categoryName;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: 80,
+        maxWidth: constraints.maxWidth * 0.25,
+      ),
+      child: GestureDetector(
+        onTap: () => _onCategoryTap(index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: isSelected ? UIColor.primaryColor : UIColor.solidWhite,
+            border: Border.all(color: UIColor.primaryColor),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Center(
+            child: Text(
+              categoryName,
+              style: TextStyle(
+                color: isSelected ? UIColor.solidWhite : UIColor.primaryColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _onCategoryTap(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchEventsResultScreen(
+          searchQuery: '',
+          category: categories[index].categoryName != 'Semua'
+              ? categories[index].categoryName
+              : null,
+        ),
+      ),
+    );
+
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   Widget _buildShimmerLoading() {
     return ListView.separated(
-      itemCount: 8,
+      itemCount: 6,
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.only(left: 20, right: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       separatorBuilder: (context, index) => const SizedBox(width: 10),
       itemBuilder: (context, index) {
         return Shimmer.fromColors(

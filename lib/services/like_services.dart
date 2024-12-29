@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/services/auth_services.dart';
-import 'package:polivent_app/services/token.dart';
+import 'package:polivent_app/services/token_service.dart';
 
 class LikeService {
   Future<Map<String, dynamic>> checkLikeStatus(int eventId) async {
@@ -15,7 +15,7 @@ class LikeService {
         return {'is_liked': false, 'like_id': null};
       }
 
-      final accessToken = await TokenService.checkTokenValidity();
+      final accessToken = await TokenService.getAccessToken();
 
       if (accessToken == null) {
         return {'is_liked': false, 'like_id': null};
@@ -58,7 +58,7 @@ class LikeService {
         return {'success': false, 'is_liked': false, 'like_id': null};
       }
 
-      final accessToken = await TokenService.checkTokenValidity();
+      final accessToken = await TokenService.getAccessToken();
 
       if (accessToken == null) {
         return {'success': false, 'is_liked': false, 'like_id': null};

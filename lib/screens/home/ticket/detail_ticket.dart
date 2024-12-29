@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/services/data/registration_model.dart';
@@ -13,75 +14,116 @@ class TicketDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        scrolledUnderElevation: 0,
+        backgroundColor: UIColor.solidWhite,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: UIColor.typoBlack),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          registration.title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: UIColor.typoBlack,
+            overflow: TextOverflow.ellipsis,
+          ),
+          maxLines: 1,
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
       body: CustomScrollView(
         slivers: [
-          // App Bar Sliding
-          SliverAppBar(
-            expandedHeight: 300.0,
-            floating: false,
-            pinned: true,
-            backgroundColor: UIColor.primaryColor,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                registration.title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          // Poster Event
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: double.infinity,
+                height: 250, // Sesuaikan tinggi sesuai kebutuhan
+                decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.circular(15), // Tambahkan border radius
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(1),
+                      spreadRadius: 1,
+                      // blurRadius: 10,
+                      // offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    registration.poster,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: UIColor.primaryColor.withOpacity(0.5),
-                        child: const Icon(Icons.image_not_supported,
-                            size: 50, color: Colors.white),
-                      );
-                    },
-                  ),
-                  // Gradient overlay
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.3),
-                          Colors.black.withOpacity(0.7),
-                        ],
+
+                margin: const EdgeInsets.all(
+                    20), // Tambahkan margin di sekitar poster
+
+                child: GestureDetector(
+                  onTap: () {
+                    // Navigasi ke halaman detail events
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DetailEvents(eventId: registration.eventId),
                       ),
+                    );
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.network(
+                      registration.poster,
+                      width: double.infinity,
+                      height: 250,
+                      fit: BoxFit
+                          .cover, // Gunakan contain untuk mempertahankan aspek rasio
+                      alignment: Alignment.topCenter,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: double.infinity,
+                          height: 250,
+                          color: UIColor.primaryColor.withOpacity(0.5),
+                          child: const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.image_not_supported,
+                                    size: 100, color: Colors.white),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Poster Tidak Tersedia',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
 
           // Konten Detail
           SliverPadding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Informasi Event Card
                 _buildEventInfoCard(),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
 
-                // QR Code Section
-                _buildQRCodeSection(),
+                // // QR Code Section
+                // _buildQRCodeSection(),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
 
                 // Deskripsi Event
                 _buildDescriptionSection(),
@@ -90,20 +132,20 @@ class TicketDetailPage extends StatelessWidget {
           ),
         ],
       ),
-      // Floating Action Button
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: UIColor.primaryColor,
-        onPressed: () {
-          // Aksi tambahan, misalnya download tiket
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tiket sedang diunduh'),
-              backgroundColor: UIColor.primaryColor,
-            ),
-          );
-        },
-        child: const Icon(Icons.download, color: Colors.white),
-      ),
+      // // Floating Action Button
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: UIColor.primaryColor,
+      //   onPressed: () {
+      //     // Aksi tambahan, misalnya download tiket
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       const SnackBar(
+      //         content: Text('Tiket sedang diunduh'),
+      //         backgroundColor: UIColor.primaryColor,
+      //       ),
+      //     );
+      //   },
+      //   child: const Icon(Icons.download, color: Colors.white),
+      // ),
     );
   }
 
@@ -123,25 +165,25 @@ class TicketDetailPage extends StatelessWidget {
               label: 'Kategori',
               value: registration.categoryName,
             ),
-            const Divider(color: UIColor.typoGray, height: 1),
+            const Divider(color: UIColor.typoGray2, height: 1),
             _buildDetailRow(
               icon: UIconsPro.regularRounded.calendar,
               label: 'Tanggal',
               value: _formatEventDate(registration),
             ),
-            const Divider(color: UIColor.typoGray, height: 1),
+            const Divider(color: UIColor.typoGray2, height: 1),
             _buildDetailRow(
               icon: UIconsPro.regularRounded.marker,
               label: 'Lokasi',
               value: '${registration.place}, ${registration.location}',
             ),
-            const Divider(color: UIColor.typoGray, height: 1),
+            const Divider(color: UIColor.typoGray2, height: 1),
             _buildDetailRow(
               icon: UIconsPro.regularRounded.user_time,
               label: 'Kuota',
               value: '${registration.quota} peserta',
             ),
-            const Divider(color: UIColor.typoGray, height: 1),
+            const Divider(color: UIColor.typoGray2, height: 1),
             _buildDetailRow(
               icon: UIconsPro.regularRounded.clock,
               label: 'Waktu Registrasi',
@@ -227,9 +269,9 @@ class TicketDetailPage extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 14,
                 color: UIColor.typoGray,
-                height: 1.5,
+                height: 1.5, // Tambahkan jarak antar baris
               ),
-              textAlign: TextAlign.justify,
+              textAlign: TextAlign.justify, // Rata kanan-kiri
             ),
           ],
         ),

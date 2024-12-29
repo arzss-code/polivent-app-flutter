@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EventFilter {
@@ -60,7 +61,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
 
   Future<void> _fetchCategories() async {
     try {
-      final accessToken = await _getAccessToken();
+      final accessToken = await TokenService.getAccessToken();
       final response = await http.get(
         Uri.parse('$prodApiBaseUrl/categories'),
         headers: {
@@ -104,9 +105,9 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.5,
-      minChildSize: 0.5,
-      maxChildSize: 0.7,
+      initialChildSize: 0.4,
+      minChildSize: 0.4,
+      maxChildSize: 0.5,
       expand: false,
       builder: (context, scrollController) {
         return Container(
@@ -144,7 +145,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
               // Scrollable content
               Expanded(
                 child: _isLoading
-                    ? Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator())
                     : ListView(
                         controller: scrollController,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -162,25 +163,25 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                             ),
                           ),
 
-                          // Date Filter
-                          _buildFilterSection(
-                            title: 'Tanggal',
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: UIColor.primaryColor,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                              ),
-                              onPressed: _selectDate,
-                              child: Text(
-                                _selectedDate == null
-                                    ? 'Pilih Tanggal'
-                                    : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ),
+                          // // Date Filter
+                          // _buildFilterSection(
+                          //   title: 'Tanggal',
+                          //   child: ElevatedButton(
+                          //     style: ElevatedButton.styleFrom(
+                          //       backgroundColor: UIColor.primaryColor,
+                          //       shape: RoundedRectangleBorder(
+                          //         borderRadius: BorderRadius.circular(24),
+                          //       ),
+                          //     ),
+                          //     onPressed: _selectDate,
+                          //     child: Text(
+                          //       _selectedDate == null
+                          //           ? 'Pilih Tanggal'
+                          //           : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                          //       style: const TextStyle(color: Colors.white),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
               ),

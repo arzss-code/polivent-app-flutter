@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -15,7 +16,8 @@
         android:label="Polivent"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:enableOnBackInvokedCallback="true"> <!-- Tambahkan ini -->
+        android:enableOnBackInvokedCallback="true"
+        android:requestLegacyExternalStorage="true"> <!-- Tambahkan ini -->
         
         <activity
             android:name=".MainActivity"
@@ -26,6 +28,7 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+            
             
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
@@ -48,11 +51,24 @@
             
 
             <!-- Deep Link -->
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="polivent.my.id" />
+                <data android:scheme="https" android:host="polivent.my.id" android:pathPrefix="/event/" /><!-- Definisi data dengan berbagai variasi -->
+                <data 
+                    android:scheme="https"
+                    android:host="polivent.my.id"
+                    android:pathPrefix="/event/" />
+                
+                <data 
+                    android:scheme="https"
+                    android:host="www.polivent.my.id"
+                    android:pathPrefix="/event/" />
+                
+                <data 
+                    android:scheme="polivent"
+                    android:host="event" />
             </intent-filter>
             
             <!-- Launcher Intent -->
