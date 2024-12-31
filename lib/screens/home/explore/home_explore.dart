@@ -119,123 +119,145 @@ class _HomeExploreState extends State<HomeExplore>
       return Center(child: Text('Error: $_errorMessage'));
     }
 
-    return RefreshIndicator(
-      key: _refreshIndicatorKey,
-      onRefresh: _refreshAllData,
-      color: UIColor.primaryColor,
-      backgroundColor: Colors.white,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-              decoration: BoxDecoration(
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/appbar_image.png'),
-                  fit: BoxFit.cover,
-                ),
-                border: Border.all(
-                  color: UIColor.primaryColor,
-                  width: 0,
-                ),
-                borderRadius: const BorderRadius.only(
+    return Scaffold(
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: _refreshAllData,
+        color: UIColor.primaryColor,
+        backgroundColor: Colors.white,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              floating: true,
+              pinned: true,
+              snap: false,
+              backgroundColor: UIColor.primaryColor,
+              expandedHeight: 220.0, // Sesuaikan tinggi
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(14),
                   bottomRight: Radius.circular(14),
                 ),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 12),
-                          Text(
-                            'Halo, ${_currentUser?.username ?? 'Pengguna'} 👋',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontFamily: "Inter",
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/appbar_image.png'),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(14),
+                      bottomRight: Radius.circular(14),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 12),
+                                Text(
+                                  'Halo, ${_currentUser?.username ?? 'Pengguna'} 👋',
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontFamily: "Inter",
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                const Text(
+                                  "Ayo mulai jelajahi event!",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: "Inter",
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          const Text(
-                            "Ayo mulai jelajahi event!",
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: "Inter",
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: const BoxDecoration(
-                                    color: Color.fromRGBO(255, 255, 255, 0.305))
-                                .copyWith(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: IconButton(
+                            const Spacer(),
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color:
+                                    const Color.fromRGBO(255, 255, 255, 0.305),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: IconButton(
                                 onPressed: () {
                                   Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const NotificationPage()));
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const NotificationPage(),
+                                    ),
+                                  );
                                 },
                                 icon: const Icon(
                                   Icons.notifications_rounded,
                                   color: Colors.white,
                                   size: 24,
-                                )),
-                          )
-                        ],
-                      ),
-                    ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 40), // Sesuaikan jarak
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 70),
-                  SearchEventsWidget(key: _searchKey),
-                  const SizedBox(height: 4),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            const QuickCategorySection(),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 12),
-              child: Text(
-                'Event Paling Disukai',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  color: UIColor.typoBlack,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(80), // Sesuaikan tinggi
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: SearchEventsWidget(key: _searchKey),
                 ),
               ),
             ),
-            const CarouselSection(),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 24, 20, 0),
-              child: Text(
-                'Event Yang Akan Datang',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                    color: UIColor.typoBlack,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700),
-              ),
+            SliverList(
+              delegate: SliverChildListDelegate([
+                const SizedBox(height: 14),
+                const QuickCategorySection(),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 20, 20, 12),
+                  child: Text(
+                    'Event Paling Disukai',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: UIColor.typoBlack,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const CarouselSection(),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 24, 20, 0),
+                  child: Text(
+                    'Event Yang Akan Datang',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: UIColor.typoBlack,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const EventList(),
+              ]),
             ),
-            const EventList()
           ],
         ),
       ),

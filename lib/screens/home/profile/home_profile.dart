@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/models/common_widget.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/screens/home/profile/settings_screen.dart';
 import 'package:polivent_app/models/ui_colors.dart';
@@ -138,6 +139,8 @@ class _HomeProfileState extends State<HomeProfile> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
+      color: UIColor.primaryColor,
+      backgroundColor: UIColor.solidWhite,
       key: _refreshIndicatorKey,
       onRefresh: _handleRefresh,
       child: Column(
@@ -158,19 +161,15 @@ class _HomeProfileState extends State<HomeProfile> {
 
     if (_errorMessage.isNotEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _errorMessage,
-              style: const TextStyle(color: Colors.red),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _fetchUserData,
-              child: const Text('Coba Lagi'),
-            ),
-          ],
+        child: CommonWidgets.buildErrorWidget(
+          context: context,
+          errorMessage: _errorMessage,
+          onRetry: () {
+            _fetchUserData();
+            _fetchRegisteredEvents();
+          },
+          // Opsional: Tambahkan konfigurasi tambahan
+          showRetryButton: true,
         ),
       );
     }
@@ -275,7 +274,7 @@ class _HomeProfileState extends State<HomeProfile> {
       final String? token = await TokenService.getAccessToken();
 
       if (token == null) {
-        print('Token tidak tersedia');
+        debugPrint('Token tidak tersedia');
         return;
       }
 
@@ -324,8 +323,8 @@ class _HomeProfileState extends State<HomeProfile> {
         });
       } else {
         // Handle error
-        print('Gagal mengambil event yang diikuti');
-        print('Status Code: ${registrationResponse.statusCode}');
+        debugPrint('Gagal mengambil event yang diikuti');
+        debugPrint('Status Code: ${registrationResponse.statusCode}');
 
         setState(() {
           _isLoading = false;
@@ -333,7 +332,7 @@ class _HomeProfileState extends State<HomeProfile> {
       }
     } catch (e) {
       // Tangani error jaringan atau parsing
-      print('Error saat mengambil event: $e');
+      debugPrint('Error saat mengambil event: $e');
 
       setState(() {
         _isLoading = false;
@@ -487,7 +486,7 @@ class _HomeProfileState extends State<HomeProfile> {
         children: [
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: UIColor.primaryColor,
@@ -552,29 +551,6 @@ class _HomeProfileState extends State<HomeProfile> {
                       fit: BoxFit.cover,
                     ),
             ),
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          right: 0,
-          child: Container(
-            decoration: BoxDecoration(
-              color: UIColor.primaryColor,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-            // child: IconButton(
-            //   icon: Icon(
-            //     UIconsPro.regularRounded.edit,
-            //     color: Colors.white,
-            //     size: 20,
-            //   ),
-            //   onPressed: () {
-            //     // Tambahkan logika edit profil
-            //   },
-            //   padding: EdgeInsets.zero,
-            //   constraints: const BoxConstraints(),
-            // ),
           ),
         ),
       ],

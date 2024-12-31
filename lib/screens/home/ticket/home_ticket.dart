@@ -560,6 +560,8 @@ class _EventHistoryPageState extends State<EventHistoryPage>
         ),
       ),
       body: RefreshIndicator(
+        color: UIColor.primaryColor,
+        backgroundColor: Colors.white,
         onRefresh: () => _checkConnectivityAndFetchEvents(),
         child: Column(
           children: [
@@ -661,6 +663,38 @@ class _EventHistoryPageState extends State<EventHistoryPage>
     );
   }
 
+  // Tambahkan method helper untuk error widget
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 60),
+          const SizedBox(height: 16),
+          Text(
+            'Error: $_errorMessage',
+            style: const TextStyle(color: Colors.black),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UIColor.primaryColor,
+            ),
+            onPressed: () async {
+              await _checkConnectivityAndFetchEvents(
+                  search: _searchController.text.trim());
+            },
+            child: const Text(
+              'Coba Lagi',
+              style: TextStyle(color: UIColor.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFilterChips() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -744,11 +778,11 @@ class _EventHistoryPageState extends State<EventHistoryPage>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.only(top: 20, bottom: 20),
+      padding: const EdgeInsets.only(top: 8, bottom: 20),
       itemCount: events.length,
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
           child: _buildEventCard(events[index], isUpcoming),
         );
       },

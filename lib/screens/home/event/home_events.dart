@@ -230,6 +230,7 @@ class _HomeEventsState extends State<HomeEvents>
             child: RefreshIndicator(
               onRefresh: refreshEvents,
               color: UIColor.primaryColor,
+              backgroundColor: Colors.white,
               child: _buildEventContent(),
             ),
           ),

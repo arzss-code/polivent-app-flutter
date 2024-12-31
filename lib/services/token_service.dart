@@ -417,6 +417,25 @@ class TokenService {
     return null;
   }
 
+  // Method untuk menghapus token dari Secure Storage dan SharedPreferences
+  static Future<void> removeTokens() async {
+    try {
+      debugPrint('🗑️ Removing tokens from storage');
+
+      // Hapus dari Secure Storage
+      await _secureStorage.delete(key: _accessTokenKey);
+      await _secureStorage.delete(key: _refreshTokenKey);
+
+      // Hapus dari SharedPreferences
+      await _prefs.remove(_accessTokenKey);
+      await _prefs.remove(_refreshTokenKey);
+
+      debugPrint('✅ Tokens removed successfully');
+    } catch (e) {
+      debugPrint('🚨 Error removing tokens: $e');
+    }
+  }
+
   // Logging informasi token
   static void _logTokenInfo(String token) {
     try {
