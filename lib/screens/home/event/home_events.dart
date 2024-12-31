@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/models/common_widget.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:uicons_pro/uicons_pro.dart';
@@ -245,36 +246,8 @@ class _HomeEventsState extends State<HomeEvents>
         child: _buildShimmerLoading(),
       );
     } else if (_error.isNotEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              color: UIColor.primaryColor,
-              size: 80,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              _error,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: UIColor.typoBlack,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: refreshEvents,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: UIColor.primaryColor,
-              ),
-              child: const Text('Coba Lagi'),
-            ),
-          ],
-        ),
-      );
+      return CommonWidgets.buildErrorWidget(
+          context: context, errorMessage: _error, onRetry: fetchEvents);
     } else if (events.isEmpty) {
       return Center(
         child: SingleChildScrollView(

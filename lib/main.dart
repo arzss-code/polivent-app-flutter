@@ -12,7 +12,7 @@ import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/screens/auth/splash_screen.dart';
 import 'package:polivent_app/screens/home/home.dart';
 // import 'package:polivent_app/services/token_service.dart';z
-import 'package:polivent_app/services/notification_services.dart';
+import 'package:polivent_app/services/notifikasi/notification_services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {

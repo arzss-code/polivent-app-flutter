@@ -18,8 +18,9 @@ import 'package:polivent_app/models/share.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/screens/home/event/success_join.dart';
+import 'package:polivent_app/services/notifikasi/notification_local.dart';
 // import 'package:polivent_app/services/data/user_model.dart';
-import 'package:polivent_app/services/notification_services.dart';
+import 'package:polivent_app/services/notifikasi/notification_services.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,60 +68,117 @@ class _DetailEventsState extends State<DetailEvents>
   }
 
 // Method untuk inisialisasi status tombol
+  // Metode yang Dioptimasi
   void _initializeJoinButtonState() {
-    futureEvent.then((event) {
-      // Gunakan Future.wait untuk menjalankan async method secara bersamaan
-      Future.wait([_isUserJoinedEvent(), _isEventEnded(), _isEventQuotaFull()])
-          .then((results) {
-        final isJoined = results[0];
-        final isEnded = results[1];
-        final isQuotaFull = results[2];
+    futureEvent.then((event) async {
+      try {
+        // Gunakan metode parallel dengan Future.wait untuk efisiensi
+        final results = await Future.wait(
+            [_isEventEnded(), _isUserJoinedEvent(), _isEventQuotaFull()]);
 
-        setState(() {
-          _isEventRegistrationDisabled = isJoined || isEnded || isQuotaFull;
+        // Destructuring hasil
+        final bool isEnded = results[0];
+        final bool isJoined = results[1];
+        final bool isQuotaFull = results[2];
 
-          _joinButtonText = isJoined
-              ? 'Sudah Terdaftar'
-              : isEnded
-                  ? 'Event Berakhir'
-                  : isQuotaFull
-                      ? 'Kuota Penuh'
-                      : 'Daftar Event';
-        });
-      }).catchError((error) {
-        print('Error initializing join button state: $error');
-        setState(() {
-          _isEventRegistrationDisabled = false;
-          _joinButtonText = 'Daftar Event';
-        });
-      });
+        // Update state dengan logika yang jelas
+        _updateButtonState(
+            isEnded: isEnded, isJoined: isJoined, isQuotaFull: isQuotaFull);
+      } catch (error) {
+        // Error handling yang lebih informatif
+        _handleJoinButtonStateError(error);
+      }
     });
   }
 
-  // Method untuk memperbarui status tombol
+  // Metode error handling khusus
+  void _handleJoinButtonStateError(dynamic error) {
+    // Logging error yang lebih komprehensif
+    debugPrint('Join Button State Error: $error');
+
+    // Optional: Tambahkan error tracking atau pelaporan
+    // ErrorReportingService.report(error);
+
+    // Reset ke state default dengan notifikasi
+    setState(() {
+      _isEventRegistrationDisabled = false;
+      _joinButtonText = 'Daftar Event';
+    });
+
+    // Optional: Tampilkan snackbar atau pesan error
+    _showErrorNotification('Gagal memuat status event');
+  }
+
+// Metode opsional untuk notifikasi error
+  void _showErrorNotification(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  // Metode update terpisah dengan parameter
   void _updateJoinButtonState() async {
     try {
-      final isJoined = await _isUserJoinedEvent();
-      final isEnded = await _isEventEnded();
-      final isQuotaFull = await _isEventQuotaFull();
+      final results = await Future.wait(
+          [_isUserJoinedEvent(), _isEventEnded(), _isEventQuotaFull()]);
 
-      setState(() {
-        _isEventRegistrationDisabled = isJoined || isEnded || isQuotaFull;
-
-        if (isJoined) {
-          _joinButtonText = 'Sudah Terdaftar';
-        } else if (isEnded) {
-          _joinButtonText = 'Event Berakhir';
-        } else if (isQuotaFull) {
-          _joinButtonText = 'Kuota Penuh';
-        } else {
-          _joinButtonText = 'Daftar Event';
-        }
-      });
+      _updateButtonState(
+          isJoined: results[0], isEnded: results[1], isQuotaFull: results[2]);
     } catch (error) {
-      print('Error updating join button state: $error');
+      _handleJoinButtonStateError(error);
     }
   }
+
+// Metode pusat untuk update state tombol
+  void _updateButtonState(
+      {required bool isJoined,
+      required bool isEnded,
+      required bool isQuotaFull}) {
+    setState(() {
+      // Logika prioritas status
+      if (isJoined) {
+        _isEventRegistrationDisabled = true;
+        _joinButtonText = 'Sudah Terdaftar';
+      } else if (isEnded) {
+        _isEventRegistrationDisabled = true;
+        _joinButtonText = 'Event Berakhir';
+      } else if (isQuotaFull) {
+        _isEventRegistrationDisabled = true;
+        _joinButtonText = 'Kuota Penuh';
+      } else {
+        _isEventRegistrationDisabled = false;
+        _joinButtonText = 'Daftar Event';
+      }
+    });
+  }
+
+  // // Method untuk memperbarui status tombol
+  // void _updateJoinButtonState() async {
+  //   try {
+  //     final isJoined = await _isUserJoinedEvent();
+  //     final isEnded = await _isEventEnded();
+  //     final isQuotaFull = await _isEventQuotaFull();
+
+  //     setState(() {
+  //       _isEventRegistrationDisabled = isJoined || isEnded || isQuotaFull;
+
+  //       if (isJoined) {
+  //         _joinButtonText = 'Sudah Terdaftar';
+  //       } else if (isEnded) {
+  //         _joinButtonText = 'Event Berakhir';
+  //       } else if (isQuotaFull) {
+  //         _joinButtonText = 'Kuota Penuh';
+  //       } else {
+  //         _joinButtonText = 'Daftar Event';
+  //       }
+  //     });
+  //   } catch (error) {
+  //     debugPrint('Error updating join button state: $error');
+  //   }
+  // }
 
   void _setupScrollController() {
     _scrollController = ScrollController();
@@ -154,7 +212,7 @@ class _DetailEventsState extends State<DetailEvents>
         likeId = likeStatus['like_id'];
       });
     } catch (e) {
-      print('Error fetching like status: $e');
+      debugPrint('Error fetching like status: $e');
     }
   }
 
@@ -388,6 +446,33 @@ class _DetailEventsState extends State<DetailEvents>
             eventDate: DateTime.parse(event.dateStart),
           );
 
+          // Jadwalkan pengingat event
+          await EventNotificationService.sendEventReminderNotification(
+            event: event,
+            user: userData, // Pastikan Anda memiliki data user saat ini
+            daysBeforeEvent: 1, // Pengingat H-1
+          );
+
+          // Jadwalkan pengingat event
+          await EventNotificationService.sendEventReminderNotification(
+            event: event,
+            user: userData, // Pastikan Anda memiliki data user saat ini
+            daysBeforeEvent: 3, // Pengingat H-1
+          );
+
+          // Jadwalkan pengingat event
+          await NotificationService.saveNotificationToLocal(
+            title: 'Pengingat Event',
+            body: 'Jangan lupa untuk menghadiri event ${event.title}!',
+            payload: {
+              'event_id': event.eventId.toString(),
+              'type': 'event_reminder',
+              'event_title': event.title,
+              'event_location': event.location,
+              'event_date': event.dateStart,
+            },
+          );
+
           // Tambahkan notifikasi lokal
           _addLocalNotification(
             title: 'Pendaftaran Berhasil',
@@ -487,7 +572,7 @@ class _DetailEventsState extends State<DetailEvents>
       }
       return false;
     } catch (error) {
-      print('Error checking event end date: $error');
+      debugPrint('Error checking event end date: $error');
       return false;
     }
   }
@@ -509,7 +594,7 @@ class _DetailEventsState extends State<DetailEvents>
       }
       return false;
     } catch (error) {
-      print('Error checking event quota: $error');
+      debugPrint('Error checking event quota: $error');
       return false;
     }
   }

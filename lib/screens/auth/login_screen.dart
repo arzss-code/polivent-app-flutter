@@ -196,8 +196,33 @@ class LoginScreenState extends State<LoginScreen>
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.redAccent.shade700,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(16),
+        elevation: 6,
+        duration: const Duration(seconds: 3),
+        animation: CurvedAnimation(
+          parent: kAlwaysDismissedAnimation,
+          curve: Curves.easeInOut,
+        ),
       ),
     );
   }
@@ -248,254 +273,268 @@ class LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background with blur
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                    'assets/images/background.png'), // Add a background image
-                fit: BoxFit.cover,
+      resizeToAvoidBottomInset: true, // Pastikan ini diatur
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context)
+              .unfocus(); // Menutup keyboard saat tap di luar input
+        },
+        child: Stack(
+          children: [
+            // Background with blur
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                      'assets/images/background.png'), // Add a background image
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          // Content
-          Center(
-            child: SingleChildScrollView(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/images/logo-polivent.png',
-                          alignment: Alignment.center,
-                          width: 150,
-                          height: 150,
-                        ),
+            // Content
+            Center(
+              child: SingleChildScrollView(
+                // physics: const AlwaysScrollableScrollPhysics(),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag, // Tambahkan ini
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/logo-polivent.png',
+                            alignment: Alignment.center,
+                            width: 150,
+                            height: 150,
+                          ),
 
-                        const SizedBox(height: 36),
-                        // Sign in text with animation
-                        const Row(
-                          children: [
-                            Text(
-                              "Login",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: UIColor.typoBlack,
-                                fontSize: 28,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        // Email field
-                        TextFormField(
-                          controller: _emailController,
-                          focusNode: emailFocusNode,
-                          cursorColor: UIColor.primary,
-                          decoration: InputDecoration(
-                            prefixIconConstraints: const BoxConstraints(
-                              minWidth: 50, // Lebar minimum untuk icon
-                              minHeight: 50, // Tinggi minimum untuk icon
-                            ),
-                            filled: true,
-                            fillColor: UIColor.solidWhite,
-                            labelText: 'Email',
-                            errorText: _emailError,
-                            floatingLabelStyle:
-                                const TextStyle(color: UIColor.primary),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: UIColor.primary),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: UIColor.typoGray),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: Colors.red),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: Colors.red),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            prefixIcon: Icon(
-                              UIconsPro.regularRounded.envelope,
-                              size: 22,
-                              color: _emailError != null
-                                  ? Colors.red
-                                  : emailFocusNode.hasFocus
-                                      ? UIColor.primary
-                                      : UIColor.typoGray,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Password field
-                        TextFormField(
-                          controller: _passwordController,
-                          focusNode: passwordFocusNode,
-                          obscureText: securePassword,
-                          cursorColor: UIColor.primary,
-                          decoration: InputDecoration(
-                            prefixIconConstraints: const BoxConstraints(
-                              minWidth: 50, // Lebar minimum untuk icon
-                              minHeight: 50, // Tinggi minimum untuk icon
-                            ),
-                            filled: true,
-                            fillColor: UIColor.solidWhite,
-                            labelText: 'Password',
-                            errorText: _passwordError,
-                            floatingLabelStyle:
-                                const TextStyle(color: UIColor.primary),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: UIColor.primary),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: UIColor.typoGray),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: Colors.red),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: Colors.red),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            prefixIcon: Icon(
-                              UIconsPro.regularRounded.lock,
-                              size: 22,
-                              color: _passwordError != null
-                                  ? Colors.red
-                                  : passwordFocusNode.hasFocus
-                                      ? UIColor.primary
-                                      : UIColor.typoGray,
-                            ),
-                            suffixIcon: IconButton(
-                              color: passwordFocusNode.hasFocus
-                                  ? UIColor.primary
-                                  : UIColor.typoGray,
-                              onPressed: () => setState(
-                                  () => securePassword = !securePassword),
-                              icon: Icon(
-                                securePassword
-                                    ? UIconsPro.solidRounded.eye_crossed
-                                    : UIconsPro.solidRounded.eye,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        // Remember me switch
-                        Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          const SizedBox(height: 36),
+                          // Sign in text with animation
+                          const Row(
                             children: [
-                              const Text(
-                                "Remember Me",
+                              Text(
+                                "Login",
                                 style: TextStyle(
+                                  fontWeight: FontWeight.bold,
                                   color: UIColor.typoBlack,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14,
+                                  fontSize: 28,
                                 ),
-                              ),
-                              Switch(
-                                value: rememberMe,
-                                onChanged: (value) =>
-                                    setState(() => rememberMe = value),
-                                activeColor: UIColor.primary,
                               ),
                             ],
                           ),
-                        ),
-                        // Forgot password button
-                        // TextButton(
-                        //   onPressed: () {
-                        //     Navigator.push(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //         builder: (context) =>
-                        //             const ForgotPasswordScreen(),
-                        //       ),
-                        //     );
-                        //   },
-                        //   child: const Text(
-                        //     "Forgot Password?",
-                        //     style: TextStyle(
-                        //       color: UIColor.primary,
-                        //       fontWeight: FontWeight.w500,
-                        //       fontSize: 14,
-                        //     ),
-                        //   ),
-                        // ),
-                        const SizedBox(height: 18),
-                        // Login button with animation
-                        ElevatedButton(
-                          onPressed: _login,
-                          style: ElevatedButton.styleFrom(
-                            fixedSize: Size(
-                              MediaQuery.of(context).size.width * 1,
-                              52,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            backgroundColor: UIColor.primary,
-                            elevation: 3,
-                          ),
-                          child: const Text(
-                            "Login",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const ForgotPasswordScreen(),
+                          const SizedBox(height: 24),
+                          // Email field
+                          TextFormField(
+                            controller: _emailController,
+                            focusNode: emailFocusNode,
+                            cursorColor: UIColor.primary,
+                            decoration: InputDecoration(
+                              prefixIconConstraints: const BoxConstraints(
+                                minWidth: 50, // Lebar minimum untuk icon
+                                minHeight: 50, // Tinggi minimum untuk icon
                               ),
-                            );
-                          },
-                          child: const Text(
-                            "Forgot Password?",
-                            style: TextStyle(
-                              color: UIColor.primary,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
+                              filled: true,
+                              fillColor: UIColor.solidWhite,
+                              labelText: 'Email',
+                              errorText: _emailError,
+                              floatingLabelStyle:
+                                  const TextStyle(color: UIColor.primary),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    const BorderSide(color: UIColor.primary),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                    const BorderSide(color: UIColor.typoGray),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              prefixIcon: Icon(
+                                UIconsPro.regularRounded.envelope,
+                                size: 22,
+                                color: _emailError != null
+                                    ? Colors.red
+                                    : emailFocusNode.hasFocus
+                                        ? UIColor.primary
+                                        : UIColor.typoGray,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          // Password field
+                          TextFormField(
+                            controller: _passwordController,
+                            focusNode: passwordFocusNode,
+                            obscureText: securePassword,
+                            cursorColor: UIColor.primary,
+                            decoration: InputDecoration(
+                              prefixIconConstraints: const BoxConstraints(
+                                minWidth: 50, // Lebar minimum untuk icon
+                                minHeight: 50, // Tinggi minimum untuk icon
+                              ),
+                              filled: true,
+                              fillColor: UIColor.solidWhite,
+                              labelText: 'Password',
+                              errorText: _passwordError,
+                              floatingLabelStyle:
+                                  const TextStyle(color: UIColor.primary),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    const BorderSide(color: UIColor.primary),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                    const BorderSide(color: UIColor.typoGray),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.red),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              prefixIcon: Icon(
+                                UIconsPro.regularRounded.lock,
+                                size: 22,
+                                color: _passwordError != null
+                                    ? Colors.red
+                                    : passwordFocusNode.hasFocus
+                                        ? UIColor.primary
+                                        : UIColor.typoGray,
+                              ),
+                              suffixIcon: IconButton(
+                                color: passwordFocusNode.hasFocus
+                                    ? UIColor.primary
+                                    : UIColor.typoGray,
+                                onPressed: () => setState(
+                                    () => securePassword = !securePassword),
+                                icon: Icon(
+                                  securePassword
+                                      ? UIconsPro.solidRounded.eye_crossed
+                                      : UIconsPro.solidRounded.eye,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          // Remember me switch
+                          Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Remember Me",
+                                  style: TextStyle(
+                                    color: UIColor.typoBlack,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Switch(
+                                  value: rememberMe,
+                                  onChanged: (value) =>
+                                      setState(() => rememberMe = value),
+                                  activeColor: UIColor.primary,
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Forgot password button
+                          // TextButton(
+                          //   onPressed: () {
+                          //     Navigator.push(
+                          //       context,
+                          //       MaterialPageRoute(
+                          //         builder: (context) =>
+                          //             const ForgotPasswordScreen(),
+                          //       ),
+                          //     );
+                          //   },
+                          //   child: const Text(
+                          //     "Forgot Password?",
+                          //     style: TextStyle(
+                          //       color: UIColor.primary,
+                          //       fontWeight: FontWeight.w500,
+                          //       fontSize: 14,
+                          //     ),
+                          //   ),
+                          // ),
+                          const SizedBox(height: 18),
+                          // Login button with animation
+                          ElevatedButton(
+                            onPressed: () {
+                              // Pastikan keyboard ditutup sebelum login
+                              FocusScope.of(context).unfocus();
+                              _login();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              fixedSize: Size(
+                                MediaQuery.of(context).size.width * 1,
+                                52,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              backgroundColor: UIColor.primary,
+                              elevation: 3,
+                            ),
+                            child: const Text(
+                              "Login",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          // const SizedBox(height: 24),
+                          // TextButton(
+                          //   onPressed: () {
+                          //     Navigator.push(
+                          //       context,
+                          //       MaterialPageRoute(
+                          //         builder: (context) =>
+                          //             const ForgotPasswordScreen(),
+                          //       ),
+                          //     );
+                          //   },
+                          //   child: const Text(
+                          //     "Forgot Password?",
+                          //     style: TextStyle(
+                          //       color: UIColor.primary,
+                          //       fontWeight: FontWeight.w500,
+                          //       fontSize: 14,
+                          //     ),
+                          //   ),
+                          // ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -8,6 +8,50 @@ import 'package:polivent_app/services/token_service.dart';
 import 'package:polivent_app/config/app_config.dart';
 
 class EventService {
+  // Mendapatkan daftar event yang akan datang
+  Future<List<Event>> getUpcomingEvents() async {
+    try {
+      final uri = Uri.parse('$_baseUrl?upcoming=true');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer ${await TokenService.getAccessToken()}',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw TimeoutException('Request timeout'),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+
+        // Pastikan response memiliki list events
+        if (jsonResponse is Map && jsonResponse.containsKey('events')) {
+          final eventsList = (jsonResponse['events'] as List)
+              .map((eventJson) => Event.fromJson(eventJson))
+              .toList();
+          return eventsList;
+        } else if (jsonResponse is List) {
+          return jsonResponse
+              .map((eventJson) => Event.fromJson(eventJson))
+              .toList();
+        }
+
+        throw Exception('Invalid response format');
+      } else {
+        throw Exception('Failed to load upcoming events: ${response.body}');
+      }
+    } on SocketException {
+      throw Exception('No internet connection');
+    } on TimeoutException {
+      throw Exception('Request timeout');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
   // Base URL untuk API events
   static const String _baseUrl = '$prodApiBaseUrl/available_events';
 

@@ -160,16 +160,21 @@ class _HomeProfileState extends State<HomeProfile> {
     }
 
     if (_errorMessage.isNotEmpty) {
-      return Center(
-        child: CommonWidgets.buildErrorWidget(
-          context: context,
-          errorMessage: _errorMessage,
-          onRetry: () {
-            _fetchUserData();
-            _fetchRegisteredEvents();
-          },
-          // Opsional: Tambahkan konfigurasi tambahan
-          showRetryButton: true,
+      return CommonWidgets.buildErrorWidget(
+        context: context,
+        errorMessage: _errorMessage,
+        onRetry: () {
+          _fetchUserData();
+          _fetchRegisteredEvents();
+        },
+      );
+    }
+
+    if (_currentUser == null) {
+      return const Center(
+        child: Text(
+          'Sesi Anda telah berakhir. Silakan login ulang.',
+          textAlign: TextAlign.center,
         ),
       );
     }
@@ -681,8 +686,15 @@ class _HomeProfileState extends State<HomeProfile> {
           ),
           const SizedBox(height: 8),
           Text(
-            _currentUser?.about ?? 'Tambahkan About Me',
-            style: const TextStyle(fontSize: 16, color: UIColor.typoGray),
+            _currentUser?.about ??
+                'Ceritakan sedikit tentang dirimu...\nBagikan minat, passion, atau pencapaianmu!',
+            style: TextStyle(
+              fontSize: 16,
+              color: UIColor.typoGray,
+              fontStyle: _currentUser?.about == null
+                  ? FontStyle.italic
+                  : FontStyle.normal,
+            ),
             textAlign: TextAlign.left,
           ),
         ],
@@ -715,8 +727,11 @@ class _HomeProfileState extends State<HomeProfile> {
                           .toList(),
                     )
                   : const Text(
-                      'Tambahkan Interest',
-                      style: TextStyle(fontSize: 16, color: UIColor.typoGray),
+                      'Tambahkan minat kamu...',
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: UIColor.typoGray,
+                          fontStyle: FontStyle.italic),
                     ),
             ],
           ),

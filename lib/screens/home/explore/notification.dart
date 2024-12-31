@@ -4,7 +4,8 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/services/notification_services.dart';
+import 'package:polivent_app/services/notifikasi/notification_local.dart';
+import 'package:polivent_app/services/notifikasi/notification_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -17,6 +18,7 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   List<NotificationItem> notifications = [];
   bool _notificationsEnabled = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -24,6 +26,27 @@ class _NotificationPageState extends State<NotificationPage> {
     _loadNotificationPreference();
     _loadNotifications();
     _initNotificationListeners();
+  }
+
+  Future<void> _fetchNotifications() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      notifications = await LocalNotificationService.getNotifications();
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat notifikasi: $e')),
+      );
+    }
   }
 
   void _initNotificationListeners() {
@@ -64,6 +87,18 @@ class _NotificationPageState extends State<NotificationPage> {
 
     // Simpan kembali ke SharedPreferences
     await prefs.setStringList('notifications', savedNotifications);
+  }
+
+  Future<void> _markNotificationAsRead(NotificationItem notification) async {
+    notification.isNew = false;
+    await LocalNotificationService.addNotification(
+      title: notification.title,
+      message: notification.message,
+      type: notification.type,
+    );
+    setState(() {
+      // Update tampilan
+    });
   }
 
   @pragma("vm:entry-point")
@@ -143,9 +178,11 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   void _clearAllNotifications() {
-    setState(() {
+    setState(() async {
       notifications.clear();
       _saveNotifications();
+      await LocalNotificationService.clearAllNotifications();
+      _fetchNotifications();
     });
     // Gunakan method dari NotificationService untuk menghapus notifikasi sistem
     NotificationService.cancelAll();
@@ -347,6 +384,10 @@ class NotificationCard extends StatelessWidget {
         iconData = Icons.error;
         color = Colors.red;
         break;
+      case NotificationType.warning:
+        iconData = Icons.warning;
+        color = Colors.orange;
+        break;
     }
 
     return Container(
@@ -360,20 +401,20 @@ class NotificationCard extends StatelessWidget {
   }
 }
 
-class NotificationItem {
-  final String title;
-  final String message;
-  final DateTime time;
-  final NotificationType type;
-  final bool isNew;
+// class NotificationItem {
+//   final String title;
+//   final String message;
+//   final DateTime time;
+//   final NotificationType type;
+//   final bool isNew;
 
-  NotificationItem({
-    required this.title,
-    required this.message,
-    required this.time,
-    required this.type,
-    required this.isNew,
-  });
-}
+//   NotificationItem({
+//     required this.title,
+//     required this.message,
+//     required this.time,
+//     required this.type,
+//     required this.isNew,
+//   });
+// }
 
-enum NotificationType { reminder, success, info, error }
+// enum NotificationType { reminder, success, info, error }

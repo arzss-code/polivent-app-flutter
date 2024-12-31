@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/comments.dart';
+import 'package:polivent_app/models/common_widget.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:polivent_app/screens/home/ticket/detail_ticket.dart';
@@ -52,7 +53,7 @@ class _EventHistoryPageState extends State<EventHistoryPage>
   }
 
   void _handleTabChange() {
-    if (_tabController.indexIsChanging) {
+    if (!_tabController.indexIsChanging) {
       setState(() {
         // Set filter based on active tab
         if (_tabController.index == 0) {
@@ -65,6 +66,8 @@ class _EventHistoryPageState extends State<EventHistoryPage>
           _showHasPresent = true;
         }
       });
+
+      // Selalu fetch data saat tab berubah
       _checkConnectivityAndFetchEvents();
     }
   }
@@ -621,29 +624,13 @@ class _EventHistoryPageState extends State<EventHistoryPage>
             else if (_errorMessage.isNotEmpty)
               Expanded(
                 child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          color: Colors.red, size: 60),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Error: $_errorMessage',
-                        style: const TextStyle(color: Colors.black),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: UIColor.primaryColor,
-                        ),
-                        onPressed: () => _checkConnectivityAndFetchEvents(),
-                        child: const Text(
-                          'Coba Lagi',
-                          style: TextStyle(color: UIColor.white),
-                        ),
-                      ),
-                    ],
+                  child: CommonWidgets.buildErrorWidget(
+                    context: context,
+                    errorMessage: _errorMessage,
+                    onRetry: () async {
+                      await _checkConnectivityAndFetchEvents(
+                          search: _searchController.text.trim());
+                    },
                   ),
                 ),
               )
@@ -1092,8 +1079,14 @@ class _EventHistoryPageState extends State<EventHistoryPage>
                     // Tampilkan konfirmasi
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Text('Ulasan berhasil disimpan'),
-                        backgroundColor: UIColor.primaryColor,
+                        content: const Row(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.green),
+                            SizedBox(width: 10),
+                            Text('Ulasan berhasil ditambahkan'),
+                          ],
+                        ),
+                        backgroundColor: Colors.black87,
                         behavior: SnackBarBehavior.floating,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),

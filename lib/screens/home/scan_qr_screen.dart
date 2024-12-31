@@ -606,6 +606,7 @@ import 'package:http/http.dart' as http;
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/services/auth_services.dart';
+import 'package:polivent_app/services/notifikasi/notification_services.dart';
 import 'package:polivent_app/services/token_service.dart';
 
 class QRScanScreen extends StatefulWidget {
@@ -1032,6 +1033,27 @@ class _QRScanScreenState extends State<QRScanScreen> {
     );
   }
 
+  Future<String> _fetchEventTitle(int eventId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$prodApiBaseUrl/available_events?event_id=$eventId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+        return responseBody['title'] ?? 'Event';
+      } else {
+        return 'Event';
+      }
+    } catch (e) {
+      debugPrint('Gagal mengambil judul event: $e');
+      return 'Event';
+    }
+  }
+
   Future<void> _markAttendance(String eventId) async {
     try {
       final accessToken = TokenService.getAccessTokenFromSharedPrefs();
@@ -1042,14 +1064,10 @@ class _QRScanScreenState extends State<QRScanScreen> {
         return;
       }
 
-      if (!TokenService.isValidTokenStructure(accessToken)) {
-        _showScanResult(isSuccess: false, message: 'Token tidak valid');
-        return;
-      }
-
-      if (TokenService.decodeToken(accessToken) == null) {
+      final userData = await AuthService().getUserData();
+      if (userData == null) {
         _showScanResult(
-            isSuccess: false, message: 'Token tidak dapat didekode');
+            isSuccess: false, message: 'Gagal mendapatkan data pengguna');
         return;
       }
 
@@ -1057,13 +1075,6 @@ class _QRScanScreenState extends State<QRScanScreen> {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
       };
-
-      final userData = await AuthService().getUserData();
-      if (userData == null) {
-        _showScanResult(
-            isSuccess: false, message: 'Gagal mendapatkan data pengguna');
-        return;
-      }
 
       final body = {
         'event_id': eventId.toString(),
@@ -1077,15 +1088,71 @@ class _QRScanScreenState extends State<QRScanScreen> {
       );
 
       if (response.statusCode == 200) {
-        _showScanResult(isSuccess: true, message: 'Absensi berhasil dicatat.');
+        // Parse response untuk mendapatkan detail event
+        final responseBody = json.decode(response.body);
+        // Ambil detail event dari endpoint lain jika tidak ada di response
+        final eventTitle =
+            responseBody['title'] ?? await _fetchEventTitle(int.parse(eventId));
+
+        // Tampilkan hasil scan berhasil
+        _showScanResult(
+            isSuccess: true,
+            message: 'Absensi berhasil dicatat.',
+            additionalInfo: 'Anda telah berhasil absen pada $eventTitle');
+
+        // Kirim notifikasi berhasil absen
+        await _sendAttendanceNotification(eventId, eventTitle);
+
+        // Debug print
         debugPrint('Absensi berhasil dicatat: ${response.body}');
       } else {
-        _showScanResult(isSuccess: false, message: 'Gagal mencatat absensi');
+        final responseBody = json.decode(response.body);
+        _showScanResult(
+            isSuccess: false,
+            message: 'Gagal mencatat absensi',
+            additionalInfo: responseBody['message'] ?? 'Coba lagi nanti');
         debugPrint('Gagal mencatat absensi: ${response.body}');
       }
     } catch (e) {
-      _showScanResult(isSuccess: false, message: 'Kesalahan: ${e.toString()}');
+      _showScanResult(
+          isSuccess: false,
+          message: 'Kesalahan: ${e.toString()}',
+          additionalInfo: 'Pastikan koneksi internet stabil');
       debugPrint('Kesalahan: $e');
+    }
+  }
+
+// Method baru untuk mengirim notifikasi keberhasilan absensi
+  Future<void> _sendAttendanceNotification(
+      String eventId, String eventTitle) async {
+    try {
+      // Kirim notifikasi berhasil absen
+      await NotificationService.sendEventAttendanceNotification(
+        eventId: int.parse(eventId),
+        eventTitle: eventTitle,
+      );
+
+      // Simpan notifikasi ke lokal untuk ditampilkan di menu notifikasi
+      await NotificationService.saveNotificationToLocal(
+        title: 'Absensi Berhasil',
+        body: 'Anda telah berhasil absen pada event id $eventId',
+        payload: {
+          'event_id': eventId,
+          'type': 'attendance_success',
+        },
+      );
+
+      // // Kirim notifikasi umum
+      // await NotificationService.showGeneralNotification(
+      //   title: 'Absensi Berhasil',
+      //   body: 'Anda telah berhasil absen pada $eventTitle',
+      //   payload: {
+      //     'event_id': eventId,
+      //     'type': 'attendance_success',
+      //   },
+      // );
+    } catch (e) {
+      debugPrint('Gagal mengirim notifikasi absensi: $e');
     }
   }
 

@@ -25,7 +25,7 @@ class CommonWidgets {
               size: 80,
             ),
             const SizedBox(height: 20),
-            Text(
+            const Text(
               'Terjadi Kesalahan',
               style: TextStyle(
                 fontSize: 22,
