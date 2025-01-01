@@ -152,15 +152,38 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
   }
 
   void _showFilterModal() async {
-    final updatedFilter = await EventFilter.showFilterBottomSheet(context);
+    // Pastikan ada filter saat ini untuk dikirim
+    final updatedFilter = await EventFilter.showFilterBottomSheet(
+      context,
+      currentCategory: _currentFilter?.category ?? '',
+    );
 
     if (updatedFilter != null) {
       setState(() {
+        // Update filter saat ini
         _currentFilter = updatedFilter;
+
+        // Set loading state
         _isLoading = true;
       });
 
-      _fetchEvents();
+      try {
+        // Panggil method fetch events dengan filter baru
+        await _fetchEvents();
+      } catch (e) {
+        // Tangani error jika fetch events gagal
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal memuat events: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        // Pastikan loading state dimatikan
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -531,6 +554,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                alignment: Alignment.topCenter,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     height: 200,

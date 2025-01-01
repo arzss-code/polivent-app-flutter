@@ -170,11 +170,27 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
             ),
             suffixIcon: GestureDetector(
               onTap: () async {
-                final filter = await EventFilter.showFilterBottomSheet(context);
+                final filter = await EventFilter.showFilterBottomSheet(
+                  context,
+                  // Kirim filter saat ini untuk ditampilkan
+                  currentCategory: _currentFilter?.category ?? '',
+                );
+
                 if (filter != null) {
                   setState(() {
                     _currentFilter = filter;
                   });
+
+                  // Lakukan pencarian jika ada teks di search
+                  if (_searchController.text.isNotEmpty) {
+                    _searchEvents(
+                      _searchController.text,
+                      category: filter.category,
+                      date: filter.date?.toIso8601String(),
+                    );
+                  }
+
+                  // Terapkan filter
                   _applyFilter(filter);
                 }
               },
@@ -197,6 +213,28 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
         ),
       ),
     );
+  }
+
+  void _showFilterModal() async {
+    final updatedFilter = await EventFilter.showFilterBottomSheet(
+      context,
+      currentCategory: _currentFilter?.category ?? '',
+    );
+
+    if (updatedFilter != null) {
+      setState(() {
+        _currentFilter = updatedFilter;
+      });
+
+      // Lakukan pencarian jika ada teks di search
+      if (_searchController.text.isNotEmpty) {
+        _searchEvents(
+          _searchController.text,
+          category: updatedFilter.category,
+          date: updatedFilter.date?.toIso8601String(),
+        );
+      }
+    }
   }
 
   void _applyFilter(EventFilter filter) {

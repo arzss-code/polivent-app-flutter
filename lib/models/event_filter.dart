@@ -24,7 +24,10 @@ class EventFilter {
     return category.isEmpty && date == null;
   }
 
-  static Future<EventFilter?> showFilterBottomSheet(BuildContext context) {
+  static Future<EventFilter?> showFilterBottomSheet(
+    BuildContext context, {
+    String currentCategory = '',
+  }) {
     return showModalBottomSheet<EventFilter>(
       context: context,
       isScrollControlled: true,
@@ -35,13 +38,19 @@ class EventFilter {
       ),
       backgroundColor: Colors.white,
       builder: (BuildContext context) {
-        return _FilterBottomSheetContent();
+        return _FilterBottomSheetContent(
+          currentCategory: currentCategory,
+        );
       },
     );
   }
 }
 
 class _FilterBottomSheetContent extends StatefulWidget {
+  final String currentCategory;
+
+  _FilterBottomSheetContent({required this.currentCategory});
+
   @override
   _FilterBottomSheetContentState createState() =>
       _FilterBottomSheetContentState();
@@ -53,9 +62,18 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   List<String> _categories = [];
   bool _isLoading = true;
 
+  // Konstruktor untuk menerima filter saat ini
+  _FilterBottomSheetContentState({
+    String initialCategory = '',
+  }) {
+    _selectedCategory = initialCategory;
+  }
+
   @override
   void initState() {
     super.initState();
+    // Inisialisasi dengan kategori saat ini
+    _selectedCategory = widget.currentCategory;
     _fetchCategories();
   }
 
@@ -105,7 +123,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.4,
+      initialChildSize: 0.5,
       minChildSize: 0.4,
       maxChildSize: 0.5,
       expand: false,
@@ -130,15 +148,24 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                 ),
               ),
 
-              // Title
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Text(
-                  'Filter Pencarian Event',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+              // Title dan Reset Button
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Filter Pencarian Event',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    // Tampilkan tombol reset jika ada filter yang aktif
+                    if (_selectedCategory.isNotEmpty || _selectedDate != null)
+                      _buildResetButton(),
+                  ],
                 ),
               ),
 
@@ -265,6 +292,25 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
           _selectedCategory = selected ? category : '';
         });
       },
+    );
+  }
+
+  // Tambahkan tombol reset
+  Widget _buildResetButton() {
+    return TextButton(
+      onPressed: () {
+        setState(() {
+          _selectedCategory = '';
+          _selectedDate = null;
+        });
+      },
+      child: const Text(
+        'Reset',
+        style: TextStyle(
+          color: UIColor.primaryColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 
