@@ -63,7 +63,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     });
 
     try {
-      const url = 'https://polivent.my.id/api/forgot-password';
+      const url = 'https://polivent.my.id/api/auth?action=forgotPassword';
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},

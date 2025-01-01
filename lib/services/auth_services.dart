@@ -14,7 +14,6 @@ import 'package:polivent_app/services/token_service.dart';
 
 class AuthService {
   final Dio _dio = Dio();
-  final _storage = const FlutterSecureStorage();
 
   // Konstruktor dengan konfigurasi Dio
   AuthService() {
@@ -196,7 +195,7 @@ class AuthService {
     try {
       debugPrint('🚪 Logout Process Started');
 
-      final token = await TokenService.getAccessTokenFromSharedPrefs();
+      final token = await TokenService.getAccessToken();
       if (token == null) {
         debugPrint('🚨 No Access Token Found');
         _navigateToLogin(context);
@@ -208,11 +207,11 @@ class AuthService {
 
         final response = await _dio.delete(
           '/auth',
-          options: Options(
-            headers: {
-              'Authorization': 'Bearer $token',
-            },
-          ),
+          // options: Options(
+          //   headers: {
+          //     'Authorization': 'Bearer $token',
+          //   },
+          // ),
         );
 
         debugPrint('Logout Response Status: ${response.statusCode}');

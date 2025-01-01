@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/comments.dart';
+import 'package:polivent_app/models/common_widget.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:polivent_app/screens/home/ticket/detail_ticket.dart';
@@ -52,7 +53,7 @@ class _EventHistoryPageState extends State<EventHistoryPage>
   }
 
   void _handleTabChange() {
-    if (_tabController.indexIsChanging) {
+    if (!_tabController.indexIsChanging) {
       setState(() {
         // Set filter based on active tab
         if (_tabController.index == 0) {
@@ -65,6 +66,8 @@ class _EventHistoryPageState extends State<EventHistoryPage>
           _showHasPresent = true;
         }
       });
+
+      // Selalu fetch data saat tab berubah
       _checkConnectivityAndFetchEvents();
     }
   }
@@ -560,6 +563,8 @@ class _EventHistoryPageState extends State<EventHistoryPage>
         ),
       ),
       body: RefreshIndicator(
+        color: UIColor.primaryColor,
+        backgroundColor: Colors.white,
         onRefresh: () => _checkConnectivityAndFetchEvents(),
         child: Column(
           children: [
@@ -619,29 +624,13 @@ class _EventHistoryPageState extends State<EventHistoryPage>
             else if (_errorMessage.isNotEmpty)
               Expanded(
                 child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          color: Colors.red, size: 60),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Error: $_errorMessage',
-                        style: const TextStyle(color: Colors.black),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: UIColor.primaryColor,
-                        ),
-                        onPressed: () => _checkConnectivityAndFetchEvents(),
-                        child: const Text(
-                          'Coba Lagi',
-                          style: TextStyle(color: UIColor.white),
-                        ),
-                      ),
-                    ],
+                  child: CommonWidgets.buildErrorWidget(
+                    context: context,
+                    errorMessage: _errorMessage,
+                    onRetry: () async {
+                      await _checkConnectivityAndFetchEvents(
+                          search: _searchController.text.trim());
+                    },
                   ),
                 ),
               )
@@ -657,6 +646,38 @@ class _EventHistoryPageState extends State<EventHistoryPage>
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Tambahkan method helper untuk error widget
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 60),
+          const SizedBox(height: 16),
+          Text(
+            'Error: $_errorMessage',
+            style: const TextStyle(color: Colors.black),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UIColor.primaryColor,
+            ),
+            onPressed: () async {
+              await _checkConnectivityAndFetchEvents(
+                  search: _searchController.text.trim());
+            },
+            child: const Text(
+              'Coba Lagi',
+              style: TextStyle(color: UIColor.white),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -744,11 +765,11 @@ class _EventHistoryPageState extends State<EventHistoryPage>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.only(top: 20, bottom: 20),
+      padding: const EdgeInsets.only(top: 8, bottom: 20),
       itemCount: events.length,
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
           child: _buildEventCard(events[index], isUpcoming),
         );
       },
@@ -1058,8 +1079,14 @@ class _EventHistoryPageState extends State<EventHistoryPage>
                     // Tampilkan konfirmasi
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Text('Ulasan berhasil disimpan'),
-                        backgroundColor: UIColor.primaryColor,
+                        content: const Row(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.green),
+                            SizedBox(width: 10),
+                            Text('Ulasan berhasil ditambahkan'),
+                          ],
+                        ),
+                        backgroundColor: Colors.black87,
                         behavior: SnackBarBehavior.floating,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),

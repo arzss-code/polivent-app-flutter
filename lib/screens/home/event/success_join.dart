@@ -9,7 +9,7 @@ class SuccessJoinPopup extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: UIColor.solidWhite,
-      contentPadding: const EdgeInsets.all(36),
+      contentPadding: const EdgeInsets.fromLTRB(30, 20, 30, 20),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -23,9 +23,8 @@ class SuccessJoinPopup extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // const SizedBox(height: 8),
           const Text(
-            'Congratulations!',
+            'Selamat!',
             style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -33,9 +32,9 @@ class SuccessJoinPopup extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'You have successfully joined an event',
+            'Anda telah berhasil bergabung dengan acara ini.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14),
+            style: TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 24),
           // ElevatedButton(
@@ -49,7 +48,6 @@ class SuccessJoinPopup extends StatelessWidget {
           //   style: ElevatedButton.styleFrom(
           //     backgroundColor: Colors.blue,
           //     fixedSize: const Size(250, 50),
-          //     // padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           //     textStyle: const TextStyle(
           //       fontSize: 16,
           //     ),
@@ -58,7 +56,7 @@ class SuccessJoinPopup extends StatelessWidget {
           //     ),
           //   ),
           //   child: const Text(
-          //     'View E-Ticket',
+          //     'Lihat E-Tiket',
           //     style: TextStyle(color: UIColor.solidWhite),
           //   ),
           // ),
@@ -71,7 +69,6 @@ class SuccessJoinPopup extends StatelessWidget {
             style: TextButton.styleFrom(
               backgroundColor: Colors.grey[200],
               fixedSize: const Size(250, 50),
-              // padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               textStyle: const TextStyle(
                 fontSize: 16,
               ),
@@ -80,7 +77,7 @@ class SuccessJoinPopup extends StatelessWidget {
               ),
             ),
             child: const Text(
-              'OK',
+              'Tutup',
               style: TextStyle(color: UIColor.primaryColor),
             ),
           ),

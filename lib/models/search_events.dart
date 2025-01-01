@@ -11,7 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 
 class SearchEventsWidget extends StatefulWidget {
-  const SearchEventsWidget({super.key});
+  final bool isFloating;
+
+  const SearchEventsWidget({super.key, this.isFloating = false});
 
   @override
   SearchEventsWidgetState createState() => SearchEventsWidgetState();
@@ -126,56 +128,73 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 45,
-      child: TextField(
-        textInputAction: TextInputAction.search,
-        controller: _searchController,
-        maxLines: 1,
-        minLines: 1,
-        decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-          isDense: true,
-          alignLabelWithHint: true,
-          hintText: 'Cari event',
-          contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
-          hintStyle: const TextStyle(color: UIColor.typoGray, fontSize: 14),
-          filled: true,
-          fillColor: UIColor.solidWhite,
-          prefixIcon: Icon(
-            UIconsPro.regularRounded.search,
-            color: UIColor.typoBlack,
-            size: 18,
-          ),
-          suffixIcon: GestureDetector(
-            onTap: () async {
-              final filter = await EventFilter.showFilterBottomSheet(context);
-              if (filter != null) {
-                setState(() {
-                  _currentFilter = filter; // Simpan filter saat ini
-                });
-                _applyFilter(filter);
-              }
-            },
-            child: Icon(
-              UIconsPro.regularRounded.settings_sliders,
+    return Padding(
+      padding: widget.isFloating
+          ? const EdgeInsets.symmetric(horizontal: 20)
+          : EdgeInsets.zero,
+      child: Container(
+        decoration: widget.isFloating
+            ? BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
+                    )
+                  ])
+            : null,
+        child: TextField(
+          textInputAction: TextInputAction.search,
+          controller: _searchController,
+          maxLines: 1,
+          minLines: 1,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            isDense: true,
+            alignLabelWithHint: true,
+            hintText: 'Cari event',
+            contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
+            hintStyle: const TextStyle(color: UIColor.typoGray, fontSize: 14),
+            filled: true,
+            fillColor: UIColor.solidWhite,
+            prefixIcon: Icon(
+              UIconsPro.regularRounded.search,
               color: UIColor.typoBlack,
               size: 18,
             ),
+            suffixIcon: GestureDetector(
+              onTap: () async {
+                final filter = await EventFilter.showFilterBottomSheet(context);
+                if (filter != null) {
+                  setState(() {
+                    _currentFilter = filter;
+                  });
+                  _applyFilter(filter);
+                }
+              },
+              child: Icon(
+                UIconsPro.regularRounded.settings_sliders,
+                color: UIColor.typoBlack,
+                size: 18,
+              ),
+            ),
           ),
+          onSubmitted: (searchQuery) {
+            if (searchQuery.isNotEmpty) {
+              _searchEvents(
+                searchQuery,
+                category: _currentFilter?.category,
+                date: _currentFilter?.date?.toIso8601String(),
+              );
+            }
+          },
         ),
-        onSubmitted: (searchQuery) {
-          if (searchQuery.isNotEmpty) {
-            _searchEvents(
-              searchQuery,
-              category: _currentFilter?.category,
-              date: _currentFilter?.date?.toIso8601String(),
-            );
-          }
-        },
       ),
     );
   }

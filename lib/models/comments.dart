@@ -341,7 +341,7 @@ class _CommentsSectionState extends State<CommentsSection> {
             ),
           ),
           IconButton(
-            iconSize: 30,
+            iconSize: 35,
             icon: const Icon(Icons.send_rounded),
             color: Colors.blue,
             onPressed: _submitComment,
