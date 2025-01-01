@@ -509,15 +509,27 @@ class _CommentsSectionState extends State<CommentsSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Comment Input
-        _buildCommentInput(),
+    return GestureDetector(
+      onTap: () {
+        // Ini akan menutup keyboard dan menghilangkan fokus
+        FocusScope.of(context).unfocus();
 
-        // Comments Section
-        _buildCommentsSection(),
-      ],
+        // Reset reply state jika diperlukan
+        setState(() {
+          _isReplying = false;
+          _replyingToComment = null;
+        });
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Comment Input
+          _buildCommentInput(),
+
+          // Comments Section
+          _buildCommentsSection(),
+        ],
+      ),
     );
   }
 

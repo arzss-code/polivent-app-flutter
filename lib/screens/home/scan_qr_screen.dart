@@ -1097,8 +1097,9 @@ class _QRScanScreenState extends State<QRScanScreen> {
         // Tampilkan hasil scan berhasil
         _showScanResult(
             isSuccess: true,
-            message: 'Absensi berhasil dicatat.',
-            additionalInfo: 'Anda telah berhasil absen pada $eventTitle');
+            message: 'Absensi Berhasil',
+            additionalInfo:
+                'Anda telah berhasil melakukan absensi pada $eventTitle');
 
         // Kirim notifikasi berhasil absen
         await _sendAttendanceNotification(eventId, eventTitle);
@@ -1107,10 +1108,14 @@ class _QRScanScreenState extends State<QRScanScreen> {
         debugPrint('Absensi berhasil dicatat: ${response.body}');
       } else {
         final responseBody = json.decode(response.body);
+        // Mapping pesan error yang lebih informatif
+        String errorMessage =
+            _getIndonesianErrorMessage(responseBody['message'] ?? '');
         _showScanResult(
-            isSuccess: false,
-            message: 'Gagal mencatat absensi',
-            additionalInfo: responseBody['message'] ?? 'Coba lagi nanti');
+          isSuccess: false,
+          message: 'Absensi Gagal',
+          additionalInfo: errorMessage,
+        );
         debugPrint('Gagal mencatat absensi: ${response.body}');
       }
     } catch (e) {
@@ -1119,6 +1124,24 @@ class _QRScanScreenState extends State<QRScanScreen> {
           message: 'Kesalahan: ${e.toString()}',
           additionalInfo: 'Pastikan koneksi internet stabil');
       debugPrint('Kesalahan: $e');
+    }
+  }
+
+// Method untuk menerjemahkan pesan error
+  String _getIndonesianErrorMessage(String originalMessage) {
+    switch (originalMessage) {
+      case 'Attendance already recorded or invalid event':
+        return 'Maaf, Anda sudah pernah melakukan absensi untuk event ini';
+      case 'Event has not started':
+        return 'Maaf, event belum dimulai. Absensi tidak dapat dilakukan';
+      case 'Event has ended':
+        return 'Waduh, event sudah berakhir. Periode absensi telah ditutup';
+      case 'Invalid QR code':
+        return 'Kode QR tidak valid. Silakan periksa kembali';
+      case 'User not registered':
+        return 'Anda belum terdaftar untuk event ini';
+      default:
+        return 'Terjadi kesalahan. Silakan coba lagi atau hubungi panitia';
     }
   }
 
