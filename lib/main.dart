@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:app_links/app_links.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart'; 
 import 'package:polivent_app/services/token_service.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -59,13 +59,13 @@ Future<void> _configureSystemUI() async {
 }
 
 class PoliventApp extends StatefulWidget {
-  const PoliventApp({Key? key}) : super(key: key);
+  const PoliventApp({super.key});
 
   @override
-  _PoliventAppState createState() => _PoliventAppState();
+  PoliventAppState createState() => PoliventAppState();
 }
 
-class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
+class PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
   final AppLinks _appLinks = AppLinks();
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   // final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
