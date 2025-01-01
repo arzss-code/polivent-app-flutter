@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:app_links/app_links.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart'; 
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -44,10 +44,12 @@ Future<void> _initializeApp() async {
 
 Future<void> _configureSystemUI() async {
   // Atur style system UI
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarBrightness: Brightness.dark,
-    statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarColor: Colors.transparent,
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarBrightness: Brightness.light,
+    statusBarIconBrightness: Brightness.dark, // Icon status bar gelap
+    systemNavigationBarColor: Colors.white, // Warna navigation bar putih
+    systemNavigationBarIconBrightness:
+        Brightness.dark, // Icon navigation bar gelap
     statusBarColor: Colors.transparent,
   ));
 
@@ -179,6 +181,7 @@ class PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const ScrollBehavior().copyWith(overscroll: false),
       theme: _buildTheme(Brightness.light),
       title: 'Polivent',
       navigatorKey: _navigatorKey,
