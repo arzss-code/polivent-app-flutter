@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/services/data/events_model.dart';

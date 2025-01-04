@@ -98,7 +98,7 @@ class CommentService {
       }
       return [];
     } catch (e) {
-      print('Error fetching comments: $e');
+      debugPrint('Error fetching comments: $e');
       return [];
     }
   }
@@ -140,7 +140,7 @@ class CommentService {
       }
       return [];
     } catch (e) {
-      print('Error fetching replies: $e');
+      debugPrint('Error fetching replies: $e');
       return [];
     }
   }
@@ -181,7 +181,7 @@ class CommentService {
       }
       return null;
     } catch (e) {
-      print('Error creating comment: $e');
+      debugPrint('Error creating comment: $e');
       return null;
     }
   }
@@ -190,13 +190,13 @@ class CommentService {
 class CommentsSection extends StatefulWidget {
   final int eventId;
 
-  const CommentsSection({Key? key, required this.eventId}) : super(key: key);
+  const CommentsSection({super.key, required this.eventId});
 
   @override
-  _CommentsSectionState createState() => _CommentsSectionState();
+  CommentsSectionState createState() => CommentsSectionState();
 }
 
-class _CommentsSectionState extends State<CommentsSection> {
+class CommentsSectionState extends State<CommentsSection> {
   final CommentService _commentService = CommentService();
   final TextEditingController _commentController = TextEditingController();
   final AuthService _authService = AuthService();

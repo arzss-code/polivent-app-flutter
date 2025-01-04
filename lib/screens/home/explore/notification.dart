@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/services/notifikasi/notification_local.dart';
-import 'package:polivent_app/services/notifikasi/notification_services.dart';
+import 'package:polivent_app/config/ui_colors.dart';
+import 'package:polivent_app/services/notification/notification_local.dart';
+import 'package:polivent_app/services/notification/notification_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -87,18 +87,6 @@ class _NotificationPageState extends State<NotificationPage> {
 
     // Simpan kembali ke SharedPreferences
     await prefs.setStringList('notifications', savedNotifications);
-  }
-
-  Future<void> _markNotificationAsRead(NotificationItem notification) async {
-    notification.isNew = false;
-    await LocalNotificationService.addNotification(
-      title: notification.title,
-      message: notification.message,
-      type: notification.type,
-    );
-    setState(() {
-      // Update tampilan
-    });
   }
 
   @pragma("vm:entry-point")
@@ -400,21 +388,3 @@ class NotificationCard extends StatelessWidget {
     );
   }
 }
-
-// class NotificationItem {
-//   final String title;
-//   final String message;
-//   final DateTime time;
-//   final NotificationType type;
-//   final bool isNew;
-
-//   NotificationItem({
-//     required this.title,
-//     required this.message,
-//     required this.time,
-//     required this.type,
-//     required this.isNew,
-//   });
-// }
-
-// enum NotificationType { reminder, success, info, error }

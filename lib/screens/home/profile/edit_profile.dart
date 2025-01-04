@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/category_model.dart';
 import 'package:polivent_app/services/data/user_model.dart';
@@ -30,25 +30,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _aboutController = TextEditingController();
-
-  // List minat yang tersedia
-  final List<String> _allInterests = [
-    'Music',
-    'Art',
-    'Sports',
-    'Technology',
-    'Cooking',
-    'Travel',
-    'Photography',
-    'Reading',
-    'Gaming',
-    'Movies',
-    'Fitness',
-    'Design',
-    'Science',
-    'Workshop',
-    'Seminar'
-  ];
 
   // List minat yang dipilih
   List<String> _selectedInterests = [];
@@ -490,7 +471,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _selectedInterests.remove(interest);
                     });
                   },
-                  deleteIcon: Icon(Icons.close, color: Colors.white, size: 18),
+                  deleteIcon:
+                      const Icon(Icons.close, color: Colors.white, size: 18),
                 );
               }).toList(),
             ),

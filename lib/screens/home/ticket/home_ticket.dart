@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -8,15 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/models/common_widget.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:polivent_app/screens/home/ticket/detail_ticket.dart';
 import 'package:polivent_app/screens/home/ticket/filter.dart';
 import 'package:polivent_app/services/auth_services.dart';
-// import 'package:polivent_app/services/data/events_model.dart';
 import 'package:polivent_app/services/data/registration_model.dart';
 import 'package:polivent_app/services/token_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 
@@ -115,218 +112,6 @@ class _EventHistoryPageState extends State<EventHistoryPage>
 
     return await _fetchEventsWithRetry(search: search);
   }
-
-  // Future<bool> _fetchEventsWithRetry({String search = ''}) async {
-  //   try {
-  //     setState(() {
-  //       _isLoading = true;
-  //       _errorMessage = '';
-  //     });
-
-  //     final authService = AuthService();
-  //     final userData = await authService.getUserData();
-
-  //     if (userData == null) {
-  //       throw Exception('User tidak ditemukan');
-  //     }
-
-  //     final accessToken = await TokenService.getAccessToken();
-
-  //     if (accessToken == null) {
-  //       throw Exception('Access token tidak ditemukan');
-  //     }
-
-  //     final headers = {
-  //       'Authorization': 'Bearer $accessToken',
-  //       'Content-Type': 'application/json',
-  //     };
-
-  //     // Upcoming Events
-  //     final upcomingUrl = _buildUrl(
-  //       path: '/registration',
-  //       params: {
-  //         'user_id': userData.userId,
-  //         'upcoming': 'true',
-  //         if (_showNotPresent) 'not_present': 'true',
-  //         if (_showHasPresent) 'has_present': 'true',
-  //         if (search.isNotEmpty) 'search': search,
-  //       },
-  //     );
-
-  //     // Past Events
-  //     final pastUrl = _buildUrl(
-  //       path: '/registration',
-  //       params: {
-  //         'user_id': userData.userId,
-  //         // if (_showNotPresent) 'not_present': 'true',
-  //         if (_showHasPresent) 'has_present': 'true',
-  //         if (search.isNotEmpty) 'search': search,
-  //       },
-  //     );
-
-  //     final upcomingResponse =
-  //         await http.get(Uri.parse(upcomingUrl), headers: headers);
-  //     final pastResponse = await http.get(Uri.parse(pastUrl), headers: headers);
-
-  //     // Validasi response upcoming events
-  //     if (upcomingResponse.statusCode == 200) {
-  //       final upcomingData = json.decode(upcomingResponse.body);
-  //       setState(() {
-  //         _upcomingEvents = (upcomingData['data'] as List)
-  //             .map((json) => Registration.fromJson(json))
-  //             .toList();
-  //       });
-  //     } else if (upcomingResponse.statusCode != 404) {
-  //       // Hanya tampilkan error jika bukan 404
-  //       _handleHttpError(upcomingResponse.statusCode, 200);
-  //       return false;
-  //     }
-
-  //     // Validasi response past events
-  //     if (pastResponse.statusCode == 200) {
-  //       final pastData = json.decode(pastResponse.body);
-  //       // Filter events yang sudah berakhir
-  //       // setState(() {
-  //       //   _pastEvents = (pastData['data'] as List)
-  //       //       .map((json) => Registration.fromJson(json))
-  //       //       .where((event) {
-  //       //     DateTime endDate = DateTime.parse(event.dateEnd);
-  //       //     return endDate.isBefore(DateTime.now());
-  //       //   }).toList();
-  //       // });
-  //       // Tampilkan semua event yang sudah berakhir
-  //       setState(() {
-  //         _pastEvents = (pastData['data'] as List)
-  //             .map((json) => Registration.fromJson(json))
-  //             .toList();
-  //       });
-  //     } else if (pastResponse.statusCode != 404) {
-  //       // Hanya tampilkan error jika bukan 404
-  //       _handleHttpError(200, pastResponse.statusCode);
-  //       return false;
-  //     }
-
-  //     setState(() {
-  //       _isLoading = false;
-  //       _retryCount = 0;
-  //     });
-
-  //     return true;
-  //   } catch (e) {
-  //     _handleFetchError(e);
-  //     return false;
-  //   }
-  // }
-
-  // Future<bool> _fetchEventsWithRetry({String search = ''}) async {
-  //   try {
-  //     setState(() {
-  //       _isLoading = true;
-  //       _errorMessage = '';
-  //     });
-
-  //     final authService = AuthService();
-  //     final userData = await authService.getUserData();
-
-  //     if (userData == null) {
-  //       throw Exception('User tidak ditemukan');
-  //     }
-
-  //     final accessToken = await TokenService.getAccessToken();
-
-  //     if (accessToken == null) {
-  //       throw Exception('Access token tidak ditemukan');
-  //     }
-
-  //     final headers = {
-  //       'Authorization': 'Bearer $accessToken',
-  //       'Content-Type': 'application/json',
-  //     };
-
-  //     // Upcoming Events - only fetch if not_present filter is active
-  //     if (_showNotPresent && !_showHasPresent) {
-  //       final upcomingUrl = _buildUrl(
-  //         path: '/registration',
-  //         params: {
-  //           'user_id': userData.userId,
-  //           'upcoming': 'true',
-  //           'not_present': 'true',
-  //           if (search.isNotEmpty) 'search': search,
-  //         },
-  //       );
-
-  //       final upcomingResponse =
-  //           await http.get(Uri.parse(upcomingUrl), headers: headers);
-
-  //       if (upcomingResponse.statusCode == 200) {
-  //         final upcomingData = json.decode(upcomingResponse.body);
-  //         setState(() {
-  //           _upcomingEvents = (upcomingData['data'] as List)
-  //               .map((json) => Registration.fromJson(json))
-  //               .toList();
-  //         });
-  //       } else if (upcomingResponse.statusCode != 404) {
-  //         _handleHttpError(upcomingResponse.statusCode, 200);
-  //         return false;
-  //       }
-  //     } else {
-  //       // Clear upcoming events if filter is not active
-  //       setState(() {
-  //         _upcomingEvents = [];
-  //       });
-  //     }
-
-  //     // Past Events - only fetch if has_present filter is active
-  //     if (_showHasPresent && !_showNotPresent) {
-  //       final pastUrl = _buildUrl(
-  //         path: '/registration',
-  //         params: {
-  //           'user_id': userData.userId,
-  //           'has_present': 'true',
-  //           if (search.isNotEmpty) 'search': search,
-  //         },
-  //       );
-
-  //       final pastResponse =
-  //           await http.get(Uri.parse(pastUrl), headers: headers);
-
-  //       if (pastResponse.statusCode == 200) {
-  //         final pastData = json.decode(pastResponse.body);
-  //         setState(() {
-  //           _pastEvents = (pastData['data'] as List)
-  //               .map((json) => Registration.fromJson(json))
-  //               .toList();
-  //         });
-  //       } else if (pastResponse.statusCode != 404) {
-  //         _handleHttpError(200, pastResponse.statusCode);
-  //         return false;
-  //       }
-  //     } else {
-  //       // Clear past events if filter is not active
-  //       setState(() {
-  //         _pastEvents = [];
-  //       });
-  //     }
-
-  //     // If both filters are active, clear both lists
-  //     if (_showNotPresent && _showHasPresent) {
-  //       setState(() {
-  //         _upcomingEvents = [];
-  //         _pastEvents = [];
-  //       });
-  //     }
-
-  //     setState(() {
-  //       _isLoading = false;
-  //       _retryCount = 0;
-  //     });
-
-  //     return true;
-  //   } catch (e) {
-  //     _handleFetchError(e);
-  //     return false;
-  //   }
-  // }
 
   Future<bool> _fetchEventsWithRetry({String search = ''}) async {
     try {

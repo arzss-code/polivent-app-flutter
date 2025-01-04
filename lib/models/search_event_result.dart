@@ -3,12 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/services/token_service.dart';
-// import 'package:polivent_app/models/search_events.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/models/event_filter.dart';
-// import 'package:polivent_app/services/auth_services.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
 
@@ -28,6 +25,7 @@ class SearchEventsResultScreen extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _SearchEventsResultScreenState createState() =>
       _SearchEventsResultScreenState();
 }
@@ -138,11 +136,6 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
     }
   }
 
-  Future<String> _getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('access_token') ?? '';
-  }
-
   String _formatDate(String dateString) {
     try {
       final dateTime = DateTime.parse(dateString);
@@ -156,7 +149,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
     // Pastikan ada filter saat ini untuk dikirim
     final updatedFilter = await EventFilter.showFilterBottomSheet(
       context,
-      currentCategory: _currentFilter?.category ?? '',
+      currentCategory: _currentFilter.category ?? '',
       currentDateFrom: _currentFilter.dateFrom,
       currentDateTo: _currentFilter.dateTo,
     );
@@ -188,15 +181,6 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
         });
       }
     }
-  }
-
-  void _resetAllFilters() {
-    setState(() {
-      _currentFilter = EventFilter(); // Reset ke kondisi awal
-      _searchController.clear();
-      _isLoading = true;
-    });
-    _fetchEvents();
   }
 
   // Tambahkan method untuk menghapus filter individual
@@ -324,7 +308,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.search, color: Colors.white),
+                              Icon(Icons.search, color: Colors.white),
                               SizedBox(width: 8),
                               Text(
                                 'Cari',
@@ -549,8 +533,9 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
   int _calculateActiveFiltersCount() {
     int count = 0;
     if (_currentFilter.category.isNotEmpty) count++;
-    if (_currentFilter.dateFrom != null && _currentFilter.dateTo != null)
+    if (_currentFilter.dateFrom != null && _currentFilter.dateTo != null) {
       count++;
+    }
     return count;
   }
 

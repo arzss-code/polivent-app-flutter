@@ -604,17 +604,16 @@ import 'package:http/http.dart' as http;
 
 // Import konfigurasi dan layanan
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/services/auth_services.dart';
-import 'package:polivent_app/services/notifikasi/notification_services.dart';
+import 'package:polivent_app/services/notification/notification_services.dart';
 import 'package:polivent_app/services/token_service.dart';
 
 class QRScanScreen extends StatefulWidget {
   final String? eventId;
   final bool isStrictMode;
 
-  const QRScanScreen({Key? key, this.eventId, this.isStrictMode = false})
-      : super(key: key);
+  const QRScanScreen({super.key, this.eventId, this.isStrictMode = false});
 
   @override
   _QRScanScreenState createState() => _QRScanScreenState();
@@ -887,13 +886,13 @@ class _QRScanScreenState extends State<QRScanScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.qr_code_scanner,
                   size: 80,
                   color: UIColor.primaryColor,
                 ),
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'Konfirmasi Absensi',
                   style: TextStyle(
                     fontSize: 20,
@@ -1164,16 +1163,6 @@ class _QRScanScreenState extends State<QRScanScreen> {
           'type': 'attendance_success',
         },
       );
-
-      // // Kirim notifikasi umum
-      // await NotificationService.showGeneralNotification(
-      //   title: 'Absensi Berhasil',
-      //   body: 'Anda telah berhasil absen pada $eventTitle',
-      //   payload: {
-      //     'event_id': eventId,
-      //     'type': 'attendance_success',
-      //   },
-      // );
     } catch (e) {
       debugPrint('Gagal mengirim notifikasi absensi: $e');
     }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:polivent_app/screens/auth/login_screen.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/services/token_service.dart';
 
 class CommonWidgets {

@@ -4,7 +4,7 @@ import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'dart:developer' as developer;
 
 import 'package:polivent_app/screens/home/profile/edit_profile.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/screens/home/profile/help.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/token_service.dart';

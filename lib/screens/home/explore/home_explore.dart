@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:polivent_app/models/common_widget.dart';
 import 'package:polivent_app/screens/home/explore/explore_upcoming_events.dart';
 import 'package:polivent_app/screens/home/explore/explore_quick_category_section.dart';
 import 'package:polivent_app/screens/home/explore/explore_most_likes_carousel.dart';
 import 'package:polivent_app/models/search_events.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/screens/home/explore/notification.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/user_model.dart';
-import 'package:polivent_app/services/notifikasi/notification_services.dart';
 
 class HomeExplore extends StatefulWidget {
   const HomeExplore({super.key});

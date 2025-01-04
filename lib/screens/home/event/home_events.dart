@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/common_widget.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/screens/home/event/favorite_events.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:uicons_pro/uicons_pro.dart';
@@ -22,9 +22,6 @@ class HomeEvents extends StatefulWidget {
 
 class _HomeEventsState extends State<HomeEvents>
     with AutomaticKeepAliveClientMixin {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
-  // Tambahkan ScrollController
   final ScrollController _scrollController = ScrollController();
 
   List<Event> events = [];

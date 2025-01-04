@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/common_widget.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:polivent_app/services/like_services.dart';
 import 'package:polivent_app/services/token_service.dart';
@@ -10,7 +10,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
-import 'package:polivent_app/models/search_events.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -23,8 +22,6 @@ class FavoriteEvents extends StatefulWidget {
 
 class _FavoriteEventsState extends State<FavoriteEvents>
     with AutomaticKeepAliveClientMixin {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
   final ScrollController _scrollController = ScrollController();
 
   List<Event> favoriteEvents = [];

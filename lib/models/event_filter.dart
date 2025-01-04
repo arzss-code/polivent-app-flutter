@@ -2,27 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'dart:convert';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EventFilter {
   String category;
-  // DateTime? date;
   DateTime? dateFrom;
   DateTime? dateTo;
 
   EventFilter({
     this.category = '',
-    // this.date,
     this.dateFrom,
     this.dateTo,
   });
 
   void resetFilter() {
     category = '';
-    // date = null;
     dateFrom = null;
     dateTo = null;
   }
@@ -94,8 +91,6 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   List<String> _categories = [];
   bool _isLoading = true;
   // Tambahkan variabel untuk menyimpan rentang tanggal
-  DateTime? _dateFrom;
-  DateTime? _dateTo;
   DateTime? _selectedDateFrom;
   DateTime? _selectedDateTo;
 

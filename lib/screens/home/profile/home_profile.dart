@@ -6,7 +6,7 @@ import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/common_widget.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/screens/home/profile/settings_screen.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
