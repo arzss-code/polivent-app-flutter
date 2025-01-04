@@ -224,7 +224,7 @@ class AuthService {
       } finally {
         // Selalu lakukan logout lokal
         final prefs = await SharedPreferences.getInstance();
-        await prefs.remove('notification');
+        await prefs.remove('notifications');
         await TokenService.logout();
         _navigateToLogin(context);
       }
