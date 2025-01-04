@@ -448,7 +448,7 @@ class CarouselEventsState extends State<CarouselSection> {
                                               _buildInfoRow(
                                                 icon: UIconsPro.regularRounded
                                                     .house_building,
-                                                text: event.location,
+                                                text: event.place,
                                               ),
                                               _buildInfoRow(
                                                 icon: UIconsPro

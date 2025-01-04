@@ -15,15 +15,15 @@ import 'package:polivent_app/screens/home/event/detail_events.dart';
 class SearchEventsResultScreen extends StatefulWidget {
   final String searchQuery;
   final String? category;
-  final String? location;
-  final DateTime? date; // Ubah dari DateTime ke String
+  final DateTime? dateFrom;
+  final DateTime? dateTo;
 
   const SearchEventsResultScreen({
     super.key,
     required this.searchQuery,
     this.category,
-    this.location,
-    this.date,
+    this.dateFrom,
+    this.dateTo,
     List<dynamic>? events, // Tambahkan parameter opsional events
   });
 
@@ -33,8 +33,6 @@ class SearchEventsResultScreen extends StatefulWidget {
 }
 
 class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
-  // final GlobalKey<SearchEventsWidgetState> _searchKey =
-  //     GlobalKey<SearchEventsWidgetState>();
   List<Map<String, dynamic>> _events = [];
   late EventFilter _currentFilter;
   bool _isLoading = true;
@@ -49,7 +47,8 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
     // Inisialisasi filter dari parameter konstruktor
     _currentFilter = EventFilter(
       category: widget.category ?? '',
-      date: widget.date,
+      dateFrom: widget.dateFrom,
+      dateTo: widget.dateTo,
     );
 
     _fetchEvents();
@@ -72,10 +71,12 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
         queryParams['category'] = _currentFilter.category;
       }
 
-      // if (_currentFilter.date != null) {
-      //   queryParams['date'] =
-      //       DateFormat('yyyy-MM-dd').format(_currentFilter.date!);
-      // }
+      if (_currentFilter.dateFrom != null && _currentFilter.dateTo != null) {
+        queryParams['date_from'] =
+            DateFormat('yyyy-MM-dd').format(_currentFilter.dateFrom!);
+        queryParams['date_to'] =
+            DateFormat('yyyy-MM-dd').format(_currentFilter.dateTo!);
+      }
 
       final uri = Uri.parse('$prodApiBaseUrl/available_events').replace(
         queryParameters: queryParams,
@@ -109,7 +110,7 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
                       'event_id': event['event_id'] ?? '',
                       'title': event['title'] ?? 'Judul Tidak Tersedia',
                       'date': _formatDate(event['date_start'] ?? ''),
-                      'location': event['location'] ?? 'Lokasi Tidak Tersedia',
+                      'place': event['place'] ?? 'Lokasi Tidak Tersedia',
                       'image': event['poster'] ?? '',
                       'category': event['category'] ?? 'Umum',
                     })
@@ -156,6 +157,8 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
     final updatedFilter = await EventFilter.showFilterBottomSheet(
       context,
       currentCategory: _currentFilter?.category ?? '',
+      currentDateFrom: _currentFilter.dateFrom,
+      currentDateTo: _currentFilter.dateTo,
     );
 
     if (updatedFilter != null) {
@@ -191,6 +194,23 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
     setState(() {
       _currentFilter = EventFilter(); // Reset ke kondisi awal
       _searchController.clear();
+      _isLoading = true;
+    });
+    _fetchEvents();
+  }
+
+  // Tambahkan method untuk menghapus filter individual
+  void _removeFilter(String filterType) {
+    setState(() {
+      switch (filterType) {
+        case 'category':
+          _currentFilter.category = '';
+          break;
+        case 'date':
+          _currentFilter.dateFrom = null;
+          _currentFilter.dateTo = null;
+          break;
+      }
       _isLoading = true;
     });
     _fetchEvents();
@@ -339,7 +359,8 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
           builder: (context) => SearchEventsResultScreen(
             searchQuery: _searchController.text.trim(),
             category: _currentFilter.category,
-            date: _currentFilter.date,
+            dateFrom: _currentFilter.dateFrom,
+            dateTo: _currentFilter.dateTo,
           ),
         ),
       );
@@ -425,44 +446,54 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
         children: [
           // SearchEventsWidget(key: _searchKey),
           // Filter Summary
+          // Perbarui bagian filter summary dalam build method
           if (!_currentFilter.isEmpty())
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: UIColor.primaryColor.withOpacity(0.1),
-              child: Row(
-                children: [
-                  const Text(
-                    'Filter:  ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: UIColor.typoBlack,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Container(
+                width: MediaQuery.of(context).size.width, // Pastikan full width
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: UIColor.primaryColor.withOpacity(0.1),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Filter:  ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: UIColor.typoBlack,
+                      ),
                     ),
-                  ),
-                  if (_currentFilter.category.isNotEmpty)
-                    _buildFilterChip(_currentFilter.category, () {
-                      setState(() {
-                        _currentFilter.category = '';
-                        _isLoading = true;
-                      });
-                      _fetchEvents();
-                    }),
-                  // if (_currentFilter.date != null)
-                  //   _buildFilterChip(
-                  //     '${_currentFilter.date!.day}/${_currentFilter.date!.month}/${_currentFilter.date!.year}',
-                  //     () {
-                  //       setState(() {
-                  //         _currentFilter.date = null;
-                  //         _isLoading = true;
-                  //       });
-                  //       _fetchEvents();
-                  //     },
-                  //   ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.clear_all, color: Colors.red),
-                    onPressed: _clearFilter,
-                  ),
-                ],
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            if (_currentFilter.category.isNotEmpty)
+                              _buildFilterChip(_currentFilter.category, () {
+                                _removeFilter('category');
+                              }),
+                            if (_currentFilter.dateFrom != null &&
+                                _currentFilter.dateTo != null)
+                              _buildFilterChip(
+                                '${DateFormat('dd/MM/yyyy').format(_currentFilter.dateFrom!)} - ${DateFormat('dd/MM/yyyy').format(_currentFilter.dateTo!)}',
+                                () {
+                                  _removeFilter('date');
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.clear_all, color: Colors.red),
+                      onPressed: _clearFilter,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -518,7 +549,8 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
   int _calculateActiveFiltersCount() {
     int count = 0;
     if (_currentFilter.category.isNotEmpty) count++;
-    if (_currentFilter.date != null) count++;
+    if (_currentFilter.dateFrom != null && _currentFilter.dateTo != null)
+      count++;
     return count;
   }
 
@@ -618,10 +650,10 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(UIconsPro.regularRounded.marker,
+                        Icon(UIconsPro.regularRounded.house_building,
                             color: UIColor.primaryColor, size: 16),
                         const SizedBox(width: 8),
-                        Text(event['location']),
+                        Text(event['place']),
                       ],
                     ),
                   ],

@@ -198,10 +198,10 @@ class _HomeProfileState extends State<HomeProfile> {
       ),
       actions: [
         IconButton(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.only(right: 20),
           icon: Icon(
             UIconsPro.regularRounded.settings,
-            size: 20,
+            size: 24,
           ),
           onPressed: _navigateToSettings,
         ),
@@ -386,6 +386,8 @@ class _HomeProfileState extends State<HomeProfile> {
           },
           child: Card(
             color: Colors.white,
+            elevation: 5,
+            shadowColor: Colors.grey.withOpacity(0.2),
             margin: const EdgeInsets.symmetric(vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

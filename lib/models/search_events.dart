@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/ui_colors.dart';
 import 'package:polivent_app/models/event_filter.dart';
 import 'package:polivent_app/models/search_event_result.dart';
-import 'package:polivent_app/services/auth_services.dart';
+// import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
@@ -41,7 +42,7 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
   }
 
   Future<void> _searchEvents(String searchQuery,
-      {String? category, String? location, String? date}) async {
+      {String? category, DateTime? dateFrom, DateTime? dateTo}) async {
     try {
       final accessToken = await TokenService.getAccessToken();
 
@@ -52,11 +53,10 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
       if (category != null && category.isNotEmpty) {
         url += '&category=$category';
       }
-      if (location != null && location.isNotEmpty) {
-        url += '&location=$location';
-      }
-      if (date != null && date.isNotEmpty) {
-        url += '&date=$date';
+
+      if (dateFrom != null && dateTo != null) {
+        url +=
+            '&date_from=${DateFormat('yyyy-MM-dd').format(dateFrom)}&date_to=${DateFormat('yyyy-MM-dd').format(dateTo)}';
       }
 
       final response = await http.get(
@@ -67,6 +67,7 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
         },
       );
 
+      debugPrint('Search URL: $url');
       debugPrint('Search Response Status: ${response.statusCode}');
       debugPrint('Search Response Body: ${response.body}');
 
@@ -84,8 +85,8 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
                 searchQuery: searchQuery,
                 events: eventsData,
                 category: category,
-                location: location,
-                date: date != null ? DateTime.parse(date) : null,
+                dateFrom: dateFrom,
+                dateTo: dateTo,
               ),
             ),
           );
@@ -174,6 +175,8 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
                   context,
                   // Kirim filter saat ini untuk ditampilkan
                   currentCategory: _currentFilter?.category ?? '',
+                  currentDateFrom: _currentFilter?.dateFrom,
+                  currentDateTo: _currentFilter?.dateTo,
                 );
 
                 if (filter != null) {
@@ -186,7 +189,8 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
                     _searchEvents(
                       _searchController.text,
                       category: filter.category,
-                      date: filter.date?.toIso8601String(),
+                      dateFrom: filter.dateFrom,
+                      dateTo: filter.dateTo,
                     );
                   }
 
@@ -206,7 +210,8 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
               _searchEvents(
                 searchQuery,
                 category: _currentFilter?.category,
-                date: _currentFilter?.date?.toIso8601String(),
+                dateFrom: _currentFilter?.dateFrom,
+                dateTo: _currentFilter?.dateTo,
               );
             }
           },
@@ -215,10 +220,13 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
     );
   }
 
+  // Perbarui _showFilterModal
   void _showFilterModal() async {
     final updatedFilter = await EventFilter.showFilterBottomSheet(
       context,
       currentCategory: _currentFilter?.category ?? '',
+      currentDateFrom: _currentFilter?.dateFrom,
+      currentDateTo: _currentFilter?.dateTo,
     );
 
     if (updatedFilter != null) {
@@ -231,18 +239,21 @@ class SearchEventsWidgetState extends State<SearchEventsWidget> {
         _searchEvents(
           _searchController.text,
           category: updatedFilter.category,
-          date: updatedFilter.date?.toIso8601String(),
+          dateFrom: updatedFilter.dateFrom,
+          dateTo: updatedFilter.dateTo,
         );
       }
     }
   }
 
+  // Perbarui _applyFilter
   void _applyFilter(EventFilter filter) {
     // Lakukan pencarian dengan filter
     _searchEvents(
       _searchController.text,
       category: filter.category,
-      date: filter.date?.toIso8601String(),
+      dateFrom: filter.dateFrom,
+      dateTo: filter.dateTo,
     );
   }
 

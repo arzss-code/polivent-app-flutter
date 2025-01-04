@@ -83,6 +83,7 @@ class LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _login() async {
+    FocusScope.of(context).unfocus(); // Menutup keyboard
     setState(() {
       _emailError = null;
       _passwordError = null;
@@ -250,7 +251,7 @@ class LoginScreenState extends State<LoginScreen>
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'Login Successful',
+                  'Login Berhasil!',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 16),
@@ -273,7 +274,7 @@ class LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Pastikan ini diatur
+      resizeToAvoidBottomInset: false, // Pastikan ini diatur
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context)

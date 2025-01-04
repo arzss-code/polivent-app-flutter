@@ -359,7 +359,7 @@ class _HelpScreenState extends State<HelpScreen> {
             '2. Temukan ikon hati di pojok kanan atas\n'
             '3. Klik ikon hati untuk like\n'
             '4. Ikon akan berubah warna merah\n'
-            '5. Jumlah like akan bertambah\n'
+            '5. Event akan ditambahkan di event favorit\n'
             'Tips:\n'
             '• Like menunjukkan minat Anda\n'
             '• Dapat membagikan event yang disukai',
@@ -397,6 +397,51 @@ class _HelpScreenState extends State<HelpScreen> {
             '• Gunakan bahasa sopan\n'
             '• Berikan komentar konstruktif\n'
             '• Hindari komentar negatif',
+      ),
+
+      const HelpItem(
+        category: 'Event',
+        icon: Icons.reply_rounded,
+        title: 'Cara Membalas Komentar',
+        content: 'Panduan Membalas Komentar:\n'
+            '1. Buka halaman detail event\n'
+            '2. Temukan komentar yang ingin dibalas\n'
+            '3. Klik tombol "Balas" di bawah komentar\n'
+            '4. Ketik balasan di kolom input\n'
+            '5. Tekan tombol kirim\n'
+            '6. Balasan akan tampil di bawah komentar\n'
+            'Tips:\n'
+            '• Gunakan bahasa yang sopan\n'
+            '• Berikan balasan yang relevan\n'
+            '• Hindari balasan yang bersifat negatif',
+      ),
+
+      const HelpItem(
+        category: 'Event',
+        icon: Icons.rate_review_rounded,
+        title: 'Cara Memberikan Ulasan',
+        content: 'Panduan Memberikan Ulasan:\n'
+            '1. Buka halaman tiket yang telah dihadiri\n'
+            '2. Gulir ke bagian ulasan\n'
+            '3. Klik tombol "Beri Ulasan"\n'
+            '4. Isi komentar\n'
+            '5. Tekan tombol kirim\n'
+            'Tips:\n'
+            '• Sertakan pengalaman Anda\n'
+            '• Hindari ulasan yang tidak relevan',
+      ),
+
+      const HelpItem(
+        category: 'Lainnya',
+        icon: Icons.notifications_active_rounded,
+        title: 'Mengelola Notifikasi',
+        content: 'Panduan Mengelola Notifikasi:\n'
+            '1. Buka halaman Pengaturan\n'
+            '2. Tekan tombol "Aktifkan Notifikasi" untuk menyalakan\n'
+            '3. Tekan tombol kembali untuk mematikan\n'
+            'Tips:\n'
+            '• Pastikan aplikasi memiliki izin notifikasi\n'
+            '• Sesuaikan jenis notifikasi sesuai kebutuhan',
       ),
 
       // Kategori Akun

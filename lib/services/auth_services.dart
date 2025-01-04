@@ -207,11 +207,11 @@ class AuthService {
 
         final response = await _dio.delete(
           '/auth',
-          // options: Options(
-          //   headers: {
-          //     'Authorization': 'Bearer $token',
-          //   },
-          // ),
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+            },
+          ),
         );
 
         debugPrint('Logout Response Status: ${response.statusCode}');

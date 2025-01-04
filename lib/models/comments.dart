@@ -1,7 +1,4 @@
-// ignore_for_file: unused_field
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -209,9 +206,6 @@ class _CommentsSectionState extends State<CommentsSection> {
   bool _isReplying = false;
   CommentModel? _replyingToComment;
   User? _currentUser;
-  // Tambahkan map untuk melacak status expand/collapse replies
-  // Tambahkan di dalam _CommentsSectionState class
-  // int _totalCommentCount = 0;
   Map<int, bool> _expandedReplies = {};
   FocusNode _commentFocusNode = FocusNode();
 
@@ -233,11 +227,6 @@ class _CommentsSectionState extends State<CommentsSection> {
     return total;
   }
 
-  // Method untuk menghitung total replies untuk sebuah komentar
-  int _countReplies(CommentModel comment) {
-    return comment.replies?.length ?? 0;
-  }
-
   Future<void> _fetchUserData() async {
     try {
       final userData = await _authService.getUserData();
@@ -246,7 +235,7 @@ class _CommentsSectionState extends State<CommentsSection> {
         _currentUser = userData;
       });
     } catch (e) {
-      print('Error fetching user data: $e');
+      debugPrint('Error fetching user data: $e');
     }
   }
 
@@ -581,7 +570,7 @@ class _CommentsSectionState extends State<CommentsSection> {
 
   @override
   void dispose() {
-    _commentFocusNode.dispose(); // Jangan lupa dispose FocusNode
+    _commentFocusNode.dispose(); // dispose FocusNode
     _commentController.dispose();
     super.dispose();
   }

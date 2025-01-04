@@ -269,6 +269,39 @@ class _DetailEventsState extends State<DetailEvents>
         isLoved = result['is_liked'];
         likeId = result['like_id'];
         _isLikeLoading = false;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  result['is_liked'] ? Icons.check_circle : Icons.remove_circle,
+                  color: result['is_liked'] ? Colors.green : Colors.red,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  result['is_liked']
+                      ? 'Ditambahkan ke Favorit'
+                      : 'Dihapus dari Favorit',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.black87,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            duration: const Duration(seconds: 2),
+            animation: CurvedAnimation(
+              parent: AnimationController(
+                duration: const Duration(milliseconds: 700),
+                vsync: this,
+              ),
+              curve: Curves.easeInOut,
+            ),
+          ),
+        );
       });
     }
   }
@@ -276,7 +309,7 @@ class _DetailEventsState extends State<DetailEvents>
   Future<void> shareEvent(Event event) async {
     // Buat deep link dengan domain yang sudah dikonfigurasi
     final String shareLink =
-        'https://polivent.my.id/event-detail/${event.eventId}';
+        'https://polivent.my.id/event-detail?id=${event.eventId}';
 
     // Buat konten share yang informatif
     final String shareContent = 'Yuk ikuti event menarik ini!\n\n'
@@ -460,6 +493,12 @@ class _DetailEventsState extends State<DetailEvents>
             daysBeforeEvent: 3, // Pengingat H-1
           );
 
+          // Tambahkan notifikasi lokal
+          _addLocalNotification(
+            title: 'Pendaftaran Berhasil',
+            message: 'Anda berhasil mendaftar event ${event.title}',
+          );
+
           // Jadwalkan pengingat event
           await NotificationService.saveNotificationToLocal(
             title: 'Pengingat Event',
@@ -471,12 +510,6 @@ class _DetailEventsState extends State<DetailEvents>
               'event_location': event.location,
               'event_date': event.dateStart,
             },
-          );
-
-          // Tambahkan notifikasi lokal
-          _addLocalNotification(
-            title: 'Pendaftaran Berhasil',
-            message: 'Anda berhasil mendaftar event ${event.title}',
           );
 
           // Tampilkan popup sukses
@@ -1132,36 +1165,42 @@ class _DetailEventsState extends State<DetailEvents>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<Event>(
-        future: futureEvent,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildLoadingShimmerWithAppBar();
-          } else if (snapshot.hasData) {
-            final event = snapshot.data!;
-            return Stack(
-              children: [
-                CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    _buildSliverAppBar(event),
-                    SliverToBoxAdapter(
-                      child: _buildEventDetails(event),
-                    ),
-                  ],
-                ),
-                _buildBottomJoinButton(
-                    event), // Gunakan method yang sudah dimodifikasi
-                _buildFloatingAppBar(),
-              ],
-            );
-          } else if (snapshot.hasError) {
-            return _buildErrorView(snapshot.error.toString());
-          } else {
-            return const Center(child: Text('No event data available'));
-          }
-        },
+    return GestureDetector(
+      onTap: () {
+        // Ini akan menutup keyboard dan menghilangkan fokus
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        body: FutureBuilder<Event>(
+          future: futureEvent,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildLoadingShimmerWithAppBar();
+            } else if (snapshot.hasData) {
+              final event = snapshot.data!;
+              return Stack(
+                children: [
+                  CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      _buildSliverAppBar(event),
+                      SliverToBoxAdapter(
+                        child: _buildEventDetails(event),
+                      ),
+                    ],
+                  ),
+                  _buildBottomJoinButton(
+                      event), // Gunakan method yang sudah dimodifikasi
+                  _buildFloatingAppBar(),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return _buildErrorView(snapshot.error.toString());
+            } else {
+              return const Center(child: Text('No event data available'));
+            }
+          },
+        ),
       ),
     );
   }
@@ -1338,13 +1377,13 @@ class _DetailEventsState extends State<DetailEvents>
             ),
             const Divider(height: 24),
             _buildInfoRow(
-              UIconsPro.regularRounded.map_marker,
-              event.location,
+              UIconsPro.regularRounded.house_building,
+              event.place,
             ),
             const Divider(height: 24),
             _buildInfoRow(
-              UIconsPro.regularRounded.house_building,
-              event.place,
+              UIconsPro.regularRounded.map_marker,
+              event.location,
             ),
             const Divider(height: 24),
             _buildInfoRow(
@@ -1876,5 +1915,4 @@ class _DetailEventsState extends State<DetailEvents>
     _colorAnimationController.dispose();
     super.dispose();
   }
-// ... (rest of the previous code remains the same)
 }

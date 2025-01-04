@@ -1,8 +1,6 @@
-// lib/widgets/common_widgets.dart
 import 'package:flutter/material.dart';
 import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/token_service.dart';
 
 class CommonWidgets {
@@ -80,8 +78,8 @@ class CommonWidgets {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
-            title: Row(
-              children: const [
+            title: const Row(
+              children: [
                 Icon(
                   Icons.warning_rounded,
                   color: Colors.orange,
@@ -149,7 +147,7 @@ class CommonWidgets {
         );
       });
     } catch (e) {
-      print('Logout error: $e');
+      debugPrint('Logout error: $e');
 
       // Fallback navigasi
       Future.microtask(() {

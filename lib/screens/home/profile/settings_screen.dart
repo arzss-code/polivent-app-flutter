@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:polivent_app/models/common_widget.dart';
 import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'dart:developer' as developer;
 
@@ -44,9 +45,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _isTokenValid = false;
         });
 
+        // // Tampilkan dialog token expired
+        // WidgetsBinding.instance.addPostFrameCallback((_) {
+        //   _showTokenExpiredDialog();
+        // });
         // Tampilkan dialog token expired
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showTokenExpiredDialog();
+          CommonWidgets.showSessionExpiredDialog(context);
         });
       }
     } catch (e) {

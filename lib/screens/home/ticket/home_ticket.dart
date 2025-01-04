@@ -78,6 +78,7 @@ class _EventHistoryPageState extends State<EventHistoryPage>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: UIColor.solidWhite,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
@@ -526,125 +527,134 @@ class _EventHistoryPageState extends State<EventHistoryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.filter_list,
-              color: Colors.black,
+    return GestureDetector(
+      onTap: () {
+        // Tutup keyboard
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          // actions: [
+          //   IconButton(
+          //     padding: const EdgeInsets.only(right: 20),
+          //     icon: const Icon(
+          //       Icons.filter_list,
+          //       color: Colors.black,
+          //     ),
+          //     onPressed: _showFilterModal,
+          //   ),
+          //   // const SizedBox(width: 12), // Tambahkan margin kanan
+          // ],
+          automaticallyImplyLeading: false, // Hapus tombol back
+          centerTitle: true,
+          backgroundColor:
+              UIColor.solidWhite, // Sesuaikan dengan warna di kode asli
+          title: const Text(
+            "Tiket Saya",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color:
+                  UIColor.typoBlack, // Sesuaikan dengan warna teks di kode asli
             ),
-            onPressed: _showFilterModal,
           ),
-          const SizedBox(width: 8), // Tambahkan margin kanan
-        ],
-        automaticallyImplyLeading: false, // Hapus tombol back
-        centerTitle: true,
-        backgroundColor:
-            UIColor.solidWhite, // Sesuaikan dengan warna di kode asli
-        title: const Text(
-          "Tiket Saya",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color:
-                UIColor.typoBlack, // Sesuaikan dengan warna teks di kode asli
+          bottom: TabBar(
+            controller: _tabController,
+            labelColor: UIColor.primaryColor, // Warna tab yang aktif
+            unselectedLabelColor:
+                UIColor.typoGray, // Warna tab yang tidak aktif
+            indicatorColor: UIColor.primaryColor, // Warna garis indikator
+            tabs: const [
+              Tab(text: 'Akan Hadir'),
+              Tab(text: 'Telah Hadir'),
+            ],
           ),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: UIColor.primaryColor, // Warna tab yang aktif
-          unselectedLabelColor: UIColor.typoGray, // Warna tab yang tidak aktif
-          indicatorColor: UIColor.primaryColor, // Warna garis indikator
-          tabs: const [
-            Tab(text: 'Akan Hadir'),
-            Tab(text: 'Telah Hadir'),
-          ],
-        ),
-      ),
-      body: RefreshIndicator(
-        color: UIColor.primaryColor,
-        backgroundColor: Colors.white,
-        onRefresh: () => _checkConnectivityAndFetchEvents(),
-        child: Column(
-          children: [
-            // Search Bar dengan desain yang mirip kode asli
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Cari tiket',
-                  hintStyle:
-                      const TextStyle(color: UIColor.typoGray, fontSize: 14),
-                  prefixIcon: const Icon(Icons.search, color: UIColor.typoGray),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
+        body: RefreshIndicator(
+          color: UIColor.primaryColor,
+          backgroundColor: Colors.white,
+          onRefresh: () => _checkConnectivityAndFetchEvents(),
+          child: Column(
+            children: [
+              // Search Bar dengan desain yang mirip kode asli
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Cari tiket',
+                    hintStyle:
+                        const TextStyle(color: UIColor.typoGray, fontSize: 14),
+                    prefixIcon:
+                        const Icon(Icons.search, color: UIColor.typoGray),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    // enabledBorder: OutlineInputBorder(
+                    //   borderRadius: BorderRadius.circular(10),
+                    //   // borderSide: const BorderSide(color: UIColor.typoGray),
+                    // ),
+                    // focusedBorder: OutlineInputBorder(
+                    //   borderRadius: BorderRadius.circular(10),
+                    //   // borderSide: const BorderSide(color: UIColor.primaryColor),
+                    // ),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear,
+                                color: UIColor.typoGray),
+                            onPressed: () {
+                              _searchController.clear();
+                              _checkConnectivityAndFetchEvents(); // Reset pencarian
+                            },
+                          )
+                        : null,
                   ),
-                  // enabledBorder: OutlineInputBorder(
-                  //   borderRadius: BorderRadius.circular(10),
-                  //   // borderSide: const BorderSide(color: UIColor.typoGray),
-                  // ),
-                  // focusedBorder: OutlineInputBorder(
-                  //   borderRadius: BorderRadius.circular(10),
-                  //   // borderSide: const BorderSide(color: UIColor.primaryColor),
-                  // ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon:
-                              const Icon(Icons.clear, color: UIColor.typoGray),
-                          onPressed: () {
-                            _searchController.clear();
-                            _checkConnectivityAndFetchEvents(); // Reset pencarian
-                          },
-                        )
-                      : null,
-                ),
-                style: const TextStyle(color: UIColor.typoBlack),
-                onChanged: (value) {
-                  // Debounce pencarian
-                  Future.delayed(const Duration(milliseconds: 500), () {
-                    _checkConnectivityAndFetchEvents(search: value);
-                  });
-                },
-              ),
-            ),
-
-            //
-
-            // Sisanya tetap sama seperti sebelumnya
-            if (_isLoading)
-              const Expanded(
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (_errorMessage.isNotEmpty)
-              Expanded(
-                child: Center(
-                  child: CommonWidgets.buildErrorWidget(
-                    context: context,
-                    errorMessage: _errorMessage,
-                    onRetry: () async {
-                      await _checkConnectivityAndFetchEvents(
-                          search: _searchController.text.trim());
-                    },
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildEventList(_upcomingEvents, isUpcoming: true),
-                    _buildEventList(_pastEvents, isUpcoming: false),
-                  ],
+                  style: const TextStyle(color: UIColor.typoBlack),
+                  onChanged: (value) {
+                    // Debounce pencarian
+                    Future.delayed(const Duration(milliseconds: 500), () {
+                      _checkConnectivityAndFetchEvents(search: value);
+                    });
+                  },
                 ),
               ),
-          ],
+
+              //
+
+              // Sisanya tetap sama seperti sebelumnya
+              if (_isLoading)
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (_errorMessage.isNotEmpty)
+                Expanded(
+                  child: Center(
+                    child: CommonWidgets.buildErrorWidget(
+                      context: context,
+                      errorMessage: _errorMessage,
+                      onRetry: () async {
+                        await _checkConnectivityAndFetchEvents(
+                            search: _searchController.text.trim());
+                      },
+                    ),
+                  ),
+                )
+              else
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildEventList(_upcomingEvents, isUpcoming: true),
+                      _buildEventList(_pastEvents, isUpcoming: false),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

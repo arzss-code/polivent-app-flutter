@@ -18,7 +18,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi dependensi kritis
+  // Inisialisasi dependensi
   await _initializeApp();
 
   // Set lokalisasi timeago
@@ -44,7 +44,7 @@ Future<void> _initializeApp() async {
 
 Future<void> _configureSystemUI() async {
   // Atur style system UI
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarBrightness: Brightness.light,
     statusBarIconBrightness: Brightness.dark, // Icon status bar gelap
     systemNavigationBarColor: Colors.white, // Warna navigation bar putih
@@ -117,8 +117,7 @@ class PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
         String? eventId;
 
         // Coba ambil dari path segments
-        if (uri.pathSegments.length > 1 &&
-            uri.pathSegments[0] == 'event-detail') {
+        if (uri.pathSegments.length > 1 && uri.pathSegments[0] == 'event') {
           eventId = uri.pathSegments[1];
         }
 
@@ -209,9 +208,10 @@ class PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
         }
 
         // Tambahkan route untuk deep link
-        if (settings.name!.startsWith('https://polivent.my.id/event/')) {
-          final eventId =
-              settings.name!.replaceFirst('https://polivent.my.id/event/', '');
+        if (settings.name!
+            .startsWith('https://polivent.my.id/event-detail?id=')) {
+          final eventId = settings.name!
+              .replaceFirst('https://polivent.my.id/event-detail?id=', '');
           return MaterialPageRoute(
             builder: (context) => DetailEvents(eventId: int.parse(eventId)),
           );

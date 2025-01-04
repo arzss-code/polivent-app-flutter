@@ -376,7 +376,7 @@ class EventListWidgetState extends State<EventList> {
                                   const SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
-                                      event.location,
+                                      event.place,
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,
