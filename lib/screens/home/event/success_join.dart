@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 // import 'ticket_screen.dart';
 
 class SuccessJoinPopup extends StatelessWidget {
@@ -42,7 +42,8 @@ class SuccessJoinPopup extends StatelessWidget {
           //     // Navigate to the TicketScreen
           //     Navigator.push(
           //       context,
-          //       MaterialPageRoute(builder: (context) => const TicketScreen()),
+          //       MaterialPageRoute(
+          //           builder: (context) => const EventHistoryPage()),
           //     );
           //   },
           //   style: ElevatedButton.styleFrom(
@@ -56,7 +57,7 @@ class SuccessJoinPopup extends StatelessWidget {
           //     ),
           //   ),
           //   child: const Text(
-          //     'Lihat E-Tiket',
+          //     'Lihat Tiket',
           //     style: TextStyle(color: UIColor.solidWhite),
           //   ),
           // ),
@@ -81,6 +82,7 @@ class SuccessJoinPopup extends StatelessWidget {
               style: TextStyle(color: UIColor.primaryColor),
             ),
           ),
+          const SizedBox(height: 16),
         ],
       ),
     );

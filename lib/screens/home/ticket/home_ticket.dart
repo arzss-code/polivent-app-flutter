@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -8,15 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/models/common_widget.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:polivent_app/screens/home/ticket/detail_ticket.dart';
 import 'package:polivent_app/screens/home/ticket/filter.dart';
 import 'package:polivent_app/services/auth_services.dart';
-// import 'package:polivent_app/services/data/events_model.dart';
 import 'package:polivent_app/services/data/registration_model.dart';
 import 'package:polivent_app/services/token_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 
@@ -78,6 +75,7 @@ class _EventHistoryPageState extends State<EventHistoryPage>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: UIColor.solidWhite,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
@@ -114,218 +112,6 @@ class _EventHistoryPageState extends State<EventHistoryPage>
 
     return await _fetchEventsWithRetry(search: search);
   }
-
-  // Future<bool> _fetchEventsWithRetry({String search = ''}) async {
-  //   try {
-  //     setState(() {
-  //       _isLoading = true;
-  //       _errorMessage = '';
-  //     });
-
-  //     final authService = AuthService();
-  //     final userData = await authService.getUserData();
-
-  //     if (userData == null) {
-  //       throw Exception('User tidak ditemukan');
-  //     }
-
-  //     final accessToken = await TokenService.getAccessToken();
-
-  //     if (accessToken == null) {
-  //       throw Exception('Access token tidak ditemukan');
-  //     }
-
-  //     final headers = {
-  //       'Authorization': 'Bearer $accessToken',
-  //       'Content-Type': 'application/json',
-  //     };
-
-  //     // Upcoming Events
-  //     final upcomingUrl = _buildUrl(
-  //       path: '/registration',
-  //       params: {
-  //         'user_id': userData.userId,
-  //         'upcoming': 'true',
-  //         if (_showNotPresent) 'not_present': 'true',
-  //         if (_showHasPresent) 'has_present': 'true',
-  //         if (search.isNotEmpty) 'search': search,
-  //       },
-  //     );
-
-  //     // Past Events
-  //     final pastUrl = _buildUrl(
-  //       path: '/registration',
-  //       params: {
-  //         'user_id': userData.userId,
-  //         // if (_showNotPresent) 'not_present': 'true',
-  //         if (_showHasPresent) 'has_present': 'true',
-  //         if (search.isNotEmpty) 'search': search,
-  //       },
-  //     );
-
-  //     final upcomingResponse =
-  //         await http.get(Uri.parse(upcomingUrl), headers: headers);
-  //     final pastResponse = await http.get(Uri.parse(pastUrl), headers: headers);
-
-  //     // Validasi response upcoming events
-  //     if (upcomingResponse.statusCode == 200) {
-  //       final upcomingData = json.decode(upcomingResponse.body);
-  //       setState(() {
-  //         _upcomingEvents = (upcomingData['data'] as List)
-  //             .map((json) => Registration.fromJson(json))
-  //             .toList();
-  //       });
-  //     } else if (upcomingResponse.statusCode != 404) {
-  //       // Hanya tampilkan error jika bukan 404
-  //       _handleHttpError(upcomingResponse.statusCode, 200);
-  //       return false;
-  //     }
-
-  //     // Validasi response past events
-  //     if (pastResponse.statusCode == 200) {
-  //       final pastData = json.decode(pastResponse.body);
-  //       // Filter events yang sudah berakhir
-  //       // setState(() {
-  //       //   _pastEvents = (pastData['data'] as List)
-  //       //       .map((json) => Registration.fromJson(json))
-  //       //       .where((event) {
-  //       //     DateTime endDate = DateTime.parse(event.dateEnd);
-  //       //     return endDate.isBefore(DateTime.now());
-  //       //   }).toList();
-  //       // });
-  //       // Tampilkan semua event yang sudah berakhir
-  //       setState(() {
-  //         _pastEvents = (pastData['data'] as List)
-  //             .map((json) => Registration.fromJson(json))
-  //             .toList();
-  //       });
-  //     } else if (pastResponse.statusCode != 404) {
-  //       // Hanya tampilkan error jika bukan 404
-  //       _handleHttpError(200, pastResponse.statusCode);
-  //       return false;
-  //     }
-
-  //     setState(() {
-  //       _isLoading = false;
-  //       _retryCount = 0;
-  //     });
-
-  //     return true;
-  //   } catch (e) {
-  //     _handleFetchError(e);
-  //     return false;
-  //   }
-  // }
-
-  // Future<bool> _fetchEventsWithRetry({String search = ''}) async {
-  //   try {
-  //     setState(() {
-  //       _isLoading = true;
-  //       _errorMessage = '';
-  //     });
-
-  //     final authService = AuthService();
-  //     final userData = await authService.getUserData();
-
-  //     if (userData == null) {
-  //       throw Exception('User tidak ditemukan');
-  //     }
-
-  //     final accessToken = await TokenService.getAccessToken();
-
-  //     if (accessToken == null) {
-  //       throw Exception('Access token tidak ditemukan');
-  //     }
-
-  //     final headers = {
-  //       'Authorization': 'Bearer $accessToken',
-  //       'Content-Type': 'application/json',
-  //     };
-
-  //     // Upcoming Events - only fetch if not_present filter is active
-  //     if (_showNotPresent && !_showHasPresent) {
-  //       final upcomingUrl = _buildUrl(
-  //         path: '/registration',
-  //         params: {
-  //           'user_id': userData.userId,
-  //           'upcoming': 'true',
-  //           'not_present': 'true',
-  //           if (search.isNotEmpty) 'search': search,
-  //         },
-  //       );
-
-  //       final upcomingResponse =
-  //           await http.get(Uri.parse(upcomingUrl), headers: headers);
-
-  //       if (upcomingResponse.statusCode == 200) {
-  //         final upcomingData = json.decode(upcomingResponse.body);
-  //         setState(() {
-  //           _upcomingEvents = (upcomingData['data'] as List)
-  //               .map((json) => Registration.fromJson(json))
-  //               .toList();
-  //         });
-  //       } else if (upcomingResponse.statusCode != 404) {
-  //         _handleHttpError(upcomingResponse.statusCode, 200);
-  //         return false;
-  //       }
-  //     } else {
-  //       // Clear upcoming events if filter is not active
-  //       setState(() {
-  //         _upcomingEvents = [];
-  //       });
-  //     }
-
-  //     // Past Events - only fetch if has_present filter is active
-  //     if (_showHasPresent && !_showNotPresent) {
-  //       final pastUrl = _buildUrl(
-  //         path: '/registration',
-  //         params: {
-  //           'user_id': userData.userId,
-  //           'has_present': 'true',
-  //           if (search.isNotEmpty) 'search': search,
-  //         },
-  //       );
-
-  //       final pastResponse =
-  //           await http.get(Uri.parse(pastUrl), headers: headers);
-
-  //       if (pastResponse.statusCode == 200) {
-  //         final pastData = json.decode(pastResponse.body);
-  //         setState(() {
-  //           _pastEvents = (pastData['data'] as List)
-  //               .map((json) => Registration.fromJson(json))
-  //               .toList();
-  //         });
-  //       } else if (pastResponse.statusCode != 404) {
-  //         _handleHttpError(200, pastResponse.statusCode);
-  //         return false;
-  //       }
-  //     } else {
-  //       // Clear past events if filter is not active
-  //       setState(() {
-  //         _pastEvents = [];
-  //       });
-  //     }
-
-  //     // If both filters are active, clear both lists
-  //     if (_showNotPresent && _showHasPresent) {
-  //       setState(() {
-  //         _upcomingEvents = [];
-  //         _pastEvents = [];
-  //       });
-  //     }
-
-  //     setState(() {
-  //       _isLoading = false;
-  //       _retryCount = 0;
-  //     });
-
-  //     return true;
-  //   } catch (e) {
-  //     _handleFetchError(e);
-  //     return false;
-  //   }
-  // }
 
   Future<bool> _fetchEventsWithRetry({String search = ''}) async {
     try {
@@ -526,125 +312,134 @@ class _EventHistoryPageState extends State<EventHistoryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.filter_list,
-              color: Colors.black,
+    return GestureDetector(
+      onTap: () {
+        // Tutup keyboard
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          // actions: [
+          //   IconButton(
+          //     padding: const EdgeInsets.only(right: 20),
+          //     icon: const Icon(
+          //       Icons.filter_list,
+          //       color: Colors.black,
+          //     ),
+          //     onPressed: _showFilterModal,
+          //   ),
+          //   // const SizedBox(width: 12), // Tambahkan margin kanan
+          // ],
+          automaticallyImplyLeading: false, // Hapus tombol back
+          centerTitle: true,
+          backgroundColor:
+              UIColor.solidWhite, // Sesuaikan dengan warna di kode asli
+          title: const Text(
+            "Tiket Saya",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color:
+                  UIColor.typoBlack, // Sesuaikan dengan warna teks di kode asli
             ),
-            onPressed: _showFilterModal,
           ),
-          const SizedBox(width: 8), // Tambahkan margin kanan
-        ],
-        automaticallyImplyLeading: false, // Hapus tombol back
-        centerTitle: true,
-        backgroundColor:
-            UIColor.solidWhite, // Sesuaikan dengan warna di kode asli
-        title: const Text(
-          "Tiket Saya",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color:
-                UIColor.typoBlack, // Sesuaikan dengan warna teks di kode asli
+          bottom: TabBar(
+            controller: _tabController,
+            labelColor: UIColor.primaryColor, // Warna tab yang aktif
+            unselectedLabelColor:
+                UIColor.typoGray, // Warna tab yang tidak aktif
+            indicatorColor: UIColor.primaryColor, // Warna garis indikator
+            tabs: const [
+              Tab(text: 'Akan Hadir'),
+              Tab(text: 'Telah Hadir'),
+            ],
           ),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: UIColor.primaryColor, // Warna tab yang aktif
-          unselectedLabelColor: UIColor.typoGray, // Warna tab yang tidak aktif
-          indicatorColor: UIColor.primaryColor, // Warna garis indikator
-          tabs: const [
-            Tab(text: 'Akan Hadir'),
-            Tab(text: 'Telah Hadir'),
-          ],
-        ),
-      ),
-      body: RefreshIndicator(
-        color: UIColor.primaryColor,
-        backgroundColor: Colors.white,
-        onRefresh: () => _checkConnectivityAndFetchEvents(),
-        child: Column(
-          children: [
-            // Search Bar dengan desain yang mirip kode asli
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Cari tiket',
-                  hintStyle:
-                      const TextStyle(color: UIColor.typoGray, fontSize: 14),
-                  prefixIcon: const Icon(Icons.search, color: UIColor.typoGray),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
+        body: RefreshIndicator(
+          color: UIColor.primaryColor,
+          backgroundColor: Colors.white,
+          onRefresh: () => _checkConnectivityAndFetchEvents(),
+          child: Column(
+            children: [
+              // Search Bar dengan desain yang mirip kode asli
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Cari tiket',
+                    hintStyle:
+                        const TextStyle(color: UIColor.typoGray, fontSize: 14),
+                    prefixIcon:
+                        const Icon(Icons.search, color: UIColor.typoGray),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    // enabledBorder: OutlineInputBorder(
+                    //   borderRadius: BorderRadius.circular(10),
+                    //   // borderSide: const BorderSide(color: UIColor.typoGray),
+                    // ),
+                    // focusedBorder: OutlineInputBorder(
+                    //   borderRadius: BorderRadius.circular(10),
+                    //   // borderSide: const BorderSide(color: UIColor.primaryColor),
+                    // ),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear,
+                                color: UIColor.typoGray),
+                            onPressed: () {
+                              _searchController.clear();
+                              _checkConnectivityAndFetchEvents(); // Reset pencarian
+                            },
+                          )
+                        : null,
                   ),
-                  // enabledBorder: OutlineInputBorder(
-                  //   borderRadius: BorderRadius.circular(10),
-                  //   // borderSide: const BorderSide(color: UIColor.typoGray),
-                  // ),
-                  // focusedBorder: OutlineInputBorder(
-                  //   borderRadius: BorderRadius.circular(10),
-                  //   // borderSide: const BorderSide(color: UIColor.primaryColor),
-                  // ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon:
-                              const Icon(Icons.clear, color: UIColor.typoGray),
-                          onPressed: () {
-                            _searchController.clear();
-                            _checkConnectivityAndFetchEvents(); // Reset pencarian
-                          },
-                        )
-                      : null,
-                ),
-                style: const TextStyle(color: UIColor.typoBlack),
-                onChanged: (value) {
-                  // Debounce pencarian
-                  Future.delayed(const Duration(milliseconds: 500), () {
-                    _checkConnectivityAndFetchEvents(search: value);
-                  });
-                },
-              ),
-            ),
-
-            //
-
-            // Sisanya tetap sama seperti sebelumnya
-            if (_isLoading)
-              const Expanded(
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (_errorMessage.isNotEmpty)
-              Expanded(
-                child: Center(
-                  child: CommonWidgets.buildErrorWidget(
-                    context: context,
-                    errorMessage: _errorMessage,
-                    onRetry: () async {
-                      await _checkConnectivityAndFetchEvents(
-                          search: _searchController.text.trim());
-                    },
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildEventList(_upcomingEvents, isUpcoming: true),
-                    _buildEventList(_pastEvents, isUpcoming: false),
-                  ],
+                  style: const TextStyle(color: UIColor.typoBlack),
+                  onChanged: (value) {
+                    // Debounce pencarian
+                    Future.delayed(const Duration(milliseconds: 500), () {
+                      _checkConnectivityAndFetchEvents(search: value);
+                    });
+                  },
                 ),
               ),
-          ],
+
+              //
+
+              // Sisanya tetap sama seperti sebelumnya
+              if (_isLoading)
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (_errorMessage.isNotEmpty)
+                Expanded(
+                  child: Center(
+                    child: CommonWidgets.buildErrorWidget(
+                      context: context,
+                      errorMessage: _errorMessage,
+                      onRetry: () async {
+                        await _checkConnectivityAndFetchEvents(
+                            search: _searchController.text.trim());
+                      },
+                    ),
+                  ),
+                )
+              else
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildEventList(_upcomingEvents, isUpcoming: true),
+                      _buildEventList(_pastEvents, isUpcoming: false),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

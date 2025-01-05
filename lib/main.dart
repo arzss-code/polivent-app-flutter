@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:app_links/app_links.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 // Import service dan screen yang diperlukan
 import 'package:polivent_app/models/timeago_id.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/screens/auth/splash_screen.dart';
 import 'package:polivent_app/screens/home/home.dart';
-// import 'package:polivent_app/services/token_service.dart';z
-import 'package:polivent_app/services/notifikasi/notification_services.dart';
+import 'package:polivent_app/services/notification/notification_services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi dependensi kritis
+  // Inisialisasi dependensi
   await _initializeApp();
 
   // Set lokalisasi timeago
@@ -45,9 +43,11 @@ Future<void> _initializeApp() async {
 Future<void> _configureSystemUI() async {
   // Atur style system UI
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarBrightness: Brightness.dark,
-    statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarColor: Colors.transparent,
+    statusBarBrightness: Brightness.light,
+    statusBarIconBrightness: Brightness.dark, // Icon status bar gelap
+    systemNavigationBarColor: Colors.white, // Warna navigation bar putih
+    systemNavigationBarIconBrightness:
+        Brightness.dark, // Icon navigation bar gelap
     statusBarColor: Colors.transparent,
   ));
 
@@ -59,13 +59,13 @@ Future<void> _configureSystemUI() async {
 }
 
 class PoliventApp extends StatefulWidget {
-  const PoliventApp({Key? key}) : super(key: key);
+  const PoliventApp({super.key});
 
   @override
-  _PoliventAppState createState() => _PoliventAppState();
+  PoliventAppState createState() => PoliventAppState();
 }
 
-class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
+class PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
   final AppLinks _appLinks = AppLinks();
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   // final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
@@ -115,8 +115,7 @@ class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
         String? eventId;
 
         // Coba ambil dari path segments
-        if (uri.pathSegments.length > 1 &&
-            uri.pathSegments[0] == 'event-detail') {
+        if (uri.pathSegments.length > 1 && uri.pathSegments[0] == 'event') {
           eventId = uri.pathSegments[1];
         }
 
@@ -179,6 +178,7 @@ class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const ScrollBehavior().copyWith(overscroll: false),
       theme: _buildTheme(Brightness.light),
       title: 'Polivent',
       navigatorKey: _navigatorKey,
@@ -206,9 +206,10 @@ class _PoliventAppState extends State<PoliventApp> with WidgetsBindingObserver {
         }
 
         // Tambahkan route untuk deep link
-        if (settings.name!.startsWith('https://polivent.my.id/event/')) {
-          final eventId =
-              settings.name!.replaceFirst('https://polivent.my.id/event/', '');
+        if (settings.name!
+            .startsWith('https://polivent.my.id/event-detail?id=')) {
+          final eventId = settings.name!
+              .replaceFirst('https://polivent.my.id/event-detail?id=', '');
           return MaterialPageRoute(
             builder: (context) => DetailEvents(eventId: int.parse(eventId)),
           );

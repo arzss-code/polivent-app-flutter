@@ -2,11 +2,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/app_config.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/services/auth_services.dart';
+import 'package:polivent_app/services/data/category_model.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/services/user_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -22,28 +26,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = true;
+  List<Category> _categories = [];
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _aboutController = TextEditingController();
-
-  // List minat yang tersedia
-  final List<String> _allInterests = [
-    'Music',
-    'Art',
-    'Sports',
-    'Technology',
-    'Cooking',
-    'Travel',
-    'Photography',
-    'Reading',
-    'Gaming',
-    'Movies',
-    'Fitness',
-    'Design',
-    'Science',
-    'Workshop',
-    'Seminar'
-  ];
 
   // List minat yang dipilih
   List<String> _selectedInterests = [];
@@ -53,6 +39,63 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     _fetchUserData();
     _loadSavedInterests();
+    // Panggil fetch categories
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final response = await http.get(
+        Uri.parse(
+            '$prodApiBaseUrl/categories'), // Pastikan prodApiBaseUrl sudah didefinisikan
+        headers: {
+          'Content-Type': 'application/json',
+          // Tambahkan authorization header jika diperlukan
+          // 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        List<dynamic> data = jsonResponse['data'];
+
+        setState(() {
+          // // Tambahkan opsi "Semua" jika diinginkan
+          // _categories = [Category(categoryId: null, categoryName: 'Semua')];
+
+          // Tambahkan kategori dari API
+          _categories.addAll(
+              data.map((category) => Category.fromJson(category)).toList());
+          _isLoading = false;
+        });
+      } else {
+        // Tangani kesalahan respons
+        _handleError('Gagal memuat kategori');
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      // Tangani kesalahan koneksi atau parsing
+      _handleError(e.toString());
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+// Tambahkan metode _handleError jika belum ada
+  void _handleError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   Future<void> _loadSavedInterests() async {
@@ -210,20 +253,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
                       ),
-                      itemCount: _allInterests.length,
+                      itemCount: _categories.length,
                       itemBuilder: (context, index) {
-                        final interest = _allInterests[index];
+                        final category = _categories[index];
                         final isSelected =
-                            _selectedInterests.contains(interest);
+                            _selectedInterests.contains(category.categoryName);
 
                         return GestureDetector(
                           onTap: () {
                             setModalState(() {
                               setState(() {
-                                if (isSelected) {
-                                  _selectedInterests.remove(interest);
-                                } else {
-                                  _selectedInterests.add(interest);
+                                // Skip "Semua" category
+                                if (category.categoryId != null) {
+                                  if (isSelected) {
+                                    _selectedInterests
+                                        .remove(category.categoryName);
+                                  } else {
+                                    _selectedInterests
+                                        .add(category.categoryName);
+                                  }
                                 }
                               });
                             });
@@ -237,7 +285,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                interest,
+                                category.categoryName,
                                 style: TextStyle(
                                   color:
                                       isSelected ? Colors.white : Colors.black,
@@ -398,7 +446,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               title: 'Tentang Saya',
               controller: _aboutController,
               hintText: 'Deskripsikan diri Anda',
-              maxLines: 4,
+              maxLines: 5,
             ),
 
             // Interests
@@ -410,6 +458,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             const SizedBox(height: 8),
+            // Modifikasi bagian build interests di _buildProfileEditForm()
             Wrap(
               spacing: 8.0,
               children: _selectedInterests.map((interest) {
@@ -417,6 +466,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   label: Text(interest),
                   backgroundColor: UIColor.primaryColor,
                   labelStyle: const TextStyle(color: Colors.white),
+                  onDeleted: () {
+                    setState(() {
+                      _selectedInterests.remove(interest);
+                    });
+                  },
+                  deleteIcon:
+                      const Icon(Icons.close, color: Colors.white, size: 18),
                 );
               }).toList(),
             ),

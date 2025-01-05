@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 
 class FilterModalWidget extends StatefulWidget {
   final bool showNotPresent;
@@ -8,12 +8,12 @@ class FilterModalWidget extends StatefulWidget {
   final Function(bool, bool) onApplyFilters;
 
   const FilterModalWidget({
-    Key? key,
+    super.key,
     required this.showNotPresent,
     required this.showHasPresent,
     required this.isUpcomingTab,
     required this.onApplyFilters,
-  }) : super(key: key);
+  });
 
   @override
   State<FilterModalWidget> createState() => _FilterModalWidgetState();
@@ -73,9 +73,7 @@ class _FilterModalWidgetState extends State<FilterModalWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.isUpcomingTab
-                    ? 'Filter Event Mendatang'
-                    : 'Filter Event Selesai',
+                widget.isUpcomingTab ? 'Tiket Akan Datang' : 'Tiket Selesai',
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,

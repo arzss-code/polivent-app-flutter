@@ -1,12 +1,7 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/screens/auth/login_screen.dart';
@@ -207,11 +202,11 @@ class AuthService {
 
         final response = await _dio.delete(
           '/auth',
-          // options: Options(
-          //   headers: {
-          //     'Authorization': 'Bearer $token',
-          //   },
-          // ),
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+            },
+          ),
         );
 
         debugPrint('Logout Response Status: ${response.statusCode}');
@@ -229,7 +224,7 @@ class AuthService {
       } finally {
         // Selalu lakukan logout lokal
         final prefs = await SharedPreferences.getInstance();
-        await prefs.remove('notification');
+        await prefs.remove('notifications');
         await TokenService.logout();
         _navigateToLogin(context);
       }

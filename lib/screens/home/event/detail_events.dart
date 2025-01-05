@@ -2,25 +2,20 @@
 
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
-import 'package:photo_view/photo_view.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/screens/home/event/photo_view_screen.dart';
-import 'package:polivent_app/screens/home/explore/notification.dart';
 import 'package:polivent_app/services/like_services.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/events_model.dart';
-import 'package:polivent_app/models/share.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/models/comments.dart';
 import 'package:polivent_app/screens/home/event/success_join.dart';
-import 'package:polivent_app/services/notifikasi/notification_local.dart';
-// import 'package:polivent_app/services/data/user_model.dart';
-import 'package:polivent_app/services/notifikasi/notification_services.dart';
+import 'package:polivent_app/services/notification/notification_local.dart';
+import 'package:polivent_app/services/notification/notification_services.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -269,6 +264,39 @@ class _DetailEventsState extends State<DetailEvents>
         isLoved = result['is_liked'];
         likeId = result['like_id'];
         _isLikeLoading = false;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  result['is_liked'] ? Icons.check_circle : Icons.remove_circle,
+                  color: result['is_liked'] ? Colors.green : Colors.red,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  result['is_liked']
+                      ? 'Ditambahkan ke Favorit'
+                      : 'Dihapus dari Favorit',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.black87,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            duration: const Duration(seconds: 2),
+            animation: CurvedAnimation(
+              parent: AnimationController(
+                duration: const Duration(milliseconds: 700),
+                vsync: this,
+              ),
+              curve: Curves.easeInOut,
+            ),
+          ),
+        );
       });
     }
   }
@@ -276,7 +304,7 @@ class _DetailEventsState extends State<DetailEvents>
   Future<void> shareEvent(Event event) async {
     // Buat deep link dengan domain yang sudah dikonfigurasi
     final String shareLink =
-        'https://polivent.my.id/event-detail/${event.eventId}';
+        'https://polivent.my.id/event-detail?id=${event.eventId}';
 
     // Buat konten share yang informatif
     final String shareContent = 'Yuk ikuti event menarik ini!\n\n'
@@ -290,7 +318,7 @@ class _DetailEventsState extends State<DetailEvents>
       // Cek apakah ada poster/gambar untuk dibagikan
       File? imageFile;
       if (event.poster != null) {
-        imageFile = await _downloadImage(event.poster!);
+        imageFile = await _downloadImage(event.poster);
       }
 
       // Share dengan atau tanpa gambar
@@ -307,7 +335,7 @@ class _DetailEventsState extends State<DetailEvents>
         );
       }
     } catch (e) {
-      print('Gagal membagikan event: $e');
+      debugPrint('Gagal membagikan event: $e');
       // Tampilkan pesan error jika diperlukan
     }
   }
@@ -329,7 +357,7 @@ class _DetailEventsState extends State<DetailEvents>
         return imageFile;
       }
     } catch (e) {
-      print('Gagal download gambar: $e');
+      debugPrint('Gagal download gambar: $e');
     }
     return null;
   }
@@ -371,7 +399,7 @@ class _DetailEventsState extends State<DetailEvents>
 
           // Pastikan parsing invited_users
           if (jsonResponse['invited_users'] != null) {
-            print(
+            debugPrint(
                 'Invited Users Count: ${jsonResponse['invited_users'].length}');
           }
 
@@ -382,7 +410,7 @@ class _DetailEventsState extends State<DetailEvents>
         }
       } else {
         // Log error response untuk debugging
-        print('Error response: ${response.body}');
+        debugPrint('Error response: ${response.body}');
         throw Exception(
             'Failed to load event. Status code: ${response.statusCode}');
       }
@@ -460,6 +488,12 @@ class _DetailEventsState extends State<DetailEvents>
             daysBeforeEvent: 3, // Pengingat H-1
           );
 
+          // Tambahkan notifikasi lokal
+          _addLocalNotification(
+            title: 'Pendaftaran Berhasil',
+            message: 'Anda berhasil mendaftar event ${event.title}',
+          );
+
           // Jadwalkan pengingat event
           await NotificationService.saveNotificationToLocal(
             title: 'Pengingat Event',
@@ -471,12 +505,6 @@ class _DetailEventsState extends State<DetailEvents>
               'event_location': event.location,
               'event_date': event.dateStart,
             },
-          );
-
-          // Tambahkan notifikasi lokal
-          _addLocalNotification(
-            title: 'Pendaftaran Berhasil',
-            message: 'Anda berhasil mendaftar event ${event.title}',
           );
 
           // Tampilkan popup sukses
@@ -549,7 +577,7 @@ class _DetailEventsState extends State<DetailEvents>
       }
       return false;
     } catch (error) {
-      print('Error checking joined event: $error');
+      debugPrint('Error checking joined event: $error');
       return false;
     }
   }
@@ -792,24 +820,6 @@ class _DetailEventsState extends State<DetailEvents>
     }
   }
 
-  // void _showErrorDialog(String message) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Pendaftaran Gagal'),
-  //         content: Text(message),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.of(context).pop(),
-  //             child: const Text('OK'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
   String formatDate(String dateString) {
     try {
       final date = DateTime.parse(dateString);
@@ -819,51 +829,6 @@ class _DetailEventsState extends State<DetailEvents>
       return dateString; // Return original string if parsing fails
     }
   }
-
-  // Widget buildEventImage(String imageUrl) {
-  //   return GestureDetector(
-  //     onTap: () {
-  //       Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => PhotoViewScreen(imageUrl: imageUrl),
-  //         ),
-  //       );
-  //     },
-  //     child: ClipRRect(
-  //       borderRadius: const BorderRadius.only(
-  //         bottomLeft: Radius.circular(12),
-  //         bottomRight: Radius.circular(12),
-  //       ),
-  //       child: Image.network(
-  //         imageUrl,
-  //         fit: BoxFit.cover,
-  //         height: 300,
-  //         width: double.infinity,
-  //         loadingBuilder: (context, child, loadingProgress) {
-  //           if (loadingProgress == null) return child;
-  //           return Center(
-  //             child: CircularProgressIndicator(
-  //               value: loadingProgress.expectedTotalBytes != null
-  //                   ? loadingProgress.cumulativeBytesLoaded /
-  //                       loadingProgress.expectedTotalBytes!
-  //                   : null,
-  //             ),
-  //           );
-  //         },
-  //         errorBuilder: (context, error, stackTrace) {
-  //           return Container(
-  //             height: 300,
-  //             color: Colors.grey[300],
-  //             child: const Center(
-  //               child: Icon(Icons.error_outline, size: 50, color: Colors.grey),
-  //             ),
-  //           );
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildInfoPropose(Event event) {
     return Card(
@@ -1010,158 +975,44 @@ class _DetailEventsState extends State<DetailEvents>
     );
   }
 
-  Widget _buildLoadingShimmer() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              height: 300,
-              width: double.infinity,
-              color: Colors.white,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20.0,
-              vertical: 8.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    height: 24,
-                    width: double.infinity,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        height: 16,
-                        width: 200,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        height: 16,
-                        width: 150,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        height: 16,
-                        width: 100,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 20,
-                        width: 100,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        height: 100,
-                        width: double.infinity,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<Event>(
-        future: futureEvent,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildLoadingShimmerWithAppBar();
-          } else if (snapshot.hasData) {
-            final event = snapshot.data!;
-            return Stack(
-              children: [
-                CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    _buildSliverAppBar(event),
-                    SliverToBoxAdapter(
-                      child: _buildEventDetails(event),
-                    ),
-                  ],
-                ),
-                _buildBottomJoinButton(
-                    event), // Gunakan method yang sudah dimodifikasi
-                _buildFloatingAppBar(),
-              ],
-            );
-          } else if (snapshot.hasError) {
-            return _buildErrorView(snapshot.error.toString());
-          } else {
-            return const Center(child: Text('No event data available'));
-          }
-        },
+    return GestureDetector(
+      onTap: () {
+        // Ini akan menutup keyboard dan menghilangkan fokus
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        body: FutureBuilder<Event>(
+          future: futureEvent,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildLoadingShimmerWithAppBar();
+            } else if (snapshot.hasData) {
+              final event = snapshot.data!;
+              return Stack(
+                children: [
+                  CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      _buildSliverAppBar(event),
+                      SliverToBoxAdapter(
+                        child: _buildEventDetails(event),
+                      ),
+                    ],
+                  ),
+                  _buildBottomJoinButton(
+                      event), // Gunakan method yang sudah dimodifikasi
+                  _buildFloatingAppBar(),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return _buildErrorView(snapshot.error.toString());
+            } else {
+              return const Center(child: Text('No event data available'));
+            }
+          },
+        ),
       ),
     );
   }
@@ -1338,13 +1189,13 @@ class _DetailEventsState extends State<DetailEvents>
             ),
             const Divider(height: 24),
             _buildInfoRow(
-              UIconsPro.regularRounded.map_marker,
-              event.location,
+              UIconsPro.regularRounded.house_building,
+              event.place,
             ),
             const Divider(height: 24),
             _buildInfoRow(
-              UIconsPro.regularRounded.house_building,
-              event.place,
+              UIconsPro.regularRounded.map_marker,
+              event.location,
             ),
             const Divider(height: 24),
             _buildInfoRow(
@@ -1680,7 +1531,6 @@ class _DetailEventsState extends State<DetailEvents>
       ),
     );
   }
-  // ... (previous code remains the same until the missing method)
 
   Widget _buildLoadingShimmerWithAppBar() {
     return Stack(
@@ -1876,5 +1726,4 @@ class _DetailEventsState extends State<DetailEvents>
     _colorAnimationController.dispose();
     super.dispose();
   }
-// ... (rest of the previous code remains the same)
 }

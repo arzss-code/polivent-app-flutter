@@ -6,7 +6,7 @@ import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/common_widget.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:polivent_app/screens/home/profile/settings_screen.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -198,10 +198,10 @@ class _HomeProfileState extends State<HomeProfile> {
       ),
       actions: [
         IconButton(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.only(right: 20),
           icon: Icon(
             UIconsPro.regularRounded.settings,
-            size: 20,
+            size: 24,
           ),
           onPressed: _navigateToSettings,
         ),
@@ -386,6 +386,8 @@ class _HomeProfileState extends State<HomeProfile> {
           },
           child: Card(
             color: Colors.white,
+            elevation: 5,
+            shadowColor: Colors.grey.withOpacity(0.2),
             margin: const EdgeInsets.symmetric(vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

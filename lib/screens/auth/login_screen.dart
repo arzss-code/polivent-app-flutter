@@ -1,12 +1,10 @@
-// import 'dart:convert';
-// import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+// ignore_for_file: deprecated_member_use
+
+import 'package:flutter/services.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
-import 'package:polivent_app/screens/auth/forgot_password.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/token_service.dart';
-// import 'package:polivent_app/services/token_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import '../home/home.dart';
@@ -83,6 +81,7 @@ class LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _login() async {
+    FocusScope.of(context).unfocus(); // Menutup keyboard
     setState(() {
       _emailError = null;
       _passwordError = null;
@@ -194,7 +193,12 @@ class LoginScreenState extends State<LoginScreen>
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    // Tutup snackbar yang sedang aktif
+    scaffoldMessenger.hideCurrentSnackBar();
+
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         content: Row(
           children: [
@@ -216,57 +220,75 @@ class LoginScreenState extends State<LoginScreen>
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        margin: const EdgeInsets.all(16),
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          left: 16,
+          right: 16,
+        ),
+        padding: const EdgeInsets.all(16),
         elevation: 6,
         duration: const Duration(seconds: 3),
-        animation: CurvedAnimation(
-          parent: kAlwaysDismissedAnimation,
-          curve: Curves.easeInOut,
-        ),
       ),
     );
   }
 
   void _showSuccessDialog(VoidCallback onComplete) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 100,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Login Successful',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    // Nonaktifkan semua fokus
+    FocusManager.instance.primaryFocus?.unfocus();
 
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        // Check if the widget is still mounted
-        Navigator.of(context).pop();
-        onComplete();
-      }
+    // Metode untuk menyembunyikan keyboard
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+
+    // Tunggu sebentar untuk memastikan input method stabil
+    Future.delayed(const Duration(milliseconds: 100), () {
+      // Pastikan tidak ada input aktif
+      FocusScope.of(context).requestFocus(FocusNode());
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return PopScope(
+            canPop: false,
+            child: Dialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: WillPopScope(
+                onWillPop: () async => false,
+                child: const Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 100,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Login Berhasil!',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+
+      // Tutup dialog dan jalankan callback
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          Navigator.of(context).pop(); // Tutup dialog
+          onComplete(); // Jalankan callback
+        }
+      });
     });
   }
 
@@ -294,7 +316,7 @@ class LoginScreenState extends State<LoginScreen>
             // Content
             Center(
               child: SingleChildScrollView(
-                // physics: const AlwaysScrollableScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(),
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag, // Tambahkan ini
                 child: FadeTransition(

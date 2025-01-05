@@ -3,12 +3,10 @@ import 'dart:convert';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/models/ui_colors.dart';
-import 'package:polivent_app/screens/home/explore/notification.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:polivent_app/services/data/user_model.dart';
-import 'package:polivent_app/services/event_services.dart';
-import 'package:polivent_app/services/notifikasi/notification_local.dart';
+import 'package:polivent_app/services/notification/notification_local.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:http/http.dart' as http;
 

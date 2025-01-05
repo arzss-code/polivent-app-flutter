@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:polivent_app/services/data/registration_model.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 

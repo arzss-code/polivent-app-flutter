@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:polivent_app/screens/home/event/detail_events.dart';
@@ -259,8 +259,6 @@ class EventListWidgetState extends State<EventList> {
               runSpacing: 10,
               children: List.generate(_eventsMore.length, (index) {
                 final event = _eventsMore[index];
-                Color statusColor =
-                    event.quota > 0 ? UIColor.solidWhite : UIColor.close;
 
                 return GestureDetector(
                   onTap: () {
@@ -376,7 +374,7 @@ class EventListWidgetState extends State<EventList> {
                                   const SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
-                                      event.location,
+                                      event.place,
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,

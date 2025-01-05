@@ -1,4 +1,4 @@
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:flutter/material.dart';
 
@@ -102,15 +102,6 @@ class BottomNavbarState extends State<BottomNavbar> {
                   decoration: const BoxDecoration(
                     color: UIColor.primary,
                     shape: BoxShape.circle,
-                    //! Shadow dibelakang icon QR
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: Colors.black.withOpacity(0.2),
-                    //     spreadRadius: 3,
-                    //     blurRadius: 8,
-                    //     offset: Offset(0, 3), // Shadow position
-                    //   ),
-                    // ],
                   ),
                   child: Icon(
                     UIconsPro.solidRounded.QR,
@@ -120,14 +111,6 @@ class BottomNavbarState extends State<BottomNavbar> {
                 ),
               ),
               const SizedBox(height: 6), // Space between icon and text
-              //! Text dibawah icon QR
-              // const Text(
-              //   'Scan QR',
-              //   style: TextStyle(
-              //     color: UIColor.typoGray2,
-              //     fontSize: 13,
-              //   ),
-              // ),
             ],
           ),
         ),

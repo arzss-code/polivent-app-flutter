@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/models/common_widget.dart';
-import 'package:polivent_app/models/ui_colors.dart';
+import 'package:polivent_app/config/ui_colors.dart';
+import 'package:polivent_app/screens/home/event/favorite_events.dart';
 import 'package:polivent_app/services/data/events_model.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 import 'package:http/http.dart' as http;
@@ -21,9 +22,6 @@ class HomeEvents extends StatefulWidget {
 
 class _HomeEventsState extends State<HomeEvents>
     with AutomaticKeepAliveClientMixin {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
-  // Tambahkan ScrollController
   final ScrollController _scrollController = ScrollController();
 
   List<Event> events = [];
@@ -205,37 +203,57 @@ class _HomeEventsState extends State<HomeEvents>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        backgroundColor: UIColor.solidWhite,
-        elevation: 0,
-        title: const Text(
-          "Events",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: UIColor.typoBlack,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
-            child: SearchEventsWidget(),
-          ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: refreshEvents,
-              color: UIColor.primaryColor,
-              backgroundColor: Colors.white,
-              child: _buildEventContent(),
+    return GestureDetector(
+      onTap: () {
+        // Tutup keyboard
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          scrolledUnderElevation: 0,
+          centerTitle: true,
+          backgroundColor: UIColor.solidWhite,
+          elevation: 0,
+          actions: [
+            IconButton(
+              padding: const EdgeInsets.only(left: 20, right: 20),
+              icon: const Icon(Icons.favorite_outline_rounded,
+                  size: 28, color: UIColor.typoBlack),
+              onPressed: () {
+                // Navigasi ke halaman Favorite Events
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FavoriteEvents()));
+              },
+            ),
+          ],
+          title: const Text(
+            "Events",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: UIColor.typoBlack,
             ),
           ),
-        ],
+        ),
+        body: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+              child: SearchEventsWidget(),
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: refreshEvents,
+                color: UIColor.primaryColor,
+                backgroundColor: Colors.white,
+                child: _buildEventContent(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -402,10 +420,10 @@ class _HomeEventsState extends State<HomeEvents>
                   const SizedBox(height: 4),
                   _buildInfoRow(UIconsPro.regularRounded.ticket_alt,
                       '${event.quota} tiket'),
-                  // _buildInfoRow(
-                  //     UIconsPro.regularRounded.house_building, event.place),
                   _buildInfoRow(
-                      UIconsPro.regularRounded.marker, event.location),
+                      UIconsPro.regularRounded.house_building, event.place),
+                  // _buildInfoRow(
+                  //     UIconsPro.regularRounded.marker, event.location),
                   _buildInfoRow(UIconsPro.regularRounded.calendar,
                       formatDate(event.dateStart)),
                 ],

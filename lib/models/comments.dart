@@ -1,7 +1,4 @@
-// ignore_for_file: unused_field
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -101,7 +98,7 @@ class CommentService {
       }
       return [];
     } catch (e) {
-      print('Error fetching comments: $e');
+      debugPrint('Error fetching comments: $e');
       return [];
     }
   }
@@ -143,7 +140,7 @@ class CommentService {
       }
       return [];
     } catch (e) {
-      print('Error fetching replies: $e');
+      debugPrint('Error fetching replies: $e');
       return [];
     }
   }
@@ -184,7 +181,7 @@ class CommentService {
       }
       return null;
     } catch (e) {
-      print('Error creating comment: $e');
+      debugPrint('Error creating comment: $e');
       return null;
     }
   }
@@ -193,13 +190,13 @@ class CommentService {
 class CommentsSection extends StatefulWidget {
   final int eventId;
 
-  const CommentsSection({Key? key, required this.eventId}) : super(key: key);
+  const CommentsSection({super.key, required this.eventId});
 
   @override
-  _CommentsSectionState createState() => _CommentsSectionState();
+  CommentsSectionState createState() => CommentsSectionState();
 }
 
-class _CommentsSectionState extends State<CommentsSection> {
+class CommentsSectionState extends State<CommentsSection> {
   final CommentService _commentService = CommentService();
   final TextEditingController _commentController = TextEditingController();
   final AuthService _authService = AuthService();
@@ -209,10 +206,8 @@ class _CommentsSectionState extends State<CommentsSection> {
   bool _isReplying = false;
   CommentModel? _replyingToComment;
   User? _currentUser;
-  // Tambahkan map untuk melacak status expand/collapse replies
-  // Tambahkan di dalam _CommentsSectionState class
-  // int _totalCommentCount = 0;
   Map<int, bool> _expandedReplies = {};
+  FocusNode _commentFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -232,11 +227,6 @@ class _CommentsSectionState extends State<CommentsSection> {
     return total;
   }
 
-  // Method untuk menghitung total replies untuk sebuah komentar
-  int _countReplies(CommentModel comment) {
-    return comment.replies?.length ?? 0;
-  }
-
   Future<void> _fetchUserData() async {
     try {
       final userData = await _authService.getUserData();
@@ -245,7 +235,7 @@ class _CommentsSectionState extends State<CommentsSection> {
         _currentUser = userData;
       });
     } catch (e) {
-      print('Error fetching user data: $e');
+      debugPrint('Error fetching user data: $e');
     }
   }
 
@@ -258,8 +248,7 @@ class _CommentsSectionState extends State<CommentsSection> {
     final comments = await _commentService.getCommentsByEventId(widget.eventId);
 
     setState(() {
-      _comments = comments.reversed.toList();
-      // _totalCommentCount = _countTotalComments(_comments);
+      _comments = comments..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       _isLoading = false;
     });
   }
@@ -289,7 +278,7 @@ class _CommentsSectionState extends State<CommentsSection> {
 
   Widget _buildCommentInput() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       child: Row(
         children: [
           CircleAvatar(
@@ -323,7 +312,9 @@ class _CommentsSectionState extends State<CommentsSection> {
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
+              focusNode: _commentFocusNode,
               controller: _commentController,
+              textInputAction: TextInputAction.send, // Tambahkan ini
               decoration: InputDecoration(
                 hintText: _replyingToComment != null
                     ? 'Balas ${_replyingToComment!.username}...'
@@ -338,6 +329,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               ),
+              onSubmitted: (_) => _submitComment(), // Tambahkan ini
             ),
           ),
           IconButton(
@@ -353,7 +345,7 @@ class _CommentsSectionState extends State<CommentsSection> {
 
   Widget _buildCommentTile(CommentModel comment, {bool isReply = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -425,6 +417,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -479,7 +472,7 @@ class _CommentsSectionState extends State<CommentsSection> {
         // Tombol untuk menampilkan/menyembunyikan balasan
         if (comment.replies!.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(left: 50, top: 8),
+            padding: const EdgeInsets.only(left: 52, top: 2, bottom: 2),
             child: InkWell(
               onTap: () {
                 setState(() {
@@ -505,15 +498,27 @@ class _CommentsSectionState extends State<CommentsSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Comment Input
-        _buildCommentInput(),
+    return GestureDetector(
+      onTap: () {
+        // Ini akan menutup keyboard dan menghilangkan fokus
+        FocusScope.of(context).unfocus();
 
-        // Comments Section
-        _buildCommentsSection(),
-      ],
+        // Reset reply state jika diperlukan
+        setState(() {
+          _isReplying = false;
+          _replyingToComment = null;
+        });
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Comment Input
+          _buildCommentInput(),
+
+          // Comments Section
+          _buildCommentsSection(),
+        ],
+      ),
     );
   }
 
@@ -561,5 +566,12 @@ class _CommentsSectionState extends State<CommentsSection> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _commentFocusNode.dispose(); // dispose FocusNode
+    _commentController.dispose();
+    super.dispose();
   }
 }
