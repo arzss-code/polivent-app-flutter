@@ -102,9 +102,41 @@ class _HomeEventsState extends State<HomeEvents>
 
         if (jsonResponse is Map && jsonResponse.containsKey('data')) {
           final List<dynamic> eventsList = jsonResponse['data'] as List;
+          final now = DateTime.now();
+          final threeMonthsLater = now.add(Duration(days: 90));
+
           final List<Event> newEvents = eventsList
               .map((event) => Event.fromJson(event as Map<String, dynamic>))
-              .toList();
+              .toList()
+            ..sort((a, b) {
+              try {
+                DateTime dateA = DateTime.parse(a.dateStart);
+                DateTime dateB = DateTime.parse(b.dateStart);
+
+                // Definisikan kriteria upcoming
+                bool isUpcomingA =
+                    dateA.isAfter(now.subtract(Duration(hours: 1))) &&
+                        dateA.isBefore(threeMonthsLater);
+                bool isUpcomingB =
+                    dateB.isAfter(now.subtract(Duration(hours: 1))) &&
+                        dateB.isBefore(threeMonthsLater);
+
+                // Prioritaskan event upcoming
+                if (isUpcomingA && !isUpcomingB) return -1;
+                if (!isUpcomingA && isUpcomingB) return 1;
+
+                // Jika keduanya upcoming, urutkan dari yang terdekat
+                if (isUpcomingA && isUpcomingB) {
+                  return dateA.compareTo(dateB);
+                }
+
+                // Jika keduanya sudah lewat, urutkan dari yang paling baru
+                return dateB.compareTo(dateA);
+              } catch (e) {
+                print('Error sorting events: $e');
+                return 0;
+              }
+            });
 
           setState(() {
             events = newEvents;

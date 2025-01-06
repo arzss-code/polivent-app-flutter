@@ -84,8 +84,20 @@ class EventListWidgetState extends State<EventList> {
             jsonResponse is Map ? jsonResponse['data'] ?? [] : jsonResponse;
 
         setState(() {
+          // Map events dan urutkan berdasarkan date start
           _eventsMore =
-              eventsList.map((event) => Event.fromJson(event)).toList();
+              eventsList.map((event) => Event.fromJson(event)).toList()
+                ..sort((a, b) {
+                  try {
+                    DateTime dateA = DateTime.parse(a.dateStart);
+                    DateTime dateB = DateTime.parse(b.dateStart);
+                    return dateA.compareTo(dateB);
+                  } catch (e) {
+                    print('Error sorting events: $e');
+                    return 0;
+                  }
+                });
+
           _isLoading = false;
           _isFetching = false;
           _lastFetchTime = DateTime.now();
