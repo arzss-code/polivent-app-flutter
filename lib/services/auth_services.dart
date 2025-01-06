@@ -67,21 +67,25 @@ class AuthService {
         debugPrint('Response Data: ${e.response?.data}');
         debugPrint('Request Path: ${e.requestOptions.path}');
 
-        // Handle token expired with more robust logic
+        // Tangani kasus token expired
         if (e.response?.statusCode == 401) {
-          debugPrint('🔒 Token Expired Detected');
+          debugPrint('🔒 Token Expired or Invalid');
 
           try {
-            // Cek validitas token
-            final isTokenValid = await TokenService.checkTokenValidity();
+            // Coba refresh token
+            bool refreshResult = await _refreshTokenAndRetry(e);
 
-            if (!isTokenValid) {
-              debugPrint('🚨 Token Validation Failed');
-              // Optional: Tambahkan mekanisme refresh atau logout
+            if (refreshResult) {
+              // Jika refresh berhasil, ulangi request
+              return handler.resolve(await _retryRequest(e.requestOptions));
+            } else {
+              // Jika refresh gagal, logout
+              debugPrint('🚨 Token Refresh Failed');
               return handler.next(e);
             }
-          } catch (validationError) {
-            debugPrint('🚨 Token Validation Error: $validationError');
+          } catch (refreshError) {
+            debugPrint('🚨 Token Refresh Error: $refreshError');
+            return handler.next(e);
           }
         }
 
@@ -147,6 +151,47 @@ class AuthService {
     } catch (e) {
       debugPrint('🚨 Unexpected Login Error: $e');
       return false;
+    }
+  }
+
+  // Method untuk refresh token dan retry request
+  Future<bool> _refreshTokenAndRetry(DioException error) async {
+    try {
+      debugPrint('🔄 Attempting Token Refresh');
+
+      // Gunakan metode refresh token dari TokenService
+      bool refreshResult = await TokenService.refreshToken();
+
+      if (refreshResult) {
+        debugPrint('✅ Token Refresh Successful');
+        return true;
+      } else {
+        debugPrint('❌ Token Refresh Failed');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('🚨 Token Refresh Error: $e');
+      return false;
+    }
+  }
+
+  // Method untuk mengulang request dengan token baru
+  Future<Response> _retryRequest(RequestOptions requestOptions) async {
+    try {
+      debugPrint('🔁 Retrying Request');
+
+      // Ambil token baru
+      String? newToken = await TokenService.getAccessToken();
+
+      if (newToken != null) {
+        requestOptions.headers['Authorization'] = 'Bearer $newToken';
+      }
+
+      // Buat ulang request
+      return await _dio.fetch(requestOptions);
+    } catch (e) {
+      debugPrint('🚨 Request Retry Error: $e');
+      rethrow;
     }
   }
 

@@ -12,19 +12,20 @@ import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:polivent_app/screens/home/ticket/detail_ticket.dart';
 import 'package:polivent_app/screens/home/ticket/filter.dart';
 import 'package:polivent_app/services/auth_services.dart';
+import 'package:polivent_app/services/comment_services.dart';
 import 'package:polivent_app/services/data/registration_model.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 
-class EventHistoryPage extends StatefulWidget {
-  const EventHistoryPage({super.key});
+class HomeTicket extends StatefulWidget {
+  const HomeTicket({super.key});
 
   @override
-  _EventHistoryPageState createState() => _EventHistoryPageState();
+  _HomeTicketState createState() => _HomeTicketState();
 }
 
-class _EventHistoryPageState extends State<EventHistoryPage>
+class _HomeTicketState extends State<HomeTicket>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController _tabController;
   List<Registration> _upcomingEvents = [];

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class TokenService {
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
@@ -209,6 +210,61 @@ class TokenService {
     } catch (e) {
       debugPrint('🚨 Token decoding error: $e');
       return null;
+    }
+  }
+
+  static Future<bool> refreshToken() async {
+    try {
+      debugPrint('🔄 Attempting to refresh token');
+
+      // Ambil refresh token yang tersimpan
+      String? refreshToken = await getRefreshToken();
+
+      if (refreshToken == null) {
+        debugPrint('❌ No refresh token available');
+        return false;
+      }
+
+      // Lakukan request refresh token ke endpoint
+      final response = await http.post(
+        Uri.parse('$prodApiBaseUrl/refresh_token'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $refreshToken'
+        },
+      );
+
+      debugPrint('Refresh Token Response Status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        // Parse response body
+        final Map<String, dynamic> responseBody = json.decode(response.body);
+
+        // Ekstrak token baru dari struktur response yang diberikan
+        final String newAccessToken = responseBody['data']['token'];
+
+        // Validasi struktur token baru
+        if (!isValidTokenStructure(newAccessToken)) {
+          debugPrint('❌ Invalid new token structure');
+          return false;
+        }
+
+        // Simpan token baru - gunakan token awal sebagai refresh token
+        await saveTokens(
+            accessToken: newAccessToken,
+            refreshToken: refreshToken // Pertahankan refresh token awal
+            );
+
+        debugPrint('✅ Token refreshed successfully');
+        return true;
+      } else {
+        debugPrint(
+            '❌ Token refresh failed with status: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('🚨 Token refresh error: $e');
+      return false;
     }
   }
 

@@ -70,7 +70,7 @@ class EventListWidgetState extends State<EventList> {
 
       final response = await _dio.get(
         '$prodApiBaseUrl/available_events',
-        queryParameters: {'upcoming': true},
+        queryParameters: {'event_type': 'upcoming'},
         options: Options(
           validateStatus: (status) => status != null && status < 500,
         ),

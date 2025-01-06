@@ -94,13 +94,13 @@ class LoginScreenState extends State<LoginScreen>
     bool hasError = false;
     if (!_validateEmail(email)) {
       setState(() {
-        _emailError = 'Please enter a valid email address';
+        _emailError = 'Masukkan alamat email yang valid';
       });
       hasError = true;
     }
     if (!_validatePassword(password)) {
       setState(() {
-        _passwordError = 'Password must be at least 6 characters';
+        _passwordError = 'Kata sandi harus minimal 6 karakter';
       });
       hasError = true;
     }
@@ -181,13 +181,13 @@ class LoginScreenState extends State<LoginScreen>
         // Tangani login gagal
         if (mounted) {
           Navigator.of(context).pop();
-          _showError('Login failed. Please check your credentials.');
+          _showError('Login gagal. Silakan periksa kredensial Anda.');
         }
       }
     } catch (error) {
       if (mounted) {
         Navigator.of(context).pop();
-        _showError('Login failed. Please check your connection and try again.');
+        _showError('Login gagal. Silakan periksa koneksi dan coba lagi.');
       }
     }
   }

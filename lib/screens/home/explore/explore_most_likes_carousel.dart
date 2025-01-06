@@ -119,11 +119,11 @@ class CarouselEventsState extends State<CarouselSection> {
         _isFetching = false;
       });
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_error)),
-        );
-      }
+      // if (context.mounted) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text(_error)),
+      //   );
+      // }
     }
   }
 

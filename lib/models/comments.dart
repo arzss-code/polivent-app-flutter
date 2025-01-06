@@ -1,192 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:polivent_app/services/comment_services.dart';
+import 'package:polivent_app/services/data/comment_model.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:polivent_app/services/auth_services.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:polivent_app/config/app_config.dart';
-import 'package:polivent_app/services/token_service.dart';
 
-class CommentModel {
-  final int commentId;
-  final int userId;
-  final int eventId;
-  final String content;
-  final String username;
-  final String avatar;
-  final DateTime createdAt;
-  final int? commentParentId;
-  List<CommentModel>? replies;
-
-  CommentModel({
-    required this.commentId,
-    required this.userId,
-    required this.eventId,
-    required this.content,
-    required this.username,
-    required this.avatar,
-    required this.createdAt,
-    this.commentParentId,
-    this.replies,
-  });
-
-  factory CommentModel.fromJson(Map<String, dynamic> json) {
-    return CommentModel(
-      commentId: json['comment_id'] ?? 0,
-      userId: json['user_id'] ?? 0,
-      eventId: json['event_id'] ?? 0,
-      content: json['content'] ?? '',
-      username: json['username'] ?? '',
-      avatar: json['avatar'] ?? '',
-      createdAt:
-          DateTime.parse(json['created_at'] ?? DateTime.now().toString()),
-      commentParentId: json['comment_parent_id'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'comment_id': commentId,
-      'user_id': userId,
-      'event_id': eventId,
-      'content': content,
-      'username': username,
-      'avatar': avatar,
-      'created_at': createdAt.toIso8601String(),
-      'comment_parent_id': commentParentId,
-    };
-  }
-}
-
-class CommentService {
-  final AuthService _authService = AuthService();
-
-  // Modifikasi method getCommentsByEventId untuk lebih fleksibel
-  Future<List<CommentModel>> getCommentsByEventId(int eventId) async {
-    try {
-      final accessToken = await TokenService.getAccessToken();
-      final response = await http.get(
-        Uri.parse('$prodApiBaseUrl/comments?event_id=$eventId'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-
-        if (responseData['status'] == 'success') {
-          final List<dynamic> commentsData = responseData['data'];
-
-          List<CommentModel> comments = commentsData
-              .where((comment) => comment['comment_parent_id'] == null)
-              .map<CommentModel>((comment) {
-            final commentModel = CommentModel.fromJson(comment);
-            return commentModel;
-          }).toList();
-
-          // Untuk setiap komentar, dapatkan replies
-          for (var comment in comments) {
-            comment.replies = await getRepliesByCommentId(comment.commentId);
-          }
-
-          return comments;
-        }
-        return [];
-      }
-      return [];
-    } catch (e) {
-      debugPrint('Error fetching comments: $e');
-      return [];
-    }
-  }
-
-  // Modifikasi method untuk mendapatkan replies secara rekursif
-  Future<List<CommentModel>> getRepliesByCommentId(int commentId) async {
-    try {
-      final accessToken = await TokenService.getAccessToken();
-      final response = await http.get(
-        Uri.parse('$prodApiBaseUrl/comments?comment_parent_id=$commentId'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-
-        if (responseData['status'] == 'success') {
-          final List<dynamic> repliesData = responseData['data'];
-
-          // Buat list untuk menyimpan semua replies
-          List<CommentModel> replies = [];
-
-          // Konversi replies menjadi CommentModel
-          for (var replyData in repliesData) {
-            final reply = CommentModel.fromJson(replyData);
-
-            // Dapatkan sub-replies untuk setiap reply
-            reply.replies = await getRepliesByCommentId(reply.commentId);
-
-            replies.add(reply);
-          }
-
-          return replies;
-        }
-        return [];
-      }
-      return [];
-    } catch (e) {
-      debugPrint('Error fetching replies: $e');
-      return [];
-    }
-  }
-
-  Future<CommentModel?> createComment({
-    required int eventId,
-    required String content,
-    int? parentCommentId,
-  }) async {
-    try {
-      final userData = await _authService.getUserData();
-      final accessToken = await TokenService.getAccessToken();
-
-      if (userData == null || accessToken == null) {
-        return null;
-      }
-
-      final response = await http.post(
-        Uri.parse('$prodApiBaseUrl/comments'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'user_id': userData.userId,
-          'event_id': eventId,
-          'content': content,
-          'comment_parent_id': parentCommentId,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-
-        if (responseData['status'] == 'success') {
-          return CommentModel.fromJson(responseData['data']);
-        }
-      }
-      return null;
-    } catch (e) {
-      debugPrint('Error creating comment: $e');
-      return null;
-    }
-  }
-}
-
+// Widget untuk menampilkan dan mengelola bagian komentar pada event
 class CommentsSection extends StatefulWidget {
   final int eventId;
 
@@ -197,10 +17,12 @@ class CommentsSection extends StatefulWidget {
 }
 
 class CommentsSectionState extends State<CommentsSection> {
+  // Inisialisasi layanan dan kontroller
   final CommentService _commentService = CommentService();
   final TextEditingController _commentController = TextEditingController();
   final AuthService _authService = AuthService();
 
+  // Variabel untuk menyimpan state komentar dan interaksi
   List<CommentModel> _comments = [];
   bool _isLoading = true;
   bool _isReplying = false;
@@ -227,6 +49,7 @@ class CommentsSectionState extends State<CommentsSection> {
     return total;
   }
 
+  // Mengambil data pengguna saat ini
   Future<void> _fetchUserData() async {
     try {
       final userData = await _authService.getUserData();
@@ -239,7 +62,7 @@ class CommentsSectionState extends State<CommentsSection> {
     }
   }
 
-  // Perbarui method _fetchComments
+  // Mengambil komentar dari layanan berdasarkan ID event
   Future<void> _fetchComments() async {
     setState(() {
       _isLoading = true;
@@ -253,6 +76,7 @@ class CommentsSectionState extends State<CommentsSection> {
     });
   }
 
+  // Mengirim komentar baru atau balasan
   Future<void> _submitComment() async {
     if (_commentController.text.trim().isEmpty) return;
 
@@ -276,6 +100,7 @@ class CommentsSectionState extends State<CommentsSection> {
     }
   }
 
+  // Membangun input komentar dengan avatar pengguna
   Widget _buildCommentInput() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
@@ -292,7 +117,7 @@ class CommentsSectionState extends State<CommentsSection> {
                       height: 40,
                       fit: BoxFit.cover,
                       errorWidget: (context, url, error) {
-                        print('Image load error: $error');
+                        debugPrint('Image load error: $error');
                         return Image.asset(
                           "assets/images/default-avatar.jpg",
                           width: 40,
@@ -310,11 +135,12 @@ class CommentsSectionState extends State<CommentsSection> {
             ),
           ),
           const SizedBox(width: 8),
+          // TextField untuk menulis komentar
           Expanded(
             child: TextField(
               focusNode: _commentFocusNode,
               controller: _commentController,
-              textInputAction: TextInputAction.send, // Tambahkan ini
+              textInputAction: TextInputAction.send,
               decoration: InputDecoration(
                 hintText: _replyingToComment != null
                     ? 'Balas ${_replyingToComment!.username}...'
@@ -329,9 +155,10 @@ class CommentsSectionState extends State<CommentsSection> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               ),
-              onSubmitted: (_) => _submitComment(), // Tambahkan ini
+              onSubmitted: (_) => _submitComment(),
             ),
           ),
+          // Tombol kirim
           IconButton(
             iconSize: 35,
             icon: const Icon(Icons.send_rounded),
@@ -343,12 +170,14 @@ class CommentsSectionState extends State<CommentsSection> {
     );
   }
 
+  // Membangun tampilan tile komentar
   Widget _buildCommentTile(CommentModel comment, {bool isReply = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Avatar pengguna
           CircleAvatar(
             radius: isReply ? 17 : 20,
             backgroundColor: Colors.transparent,
@@ -377,6 +206,7 @@ class CommentsSectionState extends State<CommentsSection> {
             ),
           ),
           const SizedBox(width: 12),
+          // Konten komentar
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,6 +214,7 @@ class CommentsSectionState extends State<CommentsSection> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Nama pengguna
                     Text(
                       comment.username,
                       style: const TextStyle(
@@ -391,6 +222,7 @@ class CommentsSectionState extends State<CommentsSection> {
                         fontSize: 14,
                       ),
                     ),
+                    // Waktu komentar
                     Text(
                       timeago.format(comment.createdAt, locale: 'id'),
                       style: TextStyle(
@@ -401,8 +233,10 @@ class CommentsSectionState extends State<CommentsSection> {
                   ],
                 ),
                 const SizedBox(height: 4),
+                // Konten komentar
                 Text(comment.content),
                 const SizedBox(height: 8),
+                // Tombol untuk membalas komentar
                 Row(
                   children: [
                     InkWell(
@@ -431,6 +265,7 @@ class CommentsSectionState extends State<CommentsSection> {
     );
   }
 
+  // Membangun daftar balasan
   Widget _buildReplyList(List<CommentModel> replies) {
     // Jika tidak ada balasan, kembalikan widget kosong
     if (replies.isEmpty) return const SizedBox.shrink();
@@ -456,7 +291,7 @@ class CommentsSectionState extends State<CommentsSection> {
     );
   }
 
-  // Tambahkan method baru untuk menampilkan balasan dengan opsi hide/show
+  // Menampilkan balasan dengan opsi hide/show
   Widget _buildRepliesSection(CommentModel comment) {
     // Jika tidak ada balasan, kembalikan widget kosong
     if (comment.replies == null || comment.replies!.isEmpty) {
@@ -503,7 +338,7 @@ class CommentsSectionState extends State<CommentsSection> {
         // Ini akan menutup keyboard dan menghilangkan fokus
         FocusScope.of(context).unfocus();
 
-        // Reset reply state jika diperlukan
+        // Reset reply state
         setState(() {
           _isReplying = false;
           _replyingToComment = null;
@@ -558,7 +393,6 @@ class CommentsSectionState extends State<CommentsSection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildCommentTile(comment),
-                // _buildReplyList(comment.replies ?? []),
                 _buildRepliesSection(comment),
               ],
             );
@@ -569,8 +403,9 @@ class CommentsSectionState extends State<CommentsSection> {
   }
 
   @override
+  // Membersihkan sumber daya
   void dispose() {
-    _commentFocusNode.dispose(); // dispose FocusNode
+    _commentFocusNode.dispose();
     _commentController.dispose();
     super.dispose();
   }

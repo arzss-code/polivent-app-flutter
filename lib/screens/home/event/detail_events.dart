@@ -1236,10 +1236,10 @@ class _DetailEventsState extends State<DetailEvents>
             ),
           ),
           secondChild: Text(
-            event.description.length > 200
-                ? '${event.description.substring(0, 200)}...'
+            event.description.length > 350
+                ? '${event.description.substring(0, 350)}...'
                 : event
-                    .description, // Fallback to the full description if it's less than 200 characters
+                    .description, // Fallback to the full description if it's less than 350 characters
             style: const TextStyle(
               fontSize: 16,
               height: 1.5,
@@ -1251,7 +1251,7 @@ class _DetailEventsState extends State<DetailEvents>
               : CrossFadeState.showSecond,
           duration: const Duration(milliseconds: 300),
         ),
-        if (event.description.length > 200)
+        if (event.description.length > 350)
           TextButton(
             onPressed: () =>
                 setState(() => _showFullDescription = !_showFullDescription),
@@ -1259,7 +1259,9 @@ class _DetailEventsState extends State<DetailEvents>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _showFullDescription ? 'Show Less' : 'Read More',
+                  _showFullDescription
+                      ? 'Tampilkan Lebih Sedikit'
+                      : 'Baca Selengkapnya',
                   style: const TextStyle(color: UIColor.primaryColor),
                 ),
                 Icon(
