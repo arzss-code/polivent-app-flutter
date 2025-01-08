@@ -152,7 +152,7 @@ class NotificationService {
   }) async {
     await NotificationService.showGeneralNotification(
       title: 'Absensi Berhasil',
-      body: 'Anda telah berhasil absen pada event id $eventId',
+      body: 'Anda telah berhasil melakukan absensi pada $eventTitle',
       payload: {
         'event_id': eventId.toString(),
         'type': 'event_attendance',
@@ -265,7 +265,7 @@ class EventNotificationService {
       // Kirim notifikasi dengan detail event yang spesifik
       await NotificationService.showGeneralNotification(
         title: 'Absensi Berhasil, ${user.username}!',
-        body: 'Anda telah berhasil absen pada event "${event.title}"',
+        body: 'Anda telah berhasil melakukak absensi pada "${event.title}"',
         payload: {
           'event_id': event.eventId.toString(),
           'type': 'event_attendance',

@@ -52,7 +52,7 @@ class LoginScreenState extends State<LoginScreen>
       if (isValid) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const Home()),
+          MaterialPageRoute(builder: (context) => Home()),
         );
       }
     } catch (e) {
@@ -161,8 +161,7 @@ class LoginScreenState extends State<LoginScreen>
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const Home(),
+              pageBuilder: (context, animation, secondaryAnimation) => Home(),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0);

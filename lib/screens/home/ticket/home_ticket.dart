@@ -19,13 +19,15 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 
 class HomeTicket extends StatefulWidget {
-  const HomeTicket({super.key});
+  final bool isFromQRScan;
+
+  const HomeTicket({super.key, this.isFromQRScan = false});
 
   @override
-  _HomeTicketState createState() => _HomeTicketState();
+  HomeTicketState createState() => HomeTicketState();
 }
 
-class _HomeTicketState extends State<HomeTicket>
+class HomeTicketState extends State<HomeTicket>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController _tabController;
   List<Registration> _upcomingEvents = [];
@@ -45,28 +47,42 @@ class _HomeTicketState extends State<HomeTicket>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2, vsync: this,
+      initialIndex: widget.isFromQRScan ? 1 : 0, // Default ke tab "Telah Hadir"
+    );
     _tabController.addListener(_handleTabChange);
+    // Tambahkan listener untuk menangani perubahan tab
     _initializeEventHistory();
   }
 
   void _handleTabChange() {
+    debugPrint('Current Tab Index: ${_tabController.index}');
+
     if (!_tabController.indexIsChanging) {
       setState(() {
-        // Set filter based on active tab
         if (_tabController.index == 0) {
-          // Upcoming events tab
+          debugPrint('Switching to Akan Hadir tab');
           _showNotPresent = true;
           _showHasPresent = false;
         } else {
-          // Past events tab
+          debugPrint('Switching to Telah Hadir tab');
           _showNotPresent = false;
           _showHasPresent = true;
         }
       });
 
-      // Selalu fetch data saat tab berubah
       _checkConnectivityAndFetchEvents();
+    }
+  }
+
+  // Metode untuk mengubah tab secara programatis
+  void switchToAttendedTab() {
+    debugPrint('Attempting to switch to Telah Hadir tab');
+    if (_tabController != null) {
+      setState(() {
+        _tabController.index = 1; // Langsung set index
+      });
     }
   }
 

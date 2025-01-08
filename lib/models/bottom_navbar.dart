@@ -4,20 +4,29 @@ import 'package:flutter/material.dart';
 
 // Kelas StatefulWidget untuk bottom navbar kustom
 class BottomNavbar extends StatefulWidget {
-  // Callback untuk menangani pemilihan item navbar
   final ValueChanged<int> onItemSelected;
+  final int initialIndex; // Tambahkan parameter initialIndex
 
-  const BottomNavbar({super.key, required this.onItemSelected});
+  const BottomNavbar(
+      {super.key,
+      required this.onItemSelected,
+      this.initialIndex = 0 // Default ke 0
+      });
 
   @override
   BottomNavbarState createState() => BottomNavbarState();
 }
 
 class BottomNavbarState extends State<BottomNavbar> {
-  // Indeks item navbar yang sedang aktif
-  int _currentIndex = 0;
+  late int _currentIndex;
 
-  // Fungsi untuk menangani ketika item navbar ditekan
+  @override
+  void initState() {
+    super.initState();
+    // Gunakan initialIndex dari widget
+    _currentIndex = widget.initialIndex;
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _currentIndex = index; // Perbarui indeks item yang aktif

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:polivent_app/services/user_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:polivent_app/config/app_config.dart';
 import 'package:polivent_app/services/data/user_model.dart';
@@ -94,7 +96,6 @@ class AuthService {
     ));
   }
 
-  // Login dengan error handling komprehensif
   Future<bool> login(String email, String password) async {
     try {
       debugPrint('🔐 Login Attempt Started');
@@ -121,15 +122,32 @@ class AuthService {
 
       if (response.data['status'] == 'success') {
         final tokens = response.data['data'];
+        final accessToken = tokens['access_token'];
+
+        // Decode token untuk mendapatkan roles
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+        List<dynamic> userRoles = decodedToken['roles'] ?? [];
+
+        // Cek apakah 'Member' ada di dalam roles
+        if (!userRoles.contains('Member')) {
+          debugPrint('❌ Login Failed: Unauthorized roles');
+          throw DioException(
+            requestOptions: RequestOptions(),
+            response: response,
+            message: 'Hanya Member yang dapat login',
+          );
+        }
 
         // Logging token info (tanpa menampilkan token penuh)
         debugPrint('🔐 Tokens Received:');
-        debugPrint('Access Token ${tokens['access_token']}');
+        debugPrint('Access Token $accessToken');
         debugPrint('Refresh Token ${tokens['refresh_token']}');
 
         await TokenService.saveTokens(
-            accessToken: tokens['access_token'],
-            refreshToken: tokens['refresh_token']);
+            accessToken: accessToken, refreshToken: tokens['refresh_token']);
+
+        // Simpan roles pengguna
+        await UserPreferences.saveUserRoles(userRoles);
 
         debugPrint('✅ Login Successful');
         return true;
