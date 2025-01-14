@@ -103,6 +103,9 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
           final List<dynamic> eventsData = jsonResponse['data'];
 
           setState(() {
+            final now = DateTime.now();
+            final threeMonthsLater = now.add(Duration(days: 90));
+
             _events = eventsData
                 .map((event) => {
                       'event_id': event['event_id'] ?? '',
@@ -111,8 +114,39 @@ class _SearchEventsResultScreenState extends State<SearchEventsResultScreen> {
                       'place': event['place'] ?? 'Lokasi Tidak Tersedia',
                       'image': event['poster'] ?? '',
                       'category': event['category'] ?? 'Umum',
+                      'date_start':
+                          event['date_start'] ?? '', // date_start untuk sorting
                     })
-                .toList();
+                .toList()
+              ..sort((a, b) {
+                try {
+                  DateTime dateA = DateTime.parse(a['date_start']);
+                  DateTime dateB = DateTime.parse(b['date_start']);
+
+                  // Definisikan kriteria upcoming
+                  bool isUpcomingA =
+                      dateA.isAfter(now.subtract(Duration(hours: 1))) &&
+                          dateA.isBefore(threeMonthsLater);
+                  bool isUpcomingB =
+                      dateB.isAfter(now.subtract(Duration(hours: 1))) &&
+                          dateB.isBefore(threeMonthsLater);
+
+                  // Prioritaskan event upcoming
+                  if (isUpcomingA && !isUpcomingB) return -1;
+                  if (!isUpcomingA && isUpcomingB) return 1;
+
+                  // Jika keduanya upcoming, urutkan dari yang terdekat
+                  if (isUpcomingA && isUpcomingB) {
+                    return dateA.compareTo(dateB);
+                  }
+
+                  // Jika keduanya sudah lewat, urutkan dari yang paling baru
+                  return dateB.compareTo(dateA);
+                } catch (e) {
+                  print('Error sorting events: $e');
+                  return 0;
+                }
+              });
           });
         } else {
           throw Exception(jsonResponse['message'] ?? 'Pencarian gagal');

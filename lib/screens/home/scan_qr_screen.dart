@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:polivent_app/screens/home/home.dart';
+import 'package:polivent_app/screens/home/ticket/home_ticket.dart';
+import 'package:polivent_app/services/data/registration_model.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:http/http.dart' as http;
@@ -15,8 +17,14 @@ import 'package:polivent_app/services/token_service.dart';
 class QRScanScreen extends StatefulWidget {
   final String? eventId;
   final bool isStrictMode;
+  final int initialIndex;
 
-  const QRScanScreen({super.key, this.eventId, this.isStrictMode = false});
+  const QRScanScreen({
+    super.key,
+    this.eventId,
+    this.isStrictMode = false,
+    this.initialIndex = 0,
+  });
 
   @override
   _QRScanScreenState createState() => _QRScanScreenState();
@@ -28,6 +36,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
   bool isFlashOn = false;
   bool isScanEnabled = false;
   String? scannedEventId;
+  final GlobalKey<HomeTicketState> homeTicketKey = GlobalKey();
 
   // Kontroller untuk mobile scanner
   final MobileScannerController cameraController = MobileScannerController();
@@ -272,86 +281,133 @@ class _QRScanScreenState extends State<QRScanScreen> {
     }
   }
 
-  void _showConfirmationDialog(String eventId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
+  void _showConfirmationDialog(String eventId) async {
+    try {
+      // Debug print input eventId
+      debugPrint('Input Event ID: $eventId');
+
+      // Fetch semua registrasi pengguna
+      final registrations = await _fetchUserRegistrations();
+
+      // Debug print semua registrasi
+      debugPrint('Total Registrations: ${registrations.length}');
+      registrations.forEach((reg) {
+        debugPrint('Registered Event: ${reg.eventId}, Title: ${reg.title}');
+      });
+
+      // Cari registrasi yang sesuai dengan event ID
+      Registration? matchingRegistration;
+      try {
+        matchingRegistration = registrations.firstWhere(
+          (reg) {
+            // Debug print detailed comparison
+            debugPrint(
+                'Comparing: reg.eventId (${reg.eventId}) == eventId ($eventId)');
+            debugPrint('reg.eventId type: ${reg.eventId.runtimeType}');
+            debugPrint('eventId type: ${eventId.runtimeType}');
+            return reg.eventId.toString() == eventId;
+          },
+        );
+      } catch (e) {
+        debugPrint('Tidak menemukan registrasi untuk event ID: $eventId');
+        debugPrint('Error details: $e');
+      }
+
+      // Gunakan judul event dari registrasi yang cocok atau fallback
+      final eventTitle = matchingRegistration?.title ?? 'Event';
+
+      // Debug print hasil akhir
+      debugPrint('Matching Registration: $matchingRegistration');
+      debugPrint('Event Title: $eventTitle');
+
+      // Tampilkan dialog konfirmasi dengan judul event
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.qr_code_scanner,
-                  size: 80,
-                  color: UIColor.primaryColor,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Konfirmasi Absensi',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.qr_code_scanner,
+                    size: 80,
                     color: UIColor.primaryColor,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Anda akan melakukan absensi untuk Event ID: $eventId',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _resetScan();
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: UIColor.primaryColor,
-                      ),
-                      child: const Text('Batal'),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Konfirmasi Absensi',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: UIColor.primaryColor,
                     ),
-                    const SizedBox(width: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _markAttendance(eventId);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: UIColor.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Anda akan melakukan absensi pada\n$eventTitle',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          _resetScan();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: UIColor.primaryColor,
+                        ),
+                        child: const Text('Batal'),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          _markAttendance(eventId);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: UIColor.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Konfirmasi',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: const Text(
-                        'Konfirmasi',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('Kesalahan total: $e');
+      _showScanResult(
+        isSuccess: false,
+        message: 'Kesalahan: ${e.toString()}',
+      );
+      _resetScan();
+    }
   }
 
   void _showScanResult({
@@ -415,6 +471,20 @@ class _QRScanScreenState extends State<QRScanScreen> {
                   onPressed: () {
                     Navigator.of(context).pop();
                     _resetScan();
+
+                    if (isSuccess) {
+                      // Navigasi ke Home dan set isFromQRScan ke true
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const Home(
+                            initialIndex: 3, // Index untuk HomeTicket
+                            debugInfo: 'Dari QR Scan',
+                            isFromQRScan: true, // Set ke true
+                          ),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: UIColor.primaryColor,
@@ -456,52 +526,129 @@ class _QRScanScreenState extends State<QRScanScreen> {
     }
   }
 
-  Future<void> _markAttendance(String eventId) async {
+  Future<List<Registration>> _fetchUserRegistrations() async {
     try {
-      final accessToken = TokenService.getAccessTokenFromSharedPrefs();
-
-      if (accessToken == null) {
-        _showScanResult(
-            isSuccess: false, message: 'Token akses tidak ditemukan');
-        return;
-      }
-
       final userData = await AuthService().getUserData();
       if (userData == null) {
+        debugPrint('Gagal mendapatkan data pengguna');
+        return [];
+      }
+
+      final accessToken = TokenService.getAccessTokenFromSharedPrefs();
+      if (accessToken == null) {
+        debugPrint('Token akses tidak ditemukan');
+        return [];
+      }
+
+      final headers = {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      };
+
+      final response = await http.get(
+        Uri.parse('$prodApiBaseUrl/registration?user_id=${userData.userId}'),
+        headers: headers,
+      );
+
+      debugPrint('Fetch Registrations Response Code: ${response.statusCode}');
+      debugPrint('Fetch Registrations Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        // Debug print raw data
+        debugPrint('Raw Registration Data: $responseData');
+
+        // Ekstrak list data dari response
+        final List<dynamic> registrationList = responseData['data'] ?? [];
+
+        // Konversi data ke list Registration
+        final registrations = registrationList
+            .map((json) => Registration.fromJson(json))
+            .toList();
+
+        // Debug print converted registrations
+        debugPrint('Converted Registrations Count: ${registrations.length}');
+        registrations.forEach((reg) {
+          debugPrint(
+              'Converted Registration: EventID: ${reg.eventId}, Title: ${reg.title}');
+        });
+
+        return registrations;
+      } else {
+        debugPrint('Gagal mengambil registrasi: ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      debugPrint('Kesalahan saat fetch registrasi: $e');
+      return [];
+    }
+  }
+
+  Future<void> _markAttendance(String eventId) async {
+    try {
+      // Fetch semua registrasi pengguna
+      final registrations = await _fetchUserRegistrations();
+
+      // Cari registrasi yang sesuai dengan event ID
+      Registration? matchingRegistration;
+      for (var reg in registrations) {
+        if (reg.eventId.toString() == eventId) {
+          matchingRegistration = reg;
+          break;
+        }
+      }
+
+      // Kirim request absensi
+      final accessToken = TokenService.getAccessTokenFromSharedPrefs();
+      final userData = await AuthService().getUserData();
+
+      if (accessToken == null || userData == null) {
         _showScanResult(
-            isSuccess: false, message: 'Gagal mendapatkan data pengguna');
+            isSuccess: false,
+            message: 'Token akses atau data pengguna tidak ditemukan');
         return;
       }
 
       final headers = {
-        'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
-      };
-
-      final body = {
-        'event_id': eventId.toString(),
-        'user_id': userData.userId.toString(),
+        'Content-Type': 'application/json',
       };
 
       final response = await http.post(
         Uri.parse('$prodApiBaseUrl/registration?event_id=$eventId'),
         headers: headers,
-        body: jsonEncode(body),
+        body: jsonEncode({
+          'event_id': eventId.toString(),
+          'user_id': userData.userId.toString(),
+        }),
       );
 
       if (response.statusCode == 200) {
-        // Parse response untuk mendapatkan detail event
-        final responseBody = json.decode(response.body);
-        // Ambil detail event dari endpoint lain jika tidak ada di response
-        final eventTitle =
-            responseBody['title'] ?? await _fetchEventTitle(int.parse(eventId));
+        // Fetch ulang registrasi untuk memastikan data terbaru
+        final updatedRegistrations = await _fetchUserRegistrations();
+
+        // Cari ulang registrasi yang cocok
+        Registration? updatedMatchingRegistration;
+        for (var reg in updatedRegistrations) {
+          if (reg.eventId.toString() == eventId) {
+            updatedMatchingRegistration = reg;
+            break;
+          }
+        }
+
+        // Gunakan judul event dari registrasi yang cocok atau fallback
+        final eventTitle = updatedMatchingRegistration?.title ??
+            matchingRegistration?.title ??
+            'Event';
 
         // Tampilkan hasil scan berhasil
         _showScanResult(
-            isSuccess: true,
-            message: 'Absensi Berhasil',
-            additionalInfo:
-                'Anda telah berhasil melakukan absensi pada $eventTitle');
+          isSuccess: true,
+          message: 'Absensi Berhasil',
+          additionalInfo:
+              'Anda telah berhasil melakukan absensi pada Event $eventTitle',
+        );
 
         // Kirim notifikasi berhasil absen
         await _sendAttendanceNotification(eventId, eventTitle);
@@ -511,20 +658,24 @@ class _QRScanScreenState extends State<QRScanScreen> {
       } else {
         final responseBody = json.decode(response.body);
         // Mapping pesan error yang lebih informatif
-        String errorMessage =
-            _getIndonesianErrorMessage(responseBody['message'] ?? '');
+        String errorMessage = _getIndonesianErrorMessage(
+          responseBody['message'] ?? '',
+        );
+
         _showScanResult(
           isSuccess: false,
           message: 'Absensi Gagal',
           additionalInfo: errorMessage,
         );
+
         debugPrint('Gagal mencatat absensi: ${response.body}');
       }
     } catch (e) {
       _showScanResult(
-          isSuccess: false,
-          message: 'Kesalahan: ${e.toString()}',
-          additionalInfo: 'Pastikan koneksi internet stabil');
+        isSuccess: false,
+        message: 'Kesalahan: ${e.toString()}',
+        additionalInfo: 'Pastikan koneksi internet stabil',
+      );
       debugPrint('Kesalahan: $e');
     }
   }
@@ -560,7 +711,7 @@ class _QRScanScreenState extends State<QRScanScreen> {
       // Simpan notifikasi ke lokal untuk ditampilkan di menu notifikasi
       await NotificationService.saveNotificationToLocal(
         title: 'Absensi Berhasil',
-        body: 'Anda telah berhasil absen pada $eventTitle',
+        body: 'Anda telah berhasil melakukan absensi pada Event $eventTitle',
         payload: {
           'event_id': eventId,
           'type': 'attendance_success',

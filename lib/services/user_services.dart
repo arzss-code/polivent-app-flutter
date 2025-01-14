@@ -263,3 +263,30 @@ class UserService {
     throw Exception(errorMessage);
   }
 }
+
+// Utility class untuk menyimpan preferensi pengguna
+class UserPreferences {
+  static Future<void> saveUserRoles(List<dynamic> roles) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+        'user_roles', roles.map((role) => role.toString()).toList());
+  }
+
+  static Future<List<String>> getUserRoles() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('user_roles') ?? [];
+  }
+
+  // Method untuk mengecek apakah user adalah Member
+  static Future<bool> isMember() async {
+    final roles = await getUserRoles();
+    return roles.contains('Member');
+  }
+
+  // Method untuk logout
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_roles');
+    await TokenService.logout();
+  }
+}

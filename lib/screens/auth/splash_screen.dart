@@ -104,7 +104,7 @@ class SplashScreenState extends State<SplashScreen>
         debugPrint('Token valid, navigating to Home');
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const Home()),
+          MaterialPageRoute(builder: (context) => Home()),
         );
       } else {
         // Navigasi ke Login

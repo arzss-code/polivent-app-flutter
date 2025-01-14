@@ -5,7 +5,7 @@ import 'package:polivent_app/screens/home/explore/explore_quick_category_section
 import 'package:polivent_app/screens/home/explore/explore_most_likes_carousel.dart';
 import 'package:polivent_app/models/search_events.dart';
 import 'package:polivent_app/config/ui_colors.dart';
-import 'package:polivent_app/screens/home/explore/notification.dart';
+import 'package:polivent_app/screens/home/explore/notification_screen.dart';
 import 'package:polivent_app/services/auth_services.dart';
 import 'package:polivent_app/services/data/user_model.dart';
 

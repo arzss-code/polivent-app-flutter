@@ -12,19 +12,22 @@ import 'package:polivent_app/screens/auth/login_screen.dart';
 import 'package:polivent_app/screens/home/ticket/detail_ticket.dart';
 import 'package:polivent_app/screens/home/ticket/filter.dart';
 import 'package:polivent_app/services/auth_services.dart';
+import 'package:polivent_app/services/comment_services.dart';
 import 'package:polivent_app/services/data/registration_model.dart';
 import 'package:polivent_app/services/token_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uicons_pro/uicons_pro.dart';
 
-class EventHistoryPage extends StatefulWidget {
-  const EventHistoryPage({super.key});
+class HomeTicket extends StatefulWidget {
+  final bool isFromQRScan;
+
+  const HomeTicket({super.key, this.isFromQRScan = false});
 
   @override
-  _EventHistoryPageState createState() => _EventHistoryPageState();
+  HomeTicketState createState() => HomeTicketState();
 }
 
-class _EventHistoryPageState extends State<EventHistoryPage>
+class HomeTicketState extends State<HomeTicket>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController _tabController;
   List<Registration> _upcomingEvents = [];
@@ -44,28 +47,42 @@ class _EventHistoryPageState extends State<EventHistoryPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2, vsync: this,
+      initialIndex: widget.isFromQRScan ? 1 : 0, // Default ke tab "Telah Hadir"
+    );
     _tabController.addListener(_handleTabChange);
+    // Tambahkan listener untuk menangani perubahan tab
     _initializeEventHistory();
   }
 
   void _handleTabChange() {
+    debugPrint('Current Tab Index: ${_tabController.index}');
+
     if (!_tabController.indexIsChanging) {
       setState(() {
-        // Set filter based on active tab
         if (_tabController.index == 0) {
-          // Upcoming events tab
+          debugPrint('Switching to Akan Hadir tab');
           _showNotPresent = true;
           _showHasPresent = false;
         } else {
-          // Past events tab
+          debugPrint('Switching to Telah Hadir tab');
           _showNotPresent = false;
           _showHasPresent = true;
         }
       });
 
-      // Selalu fetch data saat tab berubah
       _checkConnectivityAndFetchEvents();
+    }
+  }
+
+  // Metode untuk mengubah tab secara programatis
+  void switchToAttendedTab() {
+    debugPrint('Attempting to switch to Telah Hadir tab');
+    if (_tabController != null) {
+      setState(() {
+        _tabController.index = 1; // Langsung set index
+      });
     }
   }
 

@@ -27,7 +27,7 @@ class _HomeEventsState extends State<HomeEvents>
   List<Event> events = [];
   bool _isLoading = true;
   bool _hasMore = true;
-  int _limit = 8;
+  int _limit = 6;
   String _error = '';
 
   @override
@@ -45,7 +45,7 @@ class _HomeEventsState extends State<HomeEvents>
         _scrollController.position.maxScrollExtent) {
       if (_hasMore && !_isLoading) {
         setState(() {
-          _limit += 8; // Tambah 8 data lagi
+          _limit += 6; // Tambah 5 data lagi
         });
         fetchEvents(loadMore: true);
       }
@@ -59,7 +59,7 @@ class _HomeEventsState extends State<HomeEvents>
       setState(() {
         // _isLoading = true;
         // _error = '';
-        _limit = 8;
+        _limit = 6;
         _hasMore = true;
         events.clear();
       });
@@ -102,12 +102,54 @@ class _HomeEventsState extends State<HomeEvents>
 
         if (jsonResponse is Map && jsonResponse.containsKey('data')) {
           final List<dynamic> eventsList = jsonResponse['data'] as List;
+          final now = DateTime.now();
+          final threeMonthsLater = now.add(Duration(days: 90));
+
+          // Mengonversi data menjadi list Event
           final List<Event> newEvents = eventsList
               .map((event) => Event.fromJson(event as Map<String, dynamic>))
-              .toList();
+              .toList()
+            ..sort((a, b) {
+              try {
+                DateTime dateA = DateTime.parse(a.dateStart);
+                DateTime dateB = DateTime.parse(b.dateStart);
+
+                // Definisikan kriteria upcoming
+                bool isUpcomingA =
+                    dateA.isAfter(now.subtract(Duration(hours: 1))) &&
+                        dateA.isBefore(threeMonthsLater);
+                bool isUpcomingB =
+                    dateB.isAfter(now.subtract(Duration(hours: 1))) &&
+                        dateB.isBefore(threeMonthsLater);
+
+                // Prioritaskan event upcoming
+                if (isUpcomingA && !isUpcomingB) return -1;
+                if (!isUpcomingA && isUpcomingB) return 1;
+
+                // Jika keduanya upcoming, urutkan dari yang terdekat
+                if (isUpcomingA && isUpcomingB) {
+                  return dateA.compareTo(dateB);
+                }
+
+                // Jika keduanya sudah lewat, urutkan dari yang paling baru
+                return dateB.compareTo(dateA);
+              } catch (e) {
+                print('Error sorting events: $e');
+                return 0;
+              }
+            });
 
           setState(() {
-            events = newEvents;
+            if (loadMore) {
+              // Tambahkan data baru ke list tanpa duplikasi
+              for (var newEvent in newEvents) {
+                if (!events.any((event) => event.eventId == newEvent.eventId)) {
+                  events.add(newEvent);
+                }
+              }
+            } else {
+              events = newEvents; // Reset list dengan data baru
+            }
             _isLoading = false;
 
             // Cek apakah masih ada data lebih lanjut
